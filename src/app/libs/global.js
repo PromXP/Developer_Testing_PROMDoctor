@@ -1,2 +1,2 @@
 // lib/globals.js
-export const API_URL = 'https://promapilower.onrender.com/';
+export const API_URL = 'https://developer-testing-promapi.onrender.com/';
