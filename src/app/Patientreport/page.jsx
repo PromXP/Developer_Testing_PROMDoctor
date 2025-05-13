@@ -42,8 +42,10 @@ import {
   CalendarIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  PencilSquareIcon,
+  PencilIcon,
   CheckCircleIcon,
+  PencilSquareIcon,
+  ClipboardDocumentCheckIcon,
 } from "@heroicons/react/16/solid";
 import Patientimg from "@/app/assets/patimg.png";
 import Closeicon from "@/app/assets/closeicon.png";
@@ -175,10 +177,11 @@ const page = ({ patient, scoreGroups, userData }) => {
   };
   const [surgeryPatient, setsurgeryPatient] = useState({});
 
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  });
+  const [selectedLeg, setSelectedLeg] = useState("left");
+
+  const [selectedDate, setSelectedDate] = useState(
+    formatISOToDisplay(patient?.post_surgery_details?.date_of_surgery) || ""
+  );
   const [selectedTime, setSelectedTime] = useState("");
   const [isDateTimeEdited, setIsDateTimeEdited] = useState(false);
 
@@ -277,7 +280,10 @@ const page = ({ patient, scoreGroups, userData }) => {
   };
 
   const generateChartData = (patient) => {
-    const scores = patient?.questionnaire_scores || [];
+    const scores =
+      selectedLeg === "left"
+        ? patient?.questionnaire_scores_left || []
+        : patient?.questionnaire_scores_right || [];
 
     const periodMap = {
       "-3": "PRE OP",
@@ -350,7 +356,10 @@ const page = ({ patient, scoreGroups, userData }) => {
 
   const data = patient ? generateChartData(patient) : [];
 
-  const rawScores = patient?.questionnaire_scores ?? [];
+  const rawScores =
+    selectedLeg === "left"
+      ? patient?.questionnaire_scores_left ?? []
+      : patient?.questionnaire_scores_right ?? [];
 
   // Define the custom order for the periods
   const periodOrder = ["PRE OP", "SURGERY", "6W", "3M", "6M", "1Y", "2Y"];
@@ -418,6 +427,59 @@ const page = ({ patient, scoreGroups, userData }) => {
     return map[normalizedLabel] || normalizedLabel;
   };
 
+  const [leftcurrentstatus, setLeftCurrentStatus] = useState("");
+  const [rightcurrentstatus, setRightCurrentStatus] = useState("");
+
+  const questionnaire_assigned_left =
+    patient?.questionnaire_assigned_left || [];
+  const questionnaire_assigned_right =
+    patient?.questionnaire_assigned_right || [];
+
+  const getCurrentPeriod = (side) => {
+    const optionsdrop = ["Pre Op", "6W", "3M", "6M", "1Y", "2Y"];
+
+    const allItems = [
+      "Oxford Knee Score (OKS)",
+      "Short Form - 12 (SF-12)",
+      "Knee Society Score (KSS)",
+      "Knee Injury and Ostheoarthritis Outcome Score, Joint Replacement (KOOS, JR)",
+      "Forgotten Joint Score (FJS)",
+    ];
+
+    const assignedQuestionnaires =
+      side === "left"
+        ? questionnaire_assigned_left
+        : questionnaire_assigned_right;
+
+    const groupedByPeriod = optionsdrop.reduce((acc, period) => {
+      const assigned = assignedQuestionnaires
+        .filter((q) => q.period === period)
+        .map((q) => q.name);
+      acc[period] = assigned;
+      return acc;
+    }, {});
+
+    // console.log("status", groupedByPeriod);
+
+    const currentPeriod = optionsdrop.find((period, index) => {
+      const assigned = groupedByPeriod[period] || [];
+      const anyAssigned = assigned.length > 0; // ⭐ Check if at least 1 is assigned
+
+      const nextPeriod = optionsdrop[index + 1];
+      const nextAssigned = groupedByPeriod[nextPeriod] || [];
+      const nextAnyAssigned = nextAssigned.length > 0;
+
+      return anyAssigned && !nextAnyAssigned;
+    });
+
+    return currentPeriod;
+  };
+
+  useEffect(() => {
+    setLeftCurrentStatus(getCurrentPeriod("left"));
+    setRightCurrentStatus(getCurrentPeriod("right"));
+  }, [questionnaire_assigned_left, questionnaire_assigned_right]);
+
   const parseValues = (arr) => {
     if (!arr || arr.length === 0) return null;
     return arr
@@ -437,7 +499,11 @@ const page = ({ patient, scoreGroups, userData }) => {
         const name = normalizeLabel(label);
         const boxData = parseValues(values);
 
-        const patientValue = patient?.questionnaire_scores?.find(
+        const patientValue = (
+          selectedLeg === "left"
+            ? patient?.questionnaire_scores_left
+            : patient?.questionnaire_scores_right
+        )?.find(
           (s) =>
             s.name === "Oxford Knee Score (OKS)" &&
             normalizeLabel(s.period) === name
@@ -504,7 +570,11 @@ const page = ({ patient, scoreGroups, userData }) => {
         const name = normalizeLabel(label);
         const boxData = parseValues(values);
 
-        const patientValue = patient?.questionnaire_scores?.find(
+        const patientValue = (
+          selectedLeg === "left"
+            ? patient?.questionnaire_scores_left
+            : patient?.questionnaire_scores_right
+        )?.find(
           (s) =>
             s.name === "Short Form - 12 (SF-12)" &&
             normalizeLabel(s.period) === name
@@ -643,7 +713,11 @@ const page = ({ patient, scoreGroups, userData }) => {
         const name = normalizeLabel(label);
         const boxData = parseValues(values);
 
-        const patientValue = patient?.questionnaire_scores?.find(
+        const patientValue = (
+          selectedLeg === "left"
+            ? patient?.questionnaire_scores_left
+            : patient?.questionnaire_scores_right
+        )?.find(
           (s) =>
             s.name === "Knee Society Score (KSS)" &&
             normalizeLabel(s.period) === name
@@ -710,7 +784,11 @@ const page = ({ patient, scoreGroups, userData }) => {
         const name = normalizeLabel(label);
         const boxData = parseValues(values);
 
-        const patientValue = patient?.questionnaire_scores?.find(
+        const patientValue = (
+          selectedLeg === "left"
+            ? patient?.questionnaire_scores_left
+            : patient?.questionnaire_scores_right
+        )?.find(
           (s) =>
             s.name === "Forgotten Joint Score (FJS)" &&
             normalizeLabel(s.period) === name
@@ -781,21 +859,347 @@ const page = ({ patient, scoreGroups, userData }) => {
     })
   );
 
+  const handleManualDateChange = (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove all non-digits
+
+    if (value.length >= 3 && value.length <= 4) {
+      value = value.slice(0, 2) + "-" + value.slice(2);
+    } else if (value.length > 4 && value.length <= 8) {
+      value =
+        value.slice(0, 2) + "-" + value.slice(2, 4) + "-" + value.slice(4);
+    } else if (value.length > 8) {
+      value = value.slice(0, 8);
+      value =
+        value.slice(0, 2) + "-" + value.slice(2, 4) + "-" + value.slice(4);
+    }
+
+    // Until full date entered, show raw value
+    setSelectedDate(value);
+
+    if (value.length === 10) {
+      const [dayStr, monthStr, yearStr] = value.split("-");
+      const day = parseInt(dayStr, 10);
+      const month = parseInt(monthStr, 10);
+      const year = parseInt(yearStr, 10);
+
+      const today = new Date();
+      const currentYear = today.getFullYear();
+
+      if (
+        day < 1 ||
+        day > 31 ||
+        month < 1 ||
+        month > 12 ||
+        year > currentYear
+      ) {
+        alert("Surgery Date should not be a future date");
+        setSelectedDate("");
+        return;
+      }
+
+      const manualDate = new Date(`${year}-${month}-${day}`);
+      if (
+        manualDate.getDate() !== day ||
+        manualDate.getMonth() + 1 !== month ||
+        manualDate.getFullYear() !== year
+      ) {
+        alert("Invalid date combination. Please enter a correct date.");
+        setSelectedDate("");
+        return;
+      }
+
+      today.setHours(0, 0, 0, 0);
+      manualDate.setHours(0, 0, 0, 0);
+
+      if (manualDate > today) {
+        alert("Surgery date cannot be a future date.");
+        setSelectedDate("");
+        return;
+      }
+
+      // ✅ Just store plain dd-mm-yyyy
+      const formattedDate = `${dayStr}-${monthStr}-${yearStr}`;
+      setSelectedDate(formattedDate);
+    }
+  };
+
+  const [warning, setWarning] = useState("");
+
+  function formatForStorage(dateString) {
+    const [day, month, year] = dateString.split("-");
+    const date = new Date(`${year}-${month}-${day}`);
+    return date.toISOString().replace("Z", "+00:00");
+  }
+
+  function formatISOToDisplay(dateString) {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Month is 0-indexed
+    const year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
+  }
+
+  const fieldRefs = useRef({});
+
+  const [editMode, setEditMode] = useState({});
+  const [editValues, setEditValues] = useState({
+    uhid: patient?.uhid || "",
+    surgeon: patient?.post_surgery_details?.surgeon || "",
+    surgery_name: patient?.post_surgery_details?.surgery_name || "",
+    sub_doctor_name: patient?.post_surgery_details?.sub_doctor || "",
+    procedure: patient?.post_surgery_details?.procedure || "",
+    implant: patient?.post_surgery_details?.implant || "",
+    technology: patient?.post_surgery_details?.technology || "",
+    surgery_date:
+      formatISOToDisplay(patient?.post_surgery_details?.date_of_surgery) || "", // <-- Added this line
+  });
+
+  //   const [selectedLeg, setSelectedLeg] = useState("left");
+  // const [editMode, setEditMode] = useState({});
+  // const [editValues, setEditValues] = useState(() => {
+  //   const surgeryDetails =
+  //     selectedLeg === "left"
+  //       ? patient?.post_surgery_details_left
+  //       : patient?.post_surgery_details_right;
+
+  //   return {
+  //     uhid: patient?.uhid || "",
+  //     surgeon: surgeryDetails?.surgeon || "",
+  //     surgery_name: surgeryDetails?.surgery_name || "",
+  //     sub_doctor_name: surgeryDetails?.sub_doctor || "",
+  //     procedure: surgeryDetails?.procedure || "",
+  //     implant: surgeryDetails?.implant || "",
+  //     technology: surgeryDetails?.technology || "",
+  //     surgery_date: surgeryDetails?.date_of_surgery
+  //       ? formatISOToDisplay(surgeryDetails.date_of_surgery)
+  //       : "",
+  //   };
+  // });
+
+  const [previousValues, setPreviousValues] = useState({});
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      Object.keys(fieldRefs.current).forEach((field) => {
+        if (
+          editMode[field] &&
+          fieldRefs.current[field] &&
+          !fieldRefs.current[field].contains(event.target)
+        ) {
+          // Restore old value from previousValues
+          setEditValues((prev) => ({
+            ...prev,
+            [field]: previousValues[field] ?? prev[field], // restore backup if exists
+          }));
+
+          // Close edit mode
+          setEditMode((prev) => ({
+            ...prev,
+            [field]: false,
+          }));
+
+          // Clear backup
+          setPreviousValues((prev) => {
+            const updated = { ...prev };
+            delete updated[field];
+            return updated;
+          });
+        }
+      });
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [editMode, previousValues]);
+
+  const handleEditClick = (field) => {
+    setPreviousValues((prev) => ({
+      ...prev,
+      [field]: editValues[field], // Store current value before editing
+    }));
+
+    setEditMode((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const handleSaveClick = async (field) => {
+    if (field === "surgery_date" && selectedDate) {
+      const isoDate = formatForStorage(selectedDate);
+
+      setEditValues((prev) => ({
+        ...prev,
+        [field]: isoDate,
+      }));
+    }
+
+    // After save, no need for backup anymore
+    setPreviousValues((prev) => {
+      const updated = { ...prev };
+      delete updated[field];
+      return updated;
+    });
+
+    setEditMode((prev) => ({ ...prev, [field]: false }));
+    console.log("Edited Values", editValues);
+
+    if (editValues.uhid === "") return setWarning("UHID not found");
+
+    // if (selectedLeg === "left") {
+    //   try {
+    //     const response = await fetch(
+    //       API_URL + "update-post-surgery-details-left",
+    //       {
+    //         method: "PUT",
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(editValues),
+    //       }
+    //     );
+
+    //     const result = await response.json();
+
+    //     if (!response.ok) {
+    //       setWarning(
+    //         result.detail || "Failed to update surgery details for left leg"
+    //       );
+    //       return;
+    //     }
+    //     console.log("Successfully updated left leg");
+    //     setWarning("Left leg Surgery details updated successfully!");
+    //     if (onSurgeryUpdate) {
+    //       onSurgeryUpdate(payload.post_surgery_details);
+    //     }
+    //     setTimeout(() => {
+    //       setWarning("");
+    //       onClose(); // close the modal
+    //     }, 2000);
+    //   } catch (error) {
+    //     console.error("Error left leg:", error);
+    //     setWarning("Something went wrong while updating left leg.");
+    //   }
+    // }
+
+    // if (selectedLeg === "right") {
+    //   try {
+    //     const response = await fetch(
+    //       API_URL + "update-post-surgery-details-right",
+    //       {
+    //         method: "PUT",
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(editValues),
+    //       }
+    //     );
+
+    //     const result = await response.json();
+
+    //     if (!response.ok) {
+    //       setWarning(
+    //         result.detail || "Failed to update surgery details for Right Leg"
+    //       );
+    //       return;
+    //     }
+    //     console.log("Successfully updated right leg");
+    //     setWarning("Surgery details updated successfully for Right Leg!");
+    //     if (onSurgeryUpdate) {
+    //       onSurgeryUpdate(payload.post_surgery_details);
+    //     }
+    //     setTimeout(() => {
+    //       setWarning("");
+    //       onClose(); // close the modal
+    //     }, 2000);
+    //   } catch (error) {
+    //     console.error("Error right leg:", error);
+    //     setWarning("Something went wrong while updating right leg.");
+    //   }
+    // }
+
+    try {
+      const response = await fetch(API_URL + "patients/update-post-surgery", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editValues),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setWarning(result.detail || "Failed to update surgery details");
+        return;
+      }
+      console.log("Successfully updated");
+      setWarning("Surgery details updated successfully!");
+
+      setTimeout(() => {
+        setWarning("");
+        onClose(); // close the modal
+      }, 2000);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong while updating.");
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setEditValues((prev) => ({ ...prev, [field]: value }));
+  };
+
   const isPostSurgeryDetailsFilled = (details) => {
-    if (!details) return false;
+    if (!details || typeof details !== "object") return false;
+
     const { surgeon, surgery_name, procedure, implant, technology } = details;
+
+    const isValidField = (field) =>
+      typeof field === "string" &&
+      field.trim() !== "" &&
+      field.trim().toLowerCase() !== "string"; // 👈 treating "string" as unfilled
+
     return (
-      surgeon?.trim() &&
-      surgery_name?.trim() &&
-      procedure?.trim() &&
-      implant?.trim() &&
-      technology?.trim()
+      isValidField(surgeon) &&
+      isValidField(surgery_name) &&
+      isValidField(procedure) &&
+      isValidField(implant) &&
+      isValidField(technology)
     );
   };
 
   // console.log("Box plot:", JSON.stringify(databox, null, 2));
 
   const [isOpen, setIsOpen] = useState(false);
+
+  // Inside your component
+  const [selectedQuestionnaires, setSelectedQuestionnaires] = useState([
+    "oks",
+    "sf12",
+    "koos",
+    "kss",
+    "fjs", // initially all selected
+  ]);
+
+  function toggleQuestionnaire(key) {
+    setSelectedQuestionnaires(
+      (prev) =>
+        prev.includes(key)
+          ? prev.filter((item) => item !== key) // remove if already selected
+          : [...prev, key] // add if not selected
+    );
+  }
+
+  useEffect(() => {
+    if (warning) {
+      const timer = setTimeout(() => setWarning(""), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [warning]);
 
   return (
     <>
@@ -910,7 +1314,21 @@ const page = ({ patient, scoreGroups, userData }) => {
                         STATUS
                       </p>
                       <p className="text-[#F86060] font-bold text-6">
-                        {patient?.current_status}
+                        <>
+                          {leftcurrentstatus && (
+                            <>
+                              <span className="text-red-500">L: </span>{" "}
+                              {leftcurrentstatus}
+                            </>
+                          )}
+                          {leftcurrentstatus && rightcurrentstatus && " "}
+                          {rightcurrentstatus && (
+                            <>
+                              <span className="text-red-500">R: </span>{" "}
+                              {rightcurrentstatus}
+                            </>
+                          )}
+                        </>
                       </p>
                     </div>
                     <div
@@ -923,103 +1341,26 @@ const page = ({ patient, scoreGroups, userData }) => {
                       <p className="text-[#475467] font-semibold text-5">
                         SURGERY REPORT
                       </p>
-                      <div className="w-full flex flex-row items-center gap-2">
+                      <div
+                        className={`w-full flex flex-row items-center gap-2 ${
+                          width < 530 ? "justify-center" : "justify-start"
+                        }`}
+                      >
                         {isPostSurgeryDetailsFilled(
                           surgeryPatient?.post_surgery_details ||
                             patient?.post_surgery_details
                         ) ? (
-                          <div className="flex items-center gap-2 text-green-600 font-bold text-sm">
+                          <div className="flex justify-center items-center gap-2 text-green-600 font-bold text-sm">
                             <p>COMPLETED</p>
-                            <div className="relative flex items-center gap-2 cursor-pointer">
-                              {/* Hidden date input */}
-                              <input
-                                type="date"
-                                ref={dateInputRef}
-                                value={selectedDate}
-                                onChange={handleDateChange}
-                                className="absolute opacity-0 pointer-events-none w-0 h-0"
-                              />
-
-                              {/* Hidden time input */}
-                              <input
-                                type="time"
-                                ref={timeInputRef}
-                                value={selectedTime}
-                                onChange={handleTimeChange}
-                                className="absolute opacity-0 pointer-events-none w-0 h-0"
-                              />
-
-                              {/* Displayed text to click */}
-                              <p
-                                className="text-sm text-green-600"
-                                onClick={openDatePicker}
-                              >
-                                {selectedDate && selectedTime
-                                  ? `${new Date(
-                                      `${selectedDate}T${selectedTime}`
-                                    ).toLocaleString("en-GB")}`
-                                  : "Select date & time"}
-                              </p>
-
-                              {/* Save icon only when both are filled */}
-                              {isDateTimeEdited && selectedDate && (
-                                <CheckCircleIcon
-                                  className="w-7 h-7 text-blue-600 cursor-pointer"
-                                  onClick={saveDateTime}
-                                  title="Save Date & Time"
-                                />
-                              )}
-                            </div>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 text-[#F86060] font-bold text-sm">
+                          <div className="flex justify-center items-center gap-2 text-[#F86060] font-bold text-sm">
                             <p>PENDING</p>
 
                             <PencilSquareIcon
                               className="w-5 h-5 text-black cursor-pointer"
                               onClick={() => setIsOpen(true)}
                             />
-
-                            <div className="relative flex items-center gap-2 cursor-pointer">
-                              {/* Hidden date input */}
-                              <input
-                                type="date"
-                                ref={dateInputRef}
-                                value={selectedDate}
-                                onChange={handleDateChange}
-                                className="absolute opacity-0 pointer-events-none w-0 h-0"
-                              />
-
-                              {/* Hidden time input */}
-                              <input
-                                type="time"
-                                ref={timeInputRef}
-                                value={selectedTime}
-                                onChange={handleTimeChange}
-                                className="absolute opacity-0 pointer-events-none w-0 h-0"
-                              />
-
-                              {/* Displayed text to click */}
-                              <p
-                                className="text-sm text-[#F86060]"
-                                onClick={openDatePicker}
-                              >
-                                {selectedDate && selectedTime
-                                  ? `${new Date(
-                                      `${selectedDate}T${selectedTime}`
-                                    ).toLocaleString("en-GB")}`
-                                  : "Select date & time"}
-                              </p>
-
-                              {/* Save icon only when both are filled */}
-                              {isDateTimeEdited && selectedDate && (
-                                <CheckCircleIcon
-                                  className="w-7 h-7 text-blue-600 cursor-pointer"
-                                  onClick={saveDateTime}
-                                  title="Save Date & Time"
-                                />
-                              )}
-                            </div>
                           </div>
                         )}
                       </div>
@@ -1038,6 +1379,29 @@ const page = ({ patient, scoreGroups, userData }) => {
             : "w-[95%] flex-col"
         }`}
       >
+        <div className="flex justify-start gap-2">
+          <button
+            onClick={() => setSelectedLeg("left")}
+            className={`px-4 py-0.5 rounded-full font-semibold ${
+              selectedLeg === "left"
+                ? "bg-[#005585] text-white"
+                : "bg-gray-300 text-black"
+            }`}
+          >
+            Left
+          </button>
+          <button
+            onClick={() => setSelectedLeg("right")}
+            className={`px-4 py-0.5 rounded-full font-semibold ${
+              selectedLeg === "right"
+                ? "bg-[#005585] text-white"
+                : "bg-gray-300 text-black"
+            }`}
+          >
+            Right
+          </button>
+        </div>
+
         <div
           className={`w-full flex   gap-4 ${
             width < 1415
@@ -1118,11 +1482,11 @@ const page = ({ patient, scoreGroups, userData }) => {
                   wrapperStyle={{ paddingBottom: 20 }}
                   content={() => {
                     const labels = {
-                      oks: "Oxford Knee Score",
-                      sf12: "Short Form - 12",
+                      oks: "OKS",
+                      sf12: "SF-12",
                       koos: "KOOS",
-                      kss: "Knee Society Score",
-                      fjs: "Forgotten Joint Score",
+                      kss: "KSS",
+                      fjs: "FJS",
                     };
 
                     const colors = {
@@ -1134,38 +1498,26 @@ const page = ({ patient, scoreGroups, userData }) => {
                     };
 
                     return (
-                      <ul
-                        style={{
-                          display: "flex",
-                          gap: "20px",
-                          listStyle: "none",
-                          margin: 0,
-                          padding: 0,
-                        }}
-                      >
+                      <ul className="flex gap-6 list-none m-0 p-0">
                         {Object.entries(labels).map(([key, label]) => (
                           <li
                             key={key}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 6,
-                            }}
+                            className="flex items-center gap-2 cursor-pointer select-none"
+                            onClick={() => toggleQuestionnaire(key)}
                           >
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: 7,
-                                height: 7,
-                                borderRadius: "50%",
-                                backgroundColor: colors[key],
-                              }}
+                            <input
+                              type="checkbox"
+                              checked={selectedQuestionnaires.includes(key)}
+                              readOnly
+                              className="accent-blue-600 w-4 h-4"
                             />
                             <span
                               style={{
-                                fontWeight: 600,
-                                fontSize: 10,
-                                color: "black",
+                                fontWeight: 700,
+                                fontSize: 12,
+                                color: selectedQuestionnaires.includes(key)
+                                  ? colors[key] // Active → real color
+                                  : "#A0AEC0", // Inactive → gray color
                               }}
                             >
                               {label}
@@ -1201,6 +1553,10 @@ const page = ({ patient, scoreGroups, userData }) => {
                     kss: "Knee Society Score",
                     fjs: "Forgotten Joint Score",
                   };
+
+                  if (!selectedQuestionnaires.includes(key)) {
+                    return null; // Don't render if not selected
+                  }
 
                   return (
                     <Line
@@ -1250,6 +1606,345 @@ const page = ({ patient, scoreGroups, userData }) => {
               </LineChart>
             </ResponsiveContainer>
           </div>
+
+          <div
+            className={`bg-white rounded-2xl px-4 pt-4 pb-8 flex flex-col shadow-lg justify-between 
+    ${width < 1415 ? "w-full h-1/2" : "w-1/2"} 
+    ${
+      !isPostSurgeryDetailsFilled(
+        surgeryPatient?.post_surgery_details || patient?.post_surgery_details
+      )
+        ? "pointer-events-none opacity-50"
+        : ""
+    }
+  `}
+          >
+            <p className="w-full font-bold text-black h-[10%]">
+              SURGERY DETAILS
+            </p>
+
+            <div className="w-full flex flex-col justify-between h-[90%]">
+              {/* First Block */}
+              <div
+                className={`w-full flex ${
+                  width < 530 ? "flex-col gap-4" : "flex-row gap-4"
+                }`}
+              >
+                <div
+                  ref={(el) => (fieldRefs.current.surgery_date = el)}
+                  className={`flex flex-row ${
+                    width < 530 ? "w-full" : "w-1/3"
+                  }`}
+                >
+                  <div className="w-full flex flex-col">
+                    <p className="font-semibold text-[#475467] text-sm">
+                      DATE OF SURGERY
+                    </p>
+                    {editMode.surgery_date ? (
+                      <div className="flex w-full gap-2">
+                        <input
+                          type="text"
+                          placeholder="dd-mm-yyyy"
+                          className=" flex-1 border bg-gray-100 text-black p-1 rounded-md text-sm"
+                          value={selectedDate || ""}
+                          onChange={handleManualDateChange}
+                          maxLength={10} // Very important: dd-mm-yyyy is 10 character
+                        />
+                        <button
+                          onClick={() => handleSaveClick("surgery_date")}
+                          className="text-green-600 text-xs cursor-pointer"
+                        >
+                          <ClipboardDocumentCheckIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium italic text-[#475467] text-sm">
+                          {selectedDate || "Not Available"}
+                        </p>
+                        <button
+                          onClick={() => handleEditClick("surgery_date")}
+                          className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Surgeon */}
+                <div
+                  ref={(el) => (fieldRefs.current.surgeon = el)}
+                  className={`flex flex-col ${
+                    width < 530 ? "w-full" : "w-1/3"
+                  }`}
+                >
+                  <p className="font-semibold text-[#475467] text-sm">
+                    SURGEON
+                  </p>
+                  {editMode.surgeon ? (
+                    <div className="flex w-full gap-2">
+                      <input
+                        value={editValues.surgeon}
+                        onChange={(e) =>
+                          handleChange("surgeon", e.target.value)
+                        }
+                        className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                      />
+                      <button
+                        onClick={() => handleSaveClick("surgeon")}
+                        className="text-green-600 text-xs cursor-pointer"
+                      >
+                        <ClipboardDocumentCheckIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium italic text-[#475467] text-sm">
+                        {editValues.surgeon || "Not Available"}
+                      </p>
+                      <button
+                        onClick={() => handleEditClick("surgeon")}
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Surgery Name */}
+                <div
+                  ref={(el) => (fieldRefs.current.surgery_name = el)}
+                  className={`flex flex-col ${
+                    width < 530 ? "w-full" : "w-1/3"
+                  }`}
+                >
+                  <p className="font-semibold text-[#475467] text-sm">
+                    SURGERY NAME
+                  </p>
+                  {editMode.surgery_name ? (
+                    <div className="flex w-full gap-2">
+                      <input
+                        value={editValues.surgery_name}
+                        onChange={(e) =>
+                          handleChange("surgery_name", e.target.value)
+                        }
+                        className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                      />
+                      <button
+                        onClick={() => handleSaveClick("surgery_name")}
+                        className="text-green-600 text-xs cursor-pointer "
+                      >
+                        <ClipboardDocumentCheckIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium italic text-[#475467] text-sm">
+                        {editValues.surgery_name || "Not Available"}
+                      </p>
+                      <button
+                        onClick={() => handleEditClick("surgery_name")}
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Second Block */}
+              <div
+                className={`w-full flex ${
+                  width < 530 ? "flex-col gap-4" : "flex-row"
+                }`}
+              >
+                {/* Sub Doctor */}
+                <div
+                  ref={(el) => (fieldRefs.current.sub_doctor_name = el)}
+                  className={`flex flex-col ${
+                    width < 530 ? "w-full" : "w-1/2"
+                  }`}
+                >
+                  <p className="font-semibold text-[#475467] text-sm">
+                    SUB DOCTOR NAME
+                  </p>
+                  {editMode.sub_doctor_name ? (
+                    <div className="flex gap-2">
+                      <input
+                        value={editValues.sub_doctor_name}
+                        onChange={(e) =>
+                          handleChange("sub_doctor_name", e.target.value)
+                        }
+                        className="border bg-gray-100 text-black p-1 rounded-md text-sm"
+                      />
+                      <button
+                        onClick={() => handleSaveClick("sub_doctor_name")}
+                        className="text-green-600 text-xs cursor-pointer"
+                      >
+                        <ClipboardDocumentCheckIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium italic text-[#475467] text-sm">
+                        {editValues.sub_doctor_name || "Not Available"}
+                      </p>
+                      <button
+                        onClick={() => handleEditClick("sub_doctor_name")}
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Procedure */}
+                <div
+                  ref={(el) => (fieldRefs.current.procedure = el)}
+                  className={`flex flex-col ${
+                    width < 530 ? "w-full" : "w-1/2"
+                  }`}
+                >
+                  <p className="font-semibold text-[#475467] text-sm">
+                    PROCEDURE
+                  </p>
+                  {editMode.procedure ? (
+                    <div className="flex gap-2">
+                      <textarea
+                        rows={3}
+                        cols={30}
+                        className="border bg-gray-100 text-black p-1 rounded-md text-sm resize-none"
+                        value={editValues.procedure}
+                        onChange={(e) =>
+                          handleChange("procedure", e.target.value)
+                        }
+                      />
+                      <button
+                        onClick={() => handleSaveClick("procedure")}
+                        className="text-green-600 text-xs cursor-pointer"
+                      >
+                        <ClipboardDocumentCheckIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-[#475467] text-sm">
+                        {editValues.procedure?.toLowerCase() || "Not Available"}
+                      </p>
+                      <button
+                        onClick={() => handleEditClick("procedure")}
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Third Block */}
+              <div
+                className={`w-full flex ${
+                  width < 570 ? "flex-col gap-4" : "flex-row"
+                }`}
+              >
+                {/* Implant */}
+                <div
+                  ref={(el) => (fieldRefs.current.implant = el)}
+                  className={`flex flex-col ${
+                    width < 570 ? "w-full" : "w-[50%]"
+                  }`}
+                >
+                  <p className="font-semibold text-[#475467] text-sm">
+                    IMPLANT
+                  </p>
+                  {editMode.implant ? (
+                    <div className="flex gap-2">
+                      <input
+                        value={editValues.implant}
+                        onChange={(e) =>
+                          handleChange("implant", e.target.value)
+                        }
+                        className="border bg-gray-100 text-black p-1 rounded-md text-sm"
+                      />
+                      <button
+                        onClick={() => handleSaveClick("implant")}
+                        className="text-green-600 text-xs cursor-pointer"
+                      >
+                        <ClipboardDocumentCheckIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-[#475467] text-sm">
+                        {editValues.implant || "Not Available"}
+                      </p>
+                      <button
+                        onClick={() => handleEditClick("implant")}
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Technology */}
+                <div
+                  ref={(el) => (fieldRefs.current.technology = el)}
+                  className={`flex flex-col ${
+                    width < 570 ? "w-full" : "w-[50%]"
+                  }`}
+                >
+                  <p className="font-semibold text-[#475467] text-sm">
+                    TECHNOLOGY
+                  </p>
+                  {editMode.technology ? (
+                    <div className="flex gap-2">
+                      <input
+                        value={editValues.technology}
+                        onChange={(e) =>
+                          handleChange("technology", e.target.value)
+                        }
+                        className="border bg-gray-100 text-black p-1 rounded-md text-sm"
+                      />
+                      <button
+                        onClick={() => handleSaveClick("technology")}
+                        className="text-green-600 text-xs cursor-pointer"
+                      >
+                        <ClipboardDocumentCheckIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium italic text-[#475467] text-sm">
+                        {editValues.technology || "Not Available"}
+                      </p>
+                      <button
+                        onClick={() => handleEditClick("technology")}
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`w-full flex   gap-4 ${
+            width < 1415
+              ? "flex-col justify-center items-center h-[1000px]"
+              : "flex-row h-[400px]"
+          }`}
+        >
           <div
             className={`flex flex-col bg-white px-4 py-2 rounded-2xl shadow-lg ${
               width < 1415 ? "w-full h-1/2" : "w-1/2"
@@ -1419,15 +2114,7 @@ const page = ({ patient, scoreGroups, userData }) => {
               </ScatterChart>
             </ResponsiveContainer>
           </div>
-        </div>
 
-        <div
-          className={`w-full flex   gap-4 ${
-            width < 1415
-              ? "flex-col justify-center items-center h-[1000px]"
-              : "flex-row h-[400px]"
-          }`}
-        >
           <div
             className={`flex flex-col bg-white px-4 py-2 rounded-2xl shadow-lg ${
               width < 1415 ? "w-full h-1/2" : "w-1/2"
@@ -1639,6 +2326,15 @@ const page = ({ patient, scoreGroups, userData }) => {
               </ComposedChart>
             </ResponsiveContainer>
           </div>
+        </div>
+
+        <div
+          className={`w-full flex   gap-4 ${
+            width < 1415
+              ? "flex-col justify-center items-center h-[1000px]"
+              : "flex-row h-[400px]"
+          }`}
+        >
           <div
             className={`flex flex-col bg-white px-4 py-2 rounded-2xl shadow-lg ${
               width < 1415 ? "w-full h-1/2" : "w-1/2"
@@ -1843,15 +2539,7 @@ const page = ({ patient, scoreGroups, userData }) => {
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-        </div>
 
-        <div
-          className={`w-full flex   gap-4 ${
-            width < 1415
-              ? "flex-col justify-center items-center h-[1000px]"
-              : "flex-row h-[400px]"
-          }`}
-        >
           <div
             className={`flex flex-col bg-white px-4 py-2 rounded-2xl shadow-lg ${
               width < 1415 ? "w-full h-1/2" : "w-1/2"
@@ -2059,6 +2747,15 @@ const page = ({ patient, scoreGroups, userData }) => {
               </ComposedChart>
             </ResponsiveContainer>
           </div>
+        </div>
+
+        <div
+          className={`w-full flex   gap-4 ${
+            width < 1415
+              ? "flex-col justify-center items-center h-[500px]"
+              : "flex-row h-[400px]"
+          }`}
+        >
           <div
             className={`flex flex-col bg-white px-4 py-2 rounded-2xl shadow-lg ${
               width < 1415 ? "w-full h-1/2" : "w-1/2"
@@ -2266,15 +2963,7 @@ const page = ({ patient, scoreGroups, userData }) => {
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-        </div>
 
-        <div
-          className={`w-full flex   gap-4 ${
-            width < 1415
-              ? "flex-col justify-center items-center h-[500px]"
-              : "flex-row h-[400px]"
-          }`}
-        >
           <div
             className={`flex flex-col bg-white px-4 py-2 rounded-2xl shadow-lg ${
               width < 1415 ? "w-full h-full" : "w-1/2"
@@ -2483,6 +3172,14 @@ const page = ({ patient, scoreGroups, userData }) => {
           </div>
         </div>
       </div>
+
+      {warning && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
+            {warning}
+          </div>
+        </div>
+      )}
 
       <Surgeryreport
         isOpen={isOpen}

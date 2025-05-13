@@ -11,6 +11,7 @@ import {
   Tooltip,
   Cell,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 import { Poppins } from "next/font/google";
 
@@ -125,25 +126,28 @@ const page = ({ goToReport }) => {
   const [postOpTotal, setPostOpTotal] = useState(0);
   const [scoreGroups, setScoreGroups] = useState({});
 
+  const [selectedLeg, setSelectedLeg] = useState("left");
+
   useEffect(() => {
     const fetchPatients = async () => {
       if (!userData?.user?.email) return;
-  
+
       try {
         const res = await axios.get(
           API_URL + `patients/by-doctor/${userData.user.email}`
         );
         const data = res.data;
-  
+
         setPatients(data);
         console.log(data);
-  
+
         // Count PRE OP patients based on current_status
         const preOp = data.filter(
-          (patient) => patient.current_status?.toLowerCase() === "pre op"
+          (patient) =>
+            getCurrentPeriod(patient, selectedLeg).toLowerCase() === "pre op"
         ).length;
         setPreOpCount(preOp);
-  
+
         // Count POST OP stage patients
         const stageCounts = {
           "6W": 0,
@@ -152,26 +156,26 @@ const page = ({ goToReport }) => {
           "1Y": 0,
           "2Y": 0,
         };
-  
+
         data.forEach((patient) => {
-          const status = patient.current_status?.toUpperCase();
+          const status = getCurrentPeriod(patient, selectedLeg).toUpperCase();
           if (stageCounts.hasOwnProperty(status)) {
             stageCounts[status]++;
           }
         });
-  
+
         setPostOpStages(stageCounts);
         setPostOpTotal(
           Object.values(stageCounts).reduce((sum, val) => sum + val, 0)
         );
-  
+
         // Grouping Scores Logic
         const scoreGroups = {};
         data.forEach((patient) => {
           patient.questionnaire_scores?.forEach((q1) => {
             const key = `${q1.name}|${q1.period}`;
             if (!scoreGroups[key]) scoreGroups[key] = [];
-  
+
             data.forEach((otherPatient) => {
               otherPatient.questionnaire_scores?.forEach((q2) => {
                 if (q2.name.includes(q1.name) && q2.period === q1.period) {
@@ -182,49 +186,66 @@ const page = ({ goToReport }) => {
             });
           });
         });
-  
+
         // Remove duplicates
         for (const key in scoreGroups) {
           scoreGroups[key] = Array.from(new Set(scoreGroups[key]));
         }
-  
+
         console.log("Grouped Scores (name|period):", scoreGroups);
-  
+
         setScoreGroups(scoreGroups);
       } catch (err) {
         console.error("Failed to fetch patients", err);
       }
     };
-  
+
     fetchPatients();
   }, [userData?.user?.email]);
-  
 
-  const makeVip = (id) => {
+  const makeVip = async (uhid) => {
+    try {
+      const response = await axios.patch(
+        API_URL + "patients/" + uhid + "/vip/toggle"
+      );
+      console.log("Patch successful:", response.data);
+    } catch (error) {
+      console.error("Patch error:", error);
+    }
     const updatedPatients = patients.map((patient) =>
-      patient._id === id ? { ...patient, vip: 1 } : patient
+      patient.uhid === uhid ? { ...patient, vip: 1 } : patient
     );
     setPatients(updatedPatients);
   };
 
-  const toggleVip = (id) => {
+  const toggleVip = async (uhid) => {
+    // <-- add async here
+    try {
+      const response = await axios.patch(
+        API_URL + "patients/" + uhid + "/vip/toggle"
+      );
+      console.log("Patch successful:", response.data);
+    } catch (error) {
+      console.error("Patch error:", error);
+    }
+
     const updatedPatients = patients.map((patient) =>
-      patient._id === id
+      patient.uhid === uhid
         ? { ...patient, vip: patient.vip === 1 ? 0 : 1 }
         : patient
     );
     setPatients(updatedPatients);
   };
 
-  const handleProfileInteraction = (id) => {
+  const handleProfileInteraction = (uhid) => {
     const now = Date.now();
-    const lastTap = lastTapRef.current[id] || 0;
+    const lastTap = lastTapRef.current[uhid] || 0;
 
     if (now - lastTap < 300) {
-      makeVip(id); // it's a double tap
+      makeVip(uhid); // double tap
     }
 
-    lastTapRef.current[id] = now;
+    lastTapRef.current[uhid] = now;
   };
 
   const scoreoptions = ["OKS", "SF-12", "KOOS", "KSS", "FJS"];
@@ -240,25 +261,109 @@ const page = ({ goToReport }) => {
 
   const [postopfilter, setpostopFitler] = useState("ALL");
 
+  const getCurrentPeriod = (patient, side) => {
+    const optionsdrop = ["Pre Op", "6W", "3M", "6M", "1Y", "2Y"];
+
+    const allItems = [
+      "Oxford Knee Score (OKS)",
+      "Short Form - 12 (SF-12)",
+      "Knee Society Score (KSS)",
+      "Knee Injury and Ostheoarthritis Outcome Score, Joint Replacement (KOOS, JR)",
+      "Forgotten Joint Score (FJS)",
+    ];
+
+    const assignedQuestionnaires =
+      side === "left"
+        ? patient.questionnaire_assigned_left
+        : patient.questionnaire_assigned_right;
+
+    // ⭐ If no assigned questionnaires, default to "Pre Op"
+    if (!assignedQuestionnaires || assignedQuestionnaires.length === 0) {
+      return "Pre Op";
+    }
+
+    const groupedByPeriod = optionsdrop.reduce((acc, period) => {
+      const assigned = assignedQuestionnaires
+        .filter((q) => q.period === period)
+        .map((q) => q.name);
+      acc[period] = assigned;
+      return acc;
+    }, {});
+
+    // console.log("status", groupedByPeriod);
+
+    const currentPeriod = optionsdrop.find((period, index) => {
+      const assigned = groupedByPeriod[period] || [];
+      const anyAssigned = assigned.length > 0; // ⭐ Check if at least 1 is assigned
+
+      const nextPeriod = optionsdrop[index + 1];
+      const nextAssigned = groupedByPeriod[nextPeriod] || [];
+      const nextAnyAssigned = nextAssigned.length > 0;
+
+      return anyAssigned && !nextAnyAssigned;
+    });
+
+    return currentPeriod;
+  };
+
   const filteredPatients = patients.filter((patient) => {
-    const status = patient.current_status.toLowerCase();
+    const status = getCurrentPeriod(patient, selectedLeg).toLowerCase() || "";
     const selectedFilter = patfilter.toLowerCase();
     const subFilter = postopfilter.toLowerCase();
+    const selectedLegSide = selectedLeg.toLowerCase(); // "left" or "right"
+
+    const hasLeft =
+      patient.questionnaire_assigned_left &&
+      patient.questionnaire_assigned_left.length > 0;
+    const hasRight =
+      patient.questionnaire_assigned_right &&
+      patient.questionnaire_assigned_right.length > 0;
+
+    let matchByQuestionnaire = false;
+    let matchByStatus = false;
+
+    // Always check questionnaire assigned
+    if (selectedLegSide === "left" && hasLeft) {
+      matchByQuestionnaire = true;
+    }
+    if (selectedLegSide === "right" && hasRight) {
+      matchByQuestionnaire = true;
+    }
+
+    // Always check current_status
+    if (status.includes("left") && selectedLegSide === "left") {
+      matchByStatus = true;
+    }
+    if (status.includes("right") && selectedLegSide === "right") {
+      matchByStatus = true;
+    }
+
+    // If neither match questionnaire nor status, don't show
+    if (!matchByQuestionnaire && !matchByStatus) {
+      return false;
+    }
+
+    // Now apply pre/post-op filter
+    if (selectedFilter === "all patients") {
+      return true;
+    }
+
+    const period = getCurrentPeriod(patient, selectedLegSide).toLowerCase();
 
     if (selectedFilter === "all patients") {
       return true;
     }
 
     if (selectedFilter === "pre operative") {
-      return status.includes("pre");
+      return period.includes("pre");
     }
 
     // Anything not "pre" is treated as post-operative
     if (selectedFilter === "post operative") {
       if (subFilter === "all") {
-        return !status.includes("pre");
+        return !period.includes("pre");
       }
-      return !status.includes("pre") && status.includes(subFilter);
+      return !period.includes("pre") && period.includes(subFilter);
     }
 
     return false;
@@ -323,7 +428,7 @@ const page = ({ goToReport }) => {
   const displayedPatients = [];
 
   patients.forEach((patient) => {
-    const status = patient.current_status?.toLowerCase() || "";
+    const status = getCurrentPeriod(patient, selectedLeg).toLowerCase() || "";
     const selectedFilter = patprogressfilter.toLowerCase();
 
     const statusMatch =
@@ -360,20 +465,39 @@ const page = ({ goToReport }) => {
     // Update your sorting logic here
   };
 
-  const sortedPatients = [...filteredPatients].sort((a, b) => {
-    const getScore = (patient) =>
-      patient.questionnaire_scores?.find((score) =>
+  const [filteredData, setFilteredData] = useState([]);
+
+  const getScore = (patient) => {
+    const scores =
+      selectedLeg === "left"
+        ? patient.questionnaire_scores_left
+        : patient.questionnaire_scores_right;
+
+    return (
+      scores?.find((score) =>
         score.name?.toLowerCase().includes(scorefilter.toLowerCase())
-      )?.score?.[0] ?? "N/A";
+      )?.score?.[0] ?? "N/A"
+    );
+  };
 
-    const scoreA = getScore(a);
-    const scoreB = getScore(b);
+  let sortedPatients = [...filteredPatients];
 
-    const valA = isNaN(scoreA) ? -Infinity : parseFloat(scoreA);
-    const valB = isNaN(scoreB) ? -Infinity : parseFloat(scoreB);
+  if (sortedPatients.length > 1) {
+    sortedPatients.sort((a, b) => {
+      const scoreA = getScore(a);
+      const scoreB = getScore(b);
 
-    return sortAsc ? valA - valB : valB - valA;
-  });
+      const valA = isNaN(scoreA) ? -Infinity : parseFloat(scoreA);
+      const valB = isNaN(scoreB) ? -Infinity : parseFloat(scoreB);
+
+      return sortAsc ? valA - valB : valB - valA;
+    });
+    console.log("Sorting Patient", sortedPatients);
+  } else if (sortedPatients.length === 1) {
+    // Call getScore manually for the single patient
+    getScore(sortedPatients[0]);
+    console.log("Sorting Patient", sortedPatients);
+  }
 
   const scoreMaxValues = {
     OKS: 48,
@@ -386,13 +510,12 @@ const page = ({ goToReport }) => {
   const buckets = ["0-20", "20-40", "40-60", "60-80", "80-100"];
 
   const bucketColors = {
-    "0-20": "#FF4C4C",    // red
-    "20-40": "#FF944C",   // orange
-    "40-60": "#FFD700",   // yellow
-    "60-80": "#A6E22E",   // light green
-    "80-100": "#04CE00",  // green
+    "0-20": "#FF4C4C", // red
+    "20-40": "#FF944C", // orange
+    "40-60": "#FFD700", // yellow
+    "60-80": "#A6E22E", // light green
+    "80-100": "#04CE00", // green
   };
-  
 
   const getBucketLabel = (score) => {
     if (score < 20) return "0-20";
@@ -403,17 +526,82 @@ const page = ({ goToReport }) => {
   };
 
   // Normalize and bucket data
-  const bucketData = () => {
-    const scoreCounts = {
-      "0-20": 0,
-      "20-40": 0,
-      "40-60": 0,
-      "60-80": 0,
-      "80-100": 0,
+  const scoreData = () => {
+    const selectedFilter = patfilter.toLowerCase(); // Assuming you have patfilter state
+    const isAllPatients = selectedFilter === "all patients"; // Check if "All Patients" selected
+
+    const bucketCounts = {
+      "0-20": { pre: 0, post: 0 },
+      "20-40": { pre: 0, post: 0 },
+      "40-60": { pre: 0, post: 0 },
+      "60-80": { pre: 0, post: 0 },
+      "80-100": { pre: 0, post: 0 },
     };
 
-    filteredPatients.forEach((patient) => {
-      const scoreObj = patient.questionnaire_scores?.find((s) =>
+    // Select which patients to use based on filter
+    const normalizeString = (str) => {
+      return str
+        .toLowerCase()
+        .replace(/\s+/g, "") // Remove all spaces
+        .replace(/-/g, "") // Remove hyphens
+        .trim();
+    };
+
+    const generatePeriodVariants = (period) => {
+      const basePeriod = normalizeString(period); // Normalize the base period (e.g., "pre", "post")
+
+      // Create a list of variations for "pre" and "post"
+      if (basePeriod === "pre" || basePeriod.includes("pre")) {
+        return ["pre", "preop", "preoperative", "pre-op", "pre op"];
+      } else if (basePeriod === "post" || basePeriod.includes("post")) {
+        return ["post", "postop", "postoperative", "post-op", "post op"];
+      } else {
+        return [basePeriod];
+      }
+    };
+
+    const patientsToUse = isAllPatients
+      ? filteredPatients
+      : filteredPatients.filter((patient) => {
+          const currentPeriod = getCurrentPeriod(patient, selectedLeg);
+          console.log("Current Period:", currentPeriod); // Log the current period
+          console.log("Selected Filter:", selectedFilter); // Log the selected filter
+
+          const normalizedCurrentPeriod = normalizeString(currentPeriod);
+          const normalizedSelectedFilter = normalizeString(selectedFilter);
+
+          console.log("Normalized Current Period:", normalizedCurrentPeriod);
+          console.log("Normalized Selected Filter:", normalizedSelectedFilter);
+
+          // Generate variations for the current period and selected filter
+          const currentPeriodVariants = generatePeriodVariants(
+            normalizedCurrentPeriod
+          );
+          const selectedFilterVariants = generatePeriodVariants(
+            normalizedSelectedFilter
+          );
+
+          console.log("Current Period Variants:", currentPeriodVariants);
+          console.log("Selected Filter Variants:", selectedFilterVariants);
+
+          // Check if any of the current period variants match the selected filter variants
+          const isMatch = currentPeriodVariants.some((variant) =>
+            selectedFilterVariants.some((filterVariant) =>
+              variant.includes(filterVariant)
+            )
+          );
+
+          return isMatch;
+        });
+
+    // Iterate over the selected patients and categorize their scores into buckets
+    patientsToUse.forEach((patient) => {
+      const scores =
+        selectedLeg === "left"
+          ? patient.questionnaire_scores_left
+          : patient.questionnaire_scores_right;
+
+      const scoreObj = scores?.find((s) =>
         s.name?.toLowerCase().includes(scorefilter.toLowerCase())
       );
 
@@ -421,17 +609,36 @@ const page = ({ goToReport }) => {
       const maxScore = scoreMaxValues[scorefilter] || 100;
 
       if (rawScore != null && !isNaN(rawScore)) {
-        const normalizedScore = (parseFloat(rawScore) / maxScore) * 100;
-        const bucket = getBucketLabel(normalizedScore);
-        scoreCounts[bucket]++;
+        const normalizedScore = parseFloat(rawScore);
+        const bucketLabel = getBucketLabel(normalizedScore);
+
+        if (isAllPatients) {
+          const status = getCurrentPeriod(patient, selectedLeg).toLowerCase();
+          if (status.includes("pre")) {
+            bucketCounts[bucketLabel].pre++;
+          } else {
+            bucketCounts[bucketLabel].post++;
+          }
+        } else {
+          bucketCounts[bucketLabel].pre++; // Just count selected patients under "pre"
+        }
       }
     });
 
-    return buckets.map((bucket) => ({
-      name: bucket,
-      count: scoreCounts[bucket],
+    // Return data in the format you need for BarChart
+    return Object.keys(bucketCounts).map((bucket) => ({
+      name: bucket, // Bucket range (e.g., "0-20")
+      uv: bucketCounts[bucket].pre + bucketCounts[bucket].post, // Total count
+      pv: bucketCounts[bucket].pre, // Pre-operative count
+      amt: bucketCounts[bucket].post, // Post-operative count
     }));
   };
+
+  useEffect(() => {
+    setFilteredData(scoreData());
+  }, [patfilter]); // Dependency array ensures this runs when filter changes
+
+  console.log("Bar chart", scoreData());
 
   return (
     <>
@@ -573,12 +780,36 @@ const page = ({ goToReport }) => {
                   : "items-end"
               }`}
             >
-              <div className="flex bg-[#282B30] rounded-full p-1 w-fit items-center justify-center">
-                {options.map((option) => (
-                  <div
-                    key={option}
-                    onClick={() => setpatFilter(option)}
-                    className={` cursor-pointer  font-semibold transition-all duration-200 rounded-full text-center
+              <div className="w-full flex flex-row justify-between items-center gap-4">
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setSelectedLeg("left")}
+                    className={`px-4 py-0.5 rounded-full font-semibold ${
+                      selectedLeg === "left"
+                        ? "bg-[#005585] text-white"
+                        : "bg-gray-300 text-black"
+                    }`}
+                  >
+                    Left
+                  </button>
+                  <button
+                    onClick={() => setSelectedLeg("right")}
+                    className={`px-4 py-0.5 rounded-full font-semibold ${
+                      selectedLeg === "right"
+                        ? "bg-[#005585] text-white"
+                        : "bg-gray-300 text-black"
+                    }`}
+                  >
+                    Right
+                  </button>
+                </div>
+
+                <div className="flex bg-[#282B30] rounded-full p-1 w-fit items-center justify-center">
+                  {options.map((option) => (
+                    <div
+                      key={option}
+                      onClick={() => setpatFilter(option)}
+                      className={` cursor-pointer  font-semibold transition-all duration-200 rounded-full text-center
             ${
               patfilter === option
                 ? "bg-gradient-to-b from-[#484E56] to-[#3B4048] text-white shadow-md"
@@ -592,12 +823,12 @@ const page = ({ goToReport }) => {
                 : "text-xs px-3 py-1"
             }
           `}
-                  >
-                    {option}
-                  </div>
-                ))}
+                    >
+                      {option}
+                    </div>
+                  ))}
+                </div>
               </div>
-
               {patfilter.toLowerCase() == "post operative" && (
                 <div
                   className={` bg-[#F5F5F5] rounded-lg py-0.5 px-[3px] w-fit border-2 border-[#191A1D] gap-2 mt-2 ${
@@ -656,7 +887,7 @@ const page = ({ goToReport }) => {
                     ? "flex-col justify-center items-center"
                     : "flex-row justify-between items-center gap-2"
                 }
-                ${width < 1000 ? "mb-2" : "mb-2"}`}
+                ${width < 1000 ? "mb-2" : "mb-2"} `}
               >
                 {patient.vip === 1 && (
                   <Image
@@ -690,12 +921,26 @@ const page = ({ goToReport }) => {
                         width < 530
                           ? "w-11 h-11 flex justify-center items-center"
                           : "w-10 h-10"
-                      }`}
+                      } ${
+                  patient.vip !== 1 ? "cursor-pointer" : "cursor-not-allowed"
+                }`}
                       src={Patientimg}
                       alt={patient.uhid}
-                      onDoubleClick={() => makeVip(patient.uhid)}
-                      onTouchEnd={() => handleProfileInteraction(patient.uhid)}
-                      onClick={() => handleProfileInteraction(patient.uhid)}
+                      onDoubleClick={() => {
+                        if (patient.vip !== 1) {
+                          makeVip(patient.uhid);
+                        }
+                      }}
+                      onTouchEnd={() => {
+                        if (patient.vip !== 1) {
+                          handleProfileInteraction(patient.uhid);
+                        }
+                      }}
+                      onClick={() => {
+                        if (patient.vip !== 1) {
+                          handleProfileInteraction(patient.uhid);
+                        }
+                      }}
                     />
 
                     <div
@@ -778,7 +1023,7 @@ const page = ({ goToReport }) => {
                           : "w-[35%] text-end"
                       }`}
                     >
-                      {patient.current_status}
+                      {getCurrentPeriod(patient, selectedLeg)}
                     </div>
                     <div
                       className={`text-base font-medium text-black ${
@@ -790,7 +1035,10 @@ const page = ({ goToReport }) => {
                       }`}
                     >
                       SCORE:&nbsp;&nbsp;
-                      {patient.questionnaire_scores?.find((score) =>
+                      {(selectedLeg === "left"
+                        ? patient.questionnaire_scores_left
+                        : patient.questionnaire_scores_right
+                      )?.find((score) =>
                         score.name
                           ?.toLowerCase()
                           .includes(scorefilter.toLowerCase())
@@ -936,37 +1184,86 @@ const page = ({ goToReport }) => {
                 {" "}
                 {/* Height as a percentage of the viewport height */}
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={bucketData()}>
+                  <BarChart
+                    data={scoreData()} // Use the scoreData function to generate dynamic data
+                    margin={{ top: 10, right: 20, left: -10, bottom: 10 }}
+                  >
+                    <CartesianGrid strokeDasharray="8 10" vertical={false} />
+
                     <XAxis
-                      dataKey="name"
+                      dataKey="name" // Use 'name' as the range (e.g., "0-20", "20-40")
                       label={{
-                        value: "Scores",
                         position: "insideBottom",
-                        offset: 0,
                         fontSize: 14,
-                        fontWeight: "bold", // Make the text bold
+                        fontWeight: "bold",
                       }}
+                      tick={{ fontSize: 12, fontWeight: 600 }}
                     />
+
                     <YAxis
                       allowDecimals={false}
                       label={{
-                        value: "Total Patients",
+                        value: "Number of Patients",
                         angle: -90,
-                        position: "center",
+                        position: "insideLeft",
+                        offset: -5,
                         fontSize: 14,
-                        fontWeight: "bold", // Make the text bold
+                        fontWeight: "bold",
+                      }}
+                      tick={{ fontSize: 12, fontWeight: 600 }}
+                      domain={[
+                        0,
+                        Math.max(...scoreData().map((data) => data.uv)),
+                      ]} // Adjust domain based on maximum value of uv
+                    />
+
+                    <Tooltip
+                      content={({ payload, label }) => {
+                        if (!payload || payload.length === 0) return null; // No tooltip content if no data
+
+                        const data = payload[0].payload; // Access the data of the hovered bar
+                        const isPreOp = data.pv > 0; // Check if Pre-Operative data exists
+                        const isPostOp = data.amt > 0; // Check if Post-Operative data exists
+
+                        return (
+                          <div className="custom-tooltip text-black">
+                            <p>{label}</p>
+                            {isPreOp && <p>Pre-Operative: {data.pv}</p>}
+                            {isPostOp && <p>Post-Operative: {data.amt}</p>}
+                          </div>
+                        );
                       }}
                     />
-                    <Tooltip />
-                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-  {bucketData().map((entry, index) => (
-    <Cell
-      key={`cell-${index}`}
-      fill={bucketColors[entry.name] || "#8884d8"}
-    />
-  ))}
-</Bar>
 
+                    {scoreData()[0]?.isAllPatients ? (
+                      <>
+                        <Bar
+                          dataKey="pv" // Pre-operative count
+                          stackId="a"
+                          fill="#4F46E5"
+                          name="Pre-Operative"
+                          isAnimationActive={true} // optional, for better visibility
+                        />
+                        <Bar
+                          dataKey="amt" // Post-operative count
+                          stackId="a"
+                          fill="#22C55E"
+                          name="Post-Operative"
+                          isAnimationActive={true}
+                        />
+                      </>
+                    ) : (
+                      <Bar dataKey="uv" isAnimationActive={false}>
+                        {" "}
+                        {/* Using 'uv' to represent total count */}
+                        {scoreData().map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={bucketColors[entry.name] || "#8884d8"} // Use 'name' (bucket range) for color
+                          />
+                        ))}
+                      </Bar>
+                    )}
                   </BarChart>
                 </ResponsiveContainer>
               </div>
