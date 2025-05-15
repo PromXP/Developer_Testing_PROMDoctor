@@ -306,68 +306,89 @@ const page = ({ goToReport }) => {
     return currentPeriod;
   };
 
-  const filteredPatients = patients.filter((patient) => {
-    const status = getCurrentPeriod(patient, selectedLeg).toLowerCase() || "";
-    const selectedFilter = patfilter.toLowerCase();
-    const subFilter = postopfilter.toLowerCase();
-    const selectedLegSide = selectedLeg.toLowerCase(); // "left" or "right"
+  const [searchTerm, setSearchTerm] = useState("");
 
-    const hasLeft =
-      patient.questionnaire_assigned_left &&
-      patient.questionnaire_assigned_left.length > 0;
-    const hasRight =
-      patient.questionnaire_assigned_right &&
-      patient.questionnaire_assigned_right.length > 0;
 
-    let matchByQuestionnaire = false;
-    let matchByStatus = false;
+  const filteredPatients = patients
+    .filter((patient) => {
+      const status = getCurrentPeriod(patient, selectedLeg).toLowerCase() || "";
+      const selectedFilter = patfilter.toLowerCase();
+      const subFilter = postopfilter.toLowerCase();
+      const selectedLegSide = selectedLeg.toLowerCase(); // "left" or "right"
 
-    // Always check questionnaire assigned
-    if (selectedLegSide === "left" && hasLeft) {
-      matchByQuestionnaire = true;
-    }
-    if (selectedLegSide === "right" && hasRight) {
-      matchByQuestionnaire = true;
-    }
+      const hasLeft =
+        patient.questionnaire_assigned_left &&
+        patient.questionnaire_assigned_left.length > 0;
+      const hasRight =
+        patient.questionnaire_assigned_right &&
+        patient.questionnaire_assigned_right.length > 0;
 
-    // Always check current_status
-    if (status.includes("left") && selectedLegSide === "left") {
-      matchByStatus = true;
-    }
-    if (status.includes("right") && selectedLegSide === "right") {
-      matchByStatus = true;
-    }
+      let matchByQuestionnaire = false;
+      let matchByStatus = false;
 
-    // If neither match questionnaire nor status, don't show
-    if (!matchByQuestionnaire && !matchByStatus) {
-      return false;
-    }
-
-    // Now apply pre/post-op filter
-    if (selectedFilter === "all patients") {
-      return true;
-    }
-
-    const period = getCurrentPeriod(patient, selectedLegSide).toLowerCase();
-
-    if (selectedFilter === "all patients") {
-      return true;
-    }
-
-    if (selectedFilter === "pre operative") {
-      return period.includes("pre");
-    }
-
-    // Anything not "pre" is treated as post-operative
-    if (selectedFilter === "post operative") {
-      if (subFilter === "all") {
-        return !period.includes("pre");
+      // Always check questionnaire assigned
+      if (selectedLegSide === "left" && hasLeft) {
+        matchByQuestionnaire = true;
       }
-      return !period.includes("pre") && period.includes(subFilter);
-    }
+      if (selectedLegSide === "right" && hasRight) {
+        matchByQuestionnaire = true;
+      }
 
-    return false;
-  });
+      // Always check current_status
+      if (status.includes("left") && selectedLegSide === "left") {
+        matchByStatus = true;
+      }
+      if (status.includes("right") && selectedLegSide === "right") {
+        matchByStatus = true;
+      }
+
+      // If neither match questionnaire nor status, don't show
+      if (!matchByQuestionnaire && !matchByStatus) {
+        return false;
+      }
+
+      // Now apply pre/post-op filter
+      if (selectedFilter === "all patients") {
+        return true;
+      }
+
+      const period = getCurrentPeriod(patient, selectedLegSide).toLowerCase();
+
+      if (selectedFilter === "all patients") {
+        return true;
+      }
+
+      if (selectedFilter === "pre operative") {
+        return period.includes("pre");
+      }
+
+      // Anything not "pre" is treated as post-operative
+      if (selectedFilter === "post operative") {
+        if (subFilter === "all") {
+          return !period.includes("pre");
+        }
+        return !period.includes("pre") && period.includes(subFilter);
+      }
+
+      return false;
+    })
+    .filter((patient) => {
+      if (!searchTerm.trim()) return true;
+
+      const term = searchTerm.toLowerCase();
+
+      const first = patient.first_name?.toLowerCase() || "";
+      const last = patient.last_name?.toLowerCase() || "";
+      const fullName = `${first} ${last}`.trim();
+
+      return (
+        first.includes(term) ||
+        last.includes(term) ||
+        fullName.includes(term) || // ✅ check "first last"
+        patient.uhid?.toLowerCase().includes(term)
+      );
+    });
+
 
   const [patprogressfilter, setpatprogressFilter] = useState("ALL");
 
@@ -563,36 +584,36 @@ const page = ({ goToReport }) => {
     const patientsToUse = isAllPatients
       ? filteredPatients
       : filteredPatients.filter((patient) => {
-          const currentPeriod = getCurrentPeriod(patient, selectedLeg);
-          console.log("Current Period:", currentPeriod); // Log the current period
-          console.log("Selected Filter:", selectedFilter); // Log the selected filter
+        const currentPeriod = getCurrentPeriod(patient, selectedLeg);
+        console.log("Current Period:", currentPeriod); // Log the current period
+        console.log("Selected Filter:", selectedFilter); // Log the selected filter
 
-          const normalizedCurrentPeriod = normalizeString(currentPeriod);
-          const normalizedSelectedFilter = normalizeString(selectedFilter);
+        const normalizedCurrentPeriod = normalizeString(currentPeriod);
+        const normalizedSelectedFilter = normalizeString(selectedFilter);
 
-          console.log("Normalized Current Period:", normalizedCurrentPeriod);
-          console.log("Normalized Selected Filter:", normalizedSelectedFilter);
+        console.log("Normalized Current Period:", normalizedCurrentPeriod);
+        console.log("Normalized Selected Filter:", normalizedSelectedFilter);
 
-          // Generate variations for the current period and selected filter
-          const currentPeriodVariants = generatePeriodVariants(
-            normalizedCurrentPeriod
-          );
-          const selectedFilterVariants = generatePeriodVariants(
-            normalizedSelectedFilter
-          );
+        // Generate variations for the current period and selected filter
+        const currentPeriodVariants = generatePeriodVariants(
+          normalizedCurrentPeriod
+        );
+        const selectedFilterVariants = generatePeriodVariants(
+          normalizedSelectedFilter
+        );
 
-          console.log("Current Period Variants:", currentPeriodVariants);
-          console.log("Selected Filter Variants:", selectedFilterVariants);
+        console.log("Current Period Variants:", currentPeriodVariants);
+        console.log("Selected Filter Variants:", selectedFilterVariants);
 
-          // Check if any of the current period variants match the selected filter variants
-          const isMatch = currentPeriodVariants.some((variant) =>
-            selectedFilterVariants.some((filterVariant) =>
-              variant.includes(filterVariant)
-            )
-          );
+        // Check if any of the current period variants match the selected filter variants
+        const isMatch = currentPeriodVariants.some((variant) =>
+          selectedFilterVariants.some((filterVariant) =>
+            variant.includes(filterVariant)
+          )
+        );
 
-          return isMatch;
-        });
+        return isMatch;
+      });
 
     // Iterate over the selected patients and categorize their scores into buckets
     patientsToUse.forEach((patient) => {
@@ -640,19 +661,74 @@ const page = ({ goToReport }) => {
 
   console.log("Bar chart", scoreData());
 
+  const containerRef = useRef(null);
+  const cardRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cardsPerPage, setCardsPerPage] = useState(6);
+
+  // Calculate total pages and current visible patients
+  const totalPages = Math.ceil(filteredPatients.length / cardsPerPage);
+  const paginatedPatients = filteredPatients.slice(
+    (currentPage - 1) * cardsPerPage,
+    currentPage * cardsPerPage
+  );
+
+  // Dynamically calculate cards per page
+  useEffect(() => {
+    const updateCardsPerPage = () => {
+      if (containerRef.current && cardRef.current) {
+        const containerHeight = containerRef.current.clientHeight;
+        const cardHeight = cardRef.current.clientHeight;
+        const gap = 16; // tailwind gap-4
+        const fit = Math.floor(containerHeight / (cardHeight + gap));
+        setCardsPerPage(fit - 1 || 1);
+      }
+    };
+
+    updateCardsPerPage();
+    window.addEventListener("resize", updateCardsPerPage);
+    return () => window.removeEventListener("resize", updateCardsPerPage);
+  }, []);
+
   return (
     <>
       <div className="flex flex-col md:flex-row w-[95%] mx-auto mt-4 items-center justify-between">
         {/* Greeting Section */}
-        <div className="flex flex-col md:flex-row items-center md:items-end gap-1 md:gap-2">
-          <h4 className="font-medium text-black text-xl md:text-[26px]">
-            Welcome
-          </h4>
-          <h2 className="font-bold text-[#005585] text-2xl md:text-4xl">
-            {userData?.user?.doctor_name
-              ? `${userData.user.doctor_name}`
-              : "Loading..."}
-          </h2>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
+          <div className="flex flex-col md:flex-row items-center md:items-end gap-1 md:gap-2">
+            <h4 className="font-medium text-black text-xl md:text-[26px]">
+              Welcome
+            </h4>
+            <h2 className="font-bold text-[#005585] text-2xl md:text-4xl">
+              {userData?.user?.doctor_name
+                ? `${userData.user.doctor_name}`
+                : "Loading..."}
+            </h2>
+          </div>
+          {/* Search Bar */}
+          <div className="relative w-full md:w-3/5">
+            <input
+              type="text"
+              placeholder="Search using Name or UHID"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="text-black w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005585]"
+            />
+            <svg
+              className="w-5 h-5 text-gray-500 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
+              />
+            </svg>
+          </div>
         </div>
 
         {/* Right Side: Icons + Profile */}
@@ -710,29 +786,26 @@ const page = ({ goToReport }) => {
         </div>
       </div>
       <div
-        className={` h-[85%] mx-auto flex  mt-5 ${
-          width >= 1000 && width / height > 1
+        className={` h-[85%] mx-auto flex  mt-5 ${width >= 1000 && width / height > 1
             ? "w-[95%] flex-row"
             : "w-full flex-col"
-        }`}
+          }`}
       >
         <div
-          className={`rounded-xl pt-4 px-4 flex flex-col justify-between pb-4 ${
-            width >= 1000 && width / height > 1 ? "w-2/3" : "w-full"
-          }
+          className={`rounded-xl pt-4 px-4 flex flex-col justify-between pb-4 ${width >= 1000 && width / height > 1 ? "w-2/3" : "w-full"
+            }
           ${width <= 540 && height < 940 ? "h-[150%]" : "h-full"}`}
           style={{
             boxShadow: "0 0px 10px rgba(0, 0, 0, 0.15)",
           }}
         >
           <div
-            className={`flex  ${
-              width < 650 && width >= 530
+            className={`flex  ${width < 650 && width >= 530
                 ? "flex-col justify-center items-start gap-3"
                 : width < 530
-                ? "flex-col justify-center items-center gap-3"
-                : "flex-row justify-between items-start"
-            }`}
+                  ? "flex-col justify-center items-center gap-3"
+                  : "flex-row justify-between items-start"
+              }`}
           >
             <div className="flex flex-col justify-between">
               <p className="text-black text-2xl font-poppins font-semibold">
@@ -750,11 +823,10 @@ const page = ({ goToReport }) => {
                       key={option}
                       onClick={() => setscoreFitler(option)}
                       className={`px-2 py-1 cursor-pointer text-xs font-semibold transition-all duration-200 rounded-lg
-          ${
-            scorefilter === option
-              ? "bg-gradient-to-b from-[#484E56] to-[#3B4048] text-white shadow-md"
-              : "text-gray-500"
-          }`}
+          ${scorefilter === option
+                          ? "bg-gradient-to-b from-[#484E56] to-[#3B4048] text-white shadow-md"
+                          : "text-gray-500"
+                        }`}
                     >
                       {option}
                     </div>
@@ -772,33 +844,30 @@ const page = ({ goToReport }) => {
             </div>
 
             <div
-              className={`gap-1  cursor-pointer flex flex-col ${
-                width < 650 && width >= 530
+              className={`gap-1  cursor-pointer flex flex-col ${width < 650 && width >= 530
                   ? "items-start"
                   : width < 530
-                  ? "items-center"
-                  : "items-end"
-              }`}
+                    ? "items-center"
+                    : "items-end"
+                }`}
             >
               <div className="w-full flex flex-row justify-between items-center gap-4">
                 <div className="flex justify-end gap-2">
                   <button
                     onClick={() => setSelectedLeg("left")}
-                    className={`px-4 py-0.5 rounded-full font-semibold ${
-                      selectedLeg === "left"
+                    className={`px-4 py-0.5 rounded-full font-semibold ${selectedLeg === "left"
                         ? "bg-[#005585] text-white"
                         : "bg-gray-300 text-black"
-                    }`}
+                      }`}
                   >
                     Left
                   </button>
                   <button
                     onClick={() => setSelectedLeg("right")}
-                    className={`px-4 py-0.5 rounded-full font-semibold ${
-                      selectedLeg === "right"
+                    className={`px-4 py-0.5 rounded-full font-semibold ${selectedLeg === "right"
                         ? "bg-[#005585] text-white"
                         : "bg-gray-300 text-black"
-                    }`}
+                      }`}
                   >
                     Right
                   </button>
@@ -808,20 +877,18 @@ const page = ({ goToReport }) => {
                   {options.map((option) => (
                     <div
                       key={option}
-                      onClick={() => setpatFilter(option)}
+                      onClick={() => { setpatFilter(option); setSearchTerm(""); }}
                       className={` cursor-pointer  font-semibold transition-all duration-200 rounded-full text-center
-            ${
-              patfilter === option
-                ? "bg-gradient-to-b from-[#484E56] to-[#3B4048] text-white shadow-md"
-                : "text-gray-300"
-            }
-            ${
-              width < 530
-                ? "text-[8px] px-2 py-1"
-                : width > 1000 && width / height > 1
-                ? "text-[10px] px-1.5 py-1"
-                : "text-xs px-3 py-1"
-            }
+            ${patfilter === option
+                          ? "bg-gradient-to-b from-[#484E56] to-[#3B4048] text-white shadow-md"
+                          : "text-gray-300"
+                        }
+            ${width < 530
+                          ? "text-[8px] px-2 py-1"
+                          : width > 1000 && width / height > 1
+                            ? "text-[10px] px-1.5 py-1"
+                            : "text-xs px-3 py-1"
+                        }
           `}
                     >
                       {option}
@@ -831,20 +898,18 @@ const page = ({ goToReport }) => {
               </div>
               {patfilter.toLowerCase() == "post operative" && (
                 <div
-                  className={` bg-[#F5F5F5] rounded-lg py-0.5 px-[3px] w-fit border-2 border-[#191A1D] gap-2 mt-2 ${
-                    width < 450 ? "grid grid-cols-3" : "flex"
-                  }`}
+                  className={` bg-[#F5F5F5] rounded-lg py-0.5 px-[3px] w-fit border-2 border-[#191A1D] gap-2 mt-2 ${width < 450 ? "grid grid-cols-3" : "flex"
+                    }`}
                 >
                   {postopoptions.map((option) => (
                     <div
                       key={option}
-                      onClick={() => setpostopFitler(option)}
+                      onClick={() => { setpostopFitler(option); setSearchTerm(""); }}
                       className={`px-2 py-1 cursor-pointer text-xs font-semibold transition-all duration-200 rounded-lg
-            ${
-              postopfilter === option
-                ? "bg-gradient-to-b from-[#484E56] to-[#3B4048] text-white shadow-md"
-                : "text-gray-500"
-            }
+            ${postopfilter === option
+                          ? "bg-gradient-to-b from-[#484E56] to-[#3B4048] text-white shadow-md"
+                          : "text-gray-500"
+                        }
           `}
                     >
                       {option}
@@ -856,305 +921,318 @@ const page = ({ goToReport }) => {
           </div>
 
           <div
-            className={`overflow-y-scroll flex-grow pr-2 mt-3 ${
-              width < 650 && width >= 450
+            className={`overflow-y-scroll flex-grow pr-2 mt-3 ${width < 650 && width >= 450
                 ? patfilter.toLowerCase() === "post operative"
                   ? "h-[75%]"
                   : "h-[75%]"
                 : width < 450 && width / height >= 0.5
-                ? patfilter.toLowerCase() === "post operative"
-                  ? "h-[60%]"
-                  : "h-[60%]"
-                : width < 450 && width / height < 0.5
-                ? patfilter.toLowerCase() === "post operative"
-                  ? "h-[67%]"
-                  : "h-[67%]"
-                : width >= 1000 && width < 1272 && width / height > 1
-                ? patfilter.toLowerCase() === "post operative"
-                  ? "h-[75%]"
-                  : "h-[75%]"
-                : patfilter.toLowerCase() === "post operative"
-                ? "h-[82.8%]"
-                : "h-[82.8%]"
-            }`}
+                  ? patfilter.toLowerCase() === "post operative"
+                    ? "h-[60%]"
+                    : "h-[60%]"
+                  : width < 450 && width / height < 0.5
+                    ? patfilter.toLowerCase() === "post operative"
+                      ? "h-[67%]"
+                      : "h-[67%]"
+                    : width >= 1000 && width < 1272 && width / height > 1
+                      ? patfilter.toLowerCase() === "post operative"
+                        ? "h-[75%]"
+                        : "h-[75%]"
+                      : patfilter.toLowerCase() === "post operative"
+                        ? "h-[82.8%]"
+                        : "h-[82.8%]"
+              }`}
           >
-            {sortedPatients.map((patient) => (
+            <div className="overflow-hidden flex-1">
               <div
-                key={patient.uhid}
-                style={{ backgroundColor: "rgba(0, 85, 133, 0.1)" }}
-                className={`w-full rounded-lg flex relative   my-1 py-2 px-3 ${
-                  width < 530
-                    ? "flex-col justify-center items-center"
-                    : "flex-row justify-between items-center gap-2"
-                }
-                ${width < 1000 ? "mb-2" : "mb-2"} `}
+                ref={containerRef}
+                className="grid grid-cols-1 transition-all duration-300"
               >
-                {patient.vip === 1 && (
-                  <Image
-                    src={Flag}
-                    alt="VIP"
-                    className="absolute top-0 left-0 w-5 h-5 cursor-pointer"
-                    onClick={() => toggleVip(patient.uhid)}
-                  />
-                )}
-
-                <div
-                  className={`${
-                    width < 640 && width >= 530
-                      ? "w-3/5"
-                      : width < 530
-                      ? "w-full"
-                      : "w-[50%]"
-                  }`}
-                >
+                {paginatedPatients.map((patient) => (
                   <div
-                    className={`flex gap-4 py-0  items-center  ${
-                      width < 710 && width >= 640
-                        ? "px-0 flex-row"
-                        : width < 530
+                  ref={patient.uhid ? cardRef : null}
+                    key={patient.uhid}
+                    style={{ backgroundColor: "rgba(0, 85, 133, 0.1)" }}
+                    className={`w-full rounded-lg flex relative   my-1 py-2 px-3 ${width < 530
                         ? "flex-col justify-center items-center"
-                        : "px-2 flex-row"
-                    }`}
+                        : "flex-row justify-between items-center gap-2"
+                      }
+                ${width < 1000 ? "mb-2" : "mb-2"} `}
                   >
-                    <Image
-                      className={`rounded-full ${
-                        width < 530
-                          ? "w-11 h-11 flex justify-center items-center"
-                          : "w-10 h-10"
-                      } ${
-                  patient.vip !== 1 ? "cursor-pointer" : "cursor-not-allowed"
-                }`}
-                      src={Patientimg}
-                      alt={patient.uhid}
-                      onDoubleClick={() => {
-                        if (patient.vip !== 1) {
-                          makeVip(patient.uhid);
-                        }
-                      }}
-                      onTouchEnd={() => {
-                        if (patient.vip !== 1) {
-                          handleProfileInteraction(patient.uhid);
-                        }
-                      }}
-                      onClick={() => {
-                        if (patient.vip !== 1) {
-                          handleProfileInteraction(patient.uhid);
-                        }
-                      }}
-                    />
-
-                    <div
-                      className={`w-full flex items-center ${
-                        width < 710 ? "flex-col" : "flex-row"
-                      }`}
-                    >
-                      <div
-                        className={`flex  flex-col ${
-                          width < 710 ? "w-full" : "w-[70%]"
-                        }`}
-                      >
-                        <div className={`flex items-center justify-between `}>
-                          <p
-                            className={`text-[#475467] font-poppins font-medium text-base ${
-                              width < 530 ? "w-full text-center" : ""
-                            }`}
-                          >
-                            {patient.first_name + " " + patient.last_name}
-                          </p>
-                        </div>
-                        <p
-                          className={`font-poppins font-medium text-sm text-[#475467] ${
-                            width < 530 ? "text-center" : "text-start"
-                          }`}
-                        >
-                          {patient.age}, {patient.gender}
-                        </p>
-                      </div>
-
-                      <div
-                        className={`text-sm font-medium font-poppins text-[#475467]   ${
-                          width < 710 && width >= 530
-                            ? "w-full text-start"
-                            : width < 530
-                            ? "w-full text-center"
-                            : "w-[30%] text-start"
-                        }`}
-                      >
-                        <p
-                          className={`text-[#F2181C] ${
-                            patient.surgeryReportStatus !== "PENDING"
-                              ? "hidden"
-                              : ""
-                          }`}
-                        >
-                          {patient.uhid}
-                        </p>
-                        <p> UHID {patient.uhid} </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className={`flex ${
-                    width < 640 && width >= 530
-                      ? "w-2/5 flex-col text-start"
-                      : width < 530
-                      ? "w-full flex-col text-start"
-                      : "w-[50%] flex-row"
-                  }`}
-                >
-                  <div
-                    className={` flex ${
-                      width <= 750 && width >= 530
-                        ? "flex-col items-end"
-                        : width < 530
-                        ? "flex-col items-center"
-                        : "flex-row"
-                    } 
-                    ${width < 640 ? "w-full justify-end" : "w-[70%]"}`}
-                  >
-                    <div
-                      className={` text-sm font-medium text-[#475467] ${
-                        width <= 750 && width >= 530
-                          ? "w-3/4 text-start"
-                          : width < 530
-                          ? "w-full text-center"
-                          : "w-[35%] text-end"
-                      }`}
-                    >
-                      {getCurrentPeriod(patient, selectedLeg)}
-                    </div>
-                    <div
-                      className={`text-base font-medium text-black ${
-                        width <= 750 && width >= 530
-                          ? "w-3/4 text-start"
-                          : width < 530
-                          ? "w-full text-center"
-                          : "w-[55%] text-end"
-                      }`}
-                    >
-                      SCORE:&nbsp;&nbsp;
-                      {(selectedLeg === "left"
-                        ? patient.questionnaire_scores_left
-                        : patient.questionnaire_scores_right
-                      )?.find((score) =>
-                        score.name
-                          ?.toLowerCase()
-                          .includes(scorefilter.toLowerCase())
-                      )?.score?.[0] ?? "N/A"}
-                    </div>
-                  </div>
-
-                  <div
-                    className={` flex flex-row justify-end items-center ${
-                      width < 640 ? "w-full" : "w-[30%]"
-                    }`}
-                  >
-                    <div
-                      className={`flex flex-row gap-1 items-center ${
-                        width < 640 && width >= 530
-                          ? "w-3/4"
-                          : width < 530
-                          ? "w-full justify-center"
-                          : ""
-                      }`}
-                      onClick={() => goToReport(patient, scoreGroups, userData)}
-                    >
-                      <div className="text-sm font-medium border-b-2 text-[#476367] border-blue-gray-500 cursor-pointer">
-                        Report
-                      </div>
-                      <ArrowUpRightIcon
-                        color="blue"
-                        className="w-4 h-4 cursor-pointer"
+                    {patient.vip === 1 && (
+                      <Image
+                        src={Flag}
+                        alt="VIP"
+                        className="absolute top-0 left-0 w-5 h-5 cursor-pointer"
+                        onClick={() => toggleVip(patient.uhid)}
                       />
+                    )}
+
+                    <div
+                      className={`${width < 640 && width >= 530
+                          ? "w-3/5"
+                          : width < 530
+                            ? "w-full"
+                            : "w-[50%]"
+                        }`}
+                    >
+                      <div
+                        className={`flex gap-4 py-0  items-center  ${width < 710 && width >= 640
+                            ? "px-0 flex-row"
+                            : width < 530
+                              ? "flex-col justify-center items-center"
+                              : "px-2 flex-row"
+                          }`}
+                      >
+                        <Image
+                          className={`rounded-full ${width < 530
+                              ? "w-11 h-11 flex justify-center items-center"
+                              : "w-10 h-10"
+                            } ${patient.vip !== 1 ? "cursor-pointer" : "cursor-not-allowed"
+                            }`}
+                          src={Patientimg}
+                          alt={patient.uhid}
+                          onDoubleClick={() => {
+                            if (patient.vip !== 1) {
+                              makeVip(patient.uhid);
+                            }
+                          }}
+                          onTouchEnd={() => {
+                            if (patient.vip !== 1) {
+                              handleProfileInteraction(patient.uhid);
+                            }
+                          }}
+                          onClick={() => {
+                            if (patient.vip !== 1) {
+                              handleProfileInteraction(patient.uhid);
+                            }
+                          }}
+                        />
+
+                        <div
+                          className={`w-full flex items-center ${width < 710 ? "flex-col" : "flex-row"
+                            }`}
+                        >
+                          <div
+                            className={`flex  flex-col ${width < 710 ? "w-full" : "w-[70%]"
+                              }`}
+                          >
+                            <div className={`flex items-center justify-between `}>
+                              <p
+                                className={`text-[#475467] font-poppins font-medium text-base ${width < 530 ? "w-full text-center" : ""
+                                  }`}
+                              >
+                                {patient.first_name + " " + patient.last_name}
+                              </p>
+                            </div>
+                            <p
+                              className={`font-poppins font-medium text-sm text-[#475467] ${width < 530 ? "text-center" : "text-start"
+                                }`}
+                            >
+                              {patient.age}, {patient.gender}
+                            </p>
+                          </div>
+
+                          <div
+                            className={`text-sm font-medium font-poppins text-[#475467]   ${width < 710 && width >= 530
+                                ? "w-full text-start"
+                                : width < 530
+                                  ? "w-full text-center"
+                                  : "w-[30%] text-start"
+                              }`}
+                          >
+                            <p
+                              className={`text-[#F2181C] ${patient.surgeryReportStatus !== "PENDING"
+                                  ? "hidden"
+                                  : ""
+                                }`}
+                            >
+                              {patient.uhid}
+                            </p>
+                            <p> UHID {patient.uhid} </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`flex ${width < 640 && width >= 530
+                          ? "w-2/5 flex-col text-start"
+                          : width < 530
+                            ? "w-full flex-col text-start"
+                            : "w-[50%] flex-row"
+                        }`}
+                    >
+                      <div
+                        className={` flex ${width <= 750 && width >= 530
+                            ? "flex-col items-end"
+                            : width < 530
+                              ? "flex-col items-center"
+                              : "flex-row"
+                          } 
+                    ${width < 640 ? "w-full justify-end" : "w-[70%]"}`}
+                      >
+                        <div
+                          className={` text-sm font-medium text-[#475467] ${width <= 750 && width >= 530
+                              ? "w-3/4 text-start"
+                              : width < 530
+                                ? "w-full text-center"
+                                : "w-[35%] text-end"
+                            }`}
+                        >
+                          {getCurrentPeriod(patient, selectedLeg)}
+                        </div>
+                        <div
+                          className={`text-base font-medium text-black ${width <= 750 && width >= 530
+                              ? "w-3/4 text-start"
+                              : width < 530
+                                ? "w-full text-center"
+                                : "w-[55%] text-end"
+                            }`}
+                        >
+                          SCORE:&nbsp;&nbsp;
+                          {(selectedLeg === "left"
+                            ? patient.questionnaire_scores_left
+                            : patient.questionnaire_scores_right
+                          )?.find((score) =>
+                            score.name
+                              ?.toLowerCase()
+                              .includes(scorefilter.toLowerCase())
+                          )?.score?.[0] ?? "N/A"}
+                        </div>
+                      </div>
+
+                      <div
+                        className={` flex flex-row justify-end items-center ${width < 640 ? "w-full" : "w-[30%]"
+                          }`}
+                      >
+                        <div
+                          className={`flex flex-row gap-1 items-center ${width < 640 && width >= 530
+                              ? "w-3/4"
+                              : width < 530
+                                ? "w-full justify-center"
+                                : ""
+                            }`}
+                          onClick={() => goToReport(patient, scoreGroups, userData)}
+                        >
+                          <div className="text-sm font-medium border-b-2 text-[#476367] border-blue-gray-500 cursor-pointer">
+                            Report
+                          </div>
+                          <ArrowUpRightIcon
+                            color="blue"
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 my-2">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 text-black disabled:opacity-50 cursor-pointer"
+                  >
+                    Prev
+                  </button>
+
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1 border rounded cursor-pointer ${
+                        currentPage === i + 1
+                          ? "bg-blue-500 text-white"
+                          : "bg-white text-blue-500"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(p + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 text-black disabled:opacity-50 cursor-pointer"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         <div
           className={`h-full  flex flex-col justify-between
-            ${
-              width >= 1272
-                ? "pl-15 gap-2"
-                : width >= 1000 && width < 1272 && width / height > 1
+            ${width >= 1272
+              ? "pl-15 gap-2"
+              : width >= 1000 && width < 1272 && width / height > 1
                 ? "pl-6 gap-2"
                 : width < 1000
-                ? "pl-0 mt-6 gap-4"
-                : "pl-0 mt-6"
+                  ? "pl-0 mt-6 gap-4"
+                  : "pl-0 mt-6"
             }
             ${width >= 1000 && width / height > 1 ? "w-1/3" : "w-full "}`}
         >
           <div
-            className={`w-full  flex flex-row justify-between ${
-              width < 1170 && width >= 1000
+            className={`w-full  flex flex-row justify-between ${width < 1170 && width >= 1000
                 ? "gap-4 h-fit"
                 : width < 1000
-                ? "h-fit"
-                : "h-fit gap-12"
-            }`}
+                  ? "h-fit"
+                  : "h-fit gap-12"
+              }`}
           >
             <div
-              className={`h-full bg-white shadow-md rounded-xl flex flex-col items-start justify-between  ${
-                width < 420 ? "w-fit" : "w-44"
-              }
-              ${
-                width >= 1000 && width / height > 1 ? "gap-2 p-2" : "gap-5 p-4"
-              }`}
+              className={`h-full bg-white shadow-md rounded-xl flex flex-col items-start justify-between  ${width < 420 ? "w-fit" : "w-44"
+                }
+              ${width >= 1000 && width / height > 1 ? "gap-2 p-2" : "gap-5 p-4"
+                }`}
             >
               <Image
                 src={Patcount}
                 alt="Profile"
-                className={` rounded-lg ${
-                  width < 1060 && width >= 1000 ? "w-9 h-9" : "w-10 h-10"
-                }`}
+                className={` rounded-lg ${width < 1060 && width >= 1000 ? "w-9 h-9" : "w-10 h-10"
+                  }`}
               />
               <p
-                className={`text-black  font-semibold ${
-                  width < 1060 && width >= 1000 ? "text-sm" : "text-base"
-                }`}
+                className={`text-black  font-semibold ${width < 1060 && width >= 1000 ? "text-sm" : "text-base"
+                  }`}
               >
                 PRE OPERATIVE PATIENTS
               </p>
               <p
-                className={`text-black font-medium text-end w-full ${
-                  width < 1060 && width >= 1000 ? "text-3xl" : "text-4xl"
-                }`}
+                className={`text-black font-medium text-end w-full ${width < 1060 && width >= 1000 ? "text-3xl" : "text-4xl"
+                  }`}
               >
                 {preOpCount}
               </p>
             </div>
 
             <div
-              className={`h-full bg-white shadow-md rounded-xl flex flex-col items-start justify-between ${
-                width < 420 ? "w-fit" : "w-44"
-              }
-              ${
-                width >= 1000 && width / height > 1 ? "gap-2 p-2" : "gap-5 p-4"
-              }`}
+              className={`h-full bg-white shadow-md rounded-xl flex flex-col items-start justify-between ${width < 420 ? "w-fit" : "w-44"
+                }
+              ${width >= 1000 && width / height > 1 ? "gap-2 p-2" : "gap-5 p-4"
+                }`}
             >
               <Image
                 src={Doccount}
                 alt="Profile"
-                className={`rounded-lg ${
-                  width < 1060 && width >= 1000 ? "w-9 h-9" : "w-10 h-10"
-                }`}
+                className={`rounded-lg ${width < 1060 && width >= 1000 ? "w-9 h-9" : "w-10 h-10"
+                  }`}
               />
               <p
-                className={`text-black  font-semibold ${
-                  width < 1060 && width >= 1000 ? "text-sm" : "text-base"
-                }`}
+                className={`text-black  font-semibold ${width < 1060 && width >= 1000 ? "text-sm" : "text-base"
+                  }`}
               >
                 POST OPERATIVE PATIENTS
               </p>
               <p
-                className={`text-black font-medium text-end w-full ${
-                  width < 1060 && width >= 1000 ? "text-3xl" : "text-4xl"
-                }`}
+                className={`text-black font-medium text-end w-full ${width < 1060 && width >= 1000 ? "text-3xl" : "text-4xl"
+                  }`}
               >
                 {postOpTotal}
               </p>
@@ -1162,18 +1240,16 @@ const page = ({ goToReport }) => {
           </div>
 
           <div
-            className={`w-full  justify-start gap-12 ${
-              width < 1000 ? "h-fit" : "h-[60%]"
-            }`}
+            className={`w-full  justify-start gap-12 ${width < 1000 ? "h-fit" : "h-[60%]"
+              }`}
           >
             <div className="w-full h-full bg-white shadow-md rounded-xl flex flex-col gap-4 items-center justify-start p-3">
               <div className="w-full flex flex-row justify-between items-center mb-4">
                 {" "}
                 {/* Added margin bottom for space */}
                 <p
-                  className={`text-black font-semibold ${
-                    width > 1000 && width / height > 1 ? "text-sm" : "text-lg"
-                  }`}
+                  className={`text-black font-semibold ${width > 1000 && width / height > 1 ? "text-sm" : "text-lg"
+                    }`}
                 >
                   Patients Progress - {scorefilter}
                 </p>
