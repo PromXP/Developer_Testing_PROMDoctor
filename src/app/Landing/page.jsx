@@ -18,7 +18,7 @@ const poppins = Poppins({
 });
 
 const page = () => {
-  const router=useRouter();
+  const router = useRouter();
   const useWindowSize = () => {
     const [size, setSize] = useState({
       width: 0,
@@ -45,14 +45,17 @@ const page = () => {
 
   const [selected, setSelected] = useState("home");
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [groupedScores, setGroupedScores] = useState({});
+  const [leftgroupedScores, setleftGroupedScores] = useState({});
+  const [rightgroupedScores, setrightGroupedScores] = useState({});
   const [userData, setUserData] = useState(null);
   // This will be passed to HomeDashboard
-  const handleGoToReport = (patient, scores, userData) => {
+  const handleGoToReport = (patient, scoresleftscoreGroups,rightscoreGroups, userData) => {
     setSelectedPatient(patient);
-    setGroupedScores(scores);
+    setleftGroupedScores(scoresleftscoreGroups);
+    setrightGroupedScores(rightscoreGroups);
     setUserData(userData);
     setSelected("report");
+    // console.log("SF - 12 Box plot", groupedScores);
   };
 
   const handleSelect = (index) => {
@@ -69,7 +72,8 @@ const page = () => {
         return (
           <Patientreport
             patient={selectedPatient}
-            scoreGroups={groupedScores}
+            leftscoreGroups={leftgroupedScores}
+            rightscoreGroups={rightgroupedScores}
             userData={userData} // Pass userData to Patientreport
           />
         );
@@ -194,7 +198,7 @@ const page = () => {
                 ? "bg-white/40 backdrop-blur-md shadow-lg border border-white/30"
                 : "opacity-100"
             }`}
-            onClick={()=>{
+            onClick={() => {
               router.replace("/");
               localStorage.removeItem("userData");
             }}

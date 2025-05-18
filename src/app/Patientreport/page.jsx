@@ -153,7 +153,7 @@ const useBoxPlot = (boxPlots) => {
   );
 };
 
-const page = ({ patient, scoreGroups, userData }) => {
+const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
   const useWindowSize = () => {
     const [size, setSize] = useState({
       width: 0,
@@ -481,15 +481,19 @@ const page = ({ patient, scoreGroups, userData }) => {
   }, [questionnaire_assigned_left, questionnaire_assigned_right]);
 
   const parseValues = (arr) => {
+    console.log("Parse values", arr);
+
     if (!arr || arr.length === 0) return null;
     return arr
-      .map((val) => val.split(","))
       .flat()
       .map((v) => parseFloat(v))
       .filter((v) => !isNaN(v));
   };
 
   const boxPlotData = useMemo(() => {
+    const scoreGroups =
+      selectedLeg === "left" ? leftscoreGroups : rightscoreGroups;
+
     if (!scoreGroups) return [];
 
     let data = Object.entries(scoreGroups)
@@ -536,7 +540,7 @@ const page = ({ patient, scoreGroups, userData }) => {
     );
 
     return data;
-  }, [scoreGroups, patient]);
+  }, [leftscoreGroups, rightscoreGroups, selectedLeg, patient]);
 
   const databox = useBoxPlot(
     (boxPlotData ?? []).map((item, index) => {
@@ -561,6 +565,9 @@ const page = ({ patient, scoreGroups, userData }) => {
 
   // SF-12 data processing
   const sf12BoxPlotData = useMemo(() => {
+    const scoreGroups =
+      selectedLeg === "left" ? leftscoreGroups : rightscoreGroups;
+
     if (!scoreGroups) return [];
 
     let data = Object.entries(scoreGroups)
@@ -607,7 +614,7 @@ const page = ({ patient, scoreGroups, userData }) => {
     );
 
     return data;
-  }, [scoreGroups, patient]);
+  }, [leftscoreGroups, rightscoreGroups, selectedLeg, patient]);
 
   const sf12Databox = useBoxPlot(
     (sf12BoxPlotData ?? []).map((item, index) => {
@@ -632,6 +639,9 @@ const page = ({ patient, scoreGroups, userData }) => {
 
   // KOOS data
   const koosBoxPlotData = useMemo(() => {
+    const scoreGroups =
+      selectedLeg === "left" ? leftscoreGroups : rightscoreGroups;
+
     if (!scoreGroups) return [];
 
     let data = Object.entries(scoreGroups)
@@ -645,7 +655,11 @@ const page = ({ patient, scoreGroups, userData }) => {
         const name = normalizeLabel(label);
         const boxData = parseValues(values);
 
-        const patientValue = patient?.questionnaire_scores?.find(
+        const sc =
+          selectedLeg === "left"
+            ? patient?.questionnaire_scores_left
+            : patient?.questionnaire_scores_right;
+        const patientValue = sc.find(
           (s) =>
             s.name ===
               "Knee Injury and Ostheoarthritis Outcome Score, Joint Replacement (KOOS, JR)" &&
@@ -679,11 +693,13 @@ const page = ({ patient, scoreGroups, userData }) => {
     );
 
     return data;
-  }, [scoreGroups, patient]);
+  }, [leftscoreGroups, rightscoreGroups, selectedLeg, patient]);
 
   const koosDatabox = useBoxPlot(
     (koosBoxPlotData ?? []).map((item, index) => {
       const stats = computeBoxStats(item.boxData, item.dotValue);
+
+      console.log("KOOS Stats", koosBoxPlotData);
 
       const isValidDot =
         stats.Patient !== undefined &&
@@ -704,6 +720,9 @@ const page = ({ patient, scoreGroups, userData }) => {
 
   // KSS data
   const kssBoxPlotData = useMemo(() => {
+    const scoreGroups =
+      selectedLeg === "left" ? leftscoreGroups : rightscoreGroups;
+
     if (!scoreGroups) return [];
 
     let data = Object.entries(scoreGroups)
@@ -750,7 +769,7 @@ const page = ({ patient, scoreGroups, userData }) => {
     );
 
     return data;
-  }, [scoreGroups, patient]);
+  }, [leftscoreGroups, rightscoreGroups, selectedLeg, patient]);
 
   const kssDatabox = useBoxPlot(
     (kssBoxPlotData ?? []).map((item, index) => {
@@ -775,6 +794,8 @@ const page = ({ patient, scoreGroups, userData }) => {
 
   // FJS data
   const fjsBoxPlotData = useMemo(() => {
+    const scoreGroups =
+      selectedLeg === "left" ? leftscoreGroups : rightscoreGroups;
     if (!scoreGroups) return [];
 
     let data = Object.entries(scoreGroups)
@@ -821,7 +842,7 @@ const page = ({ patient, scoreGroups, userData }) => {
     );
 
     return data;
-  }, [scoreGroups, patient]);
+  }, [leftscoreGroups, rightscoreGroups, selectedLeg, patient]);
 
   const allLabels = [
     "PREOP",
@@ -2134,7 +2155,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                 margin={{ top: 20, bottom: 20, left: 0, right: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (!active || !payload || !Array.isArray(payload))
@@ -2144,6 +2164,43 @@ const page = ({ patient, scoreGroups, userData }) => {
                       typeof label === "number" || typeof label === "string"
                         ? label
                         : "Unknown";
+
+                    // Map original names to renamed keys
+                    const renameMap = {
+                      bottomWhisker: "leastObservedRange",
+                      bottomBox: "belowAverageRange",
+                      topBox: "aboveAverageRange",
+                      topWhisker: "highestObservedRange",
+                      _median: "medianScore",
+                      _min: "minScore",
+                      _max: "maxScore",
+                      Patient: "Patient",
+                    };
+
+                    // Create a dictionary of renamed keys to their values and colors
+                    const renamedValues = {};
+
+                    payload.forEach((entry) => {
+                      const originalName = entry?.name;
+                      const renamedName =
+                        renameMap[originalName] || originalName;
+                      renamedValues[renamedName] = {
+                        value: entry?.value,
+                        color: entry?.color ?? "#000",
+                      };
+                    });
+
+                    // Desired display order
+                    const displayOrder = [
+                      "Patient",
+                      "maxScore",
+                      "highestObservedRange",
+                      "aboveAverageRange",
+                      "medianScore",
+                      "belowAverageRange",
+                      "leastObservedRange",
+                      "minScore",
+                    ];
 
                     return (
                       <div
@@ -2155,20 +2212,19 @@ const page = ({ patient, scoreGroups, userData }) => {
                       >
                         <p
                           style={{ fontWeight: "bold", margin: 0 }}
-                        >{`Day: ${safeLabel}`}</p>
-                        {payload.map((entry, index) => {
-                          const value = entry?.value;
+                        >{`Timepoint: ${safeLabel}`}</p>
+                        {displayOrder.map((key, index) => {
+                          const entry = renamedValues[key];
+                          if (!entry) return null; // skip if no value for this key
+
                           return (
                             <p
                               key={index}
-                              style={{
-                                margin: 0,
-                                color: entry?.color ?? "#000",
-                              }}
+                              style={{ margin: 0, color: entry.color }}
                             >
-                              {entry.name}:{" "}
-                              {typeof value === "number"
-                                ? value.toFixed(2)
+                              {key}:{" "}
+                              {typeof entry.value === "number"
+                                ? entry.value.toFixed(2)
                                 : "N/A"}
                             </p>
                           );
@@ -2178,81 +2234,18 @@ const page = ({ patient, scoreGroups, userData }) => {
                   }}
                   cursor={{ fill: "rgba(97, 94, 131, 0.1)" }}
                 />
-
-                <Legend
-                  verticalAlign="top"
-                  align="right"
-                  iconType="circle"
-                  iconSize={10}
-                  wrapperStyle={{ paddingBottom: 20 }}
-                  content={() => {
-                    const labels = {
-                      other: "Other Patients",
-                      oks: "Oxford Knee Score",
-                    };
-
-                    const colors = {
-                      other: "#4A3AFF",
-                      oks: "#04CE00",
-                    };
-
-                    return (
-                      <ul
-                        style={{
-                          display: "flex",
-                          gap: "20px",
-                          listStyle: "none",
-                          margin: 0,
-                          padding: 0,
-                        }}
-                      >
-                        {Object.entries(labels).map(([key, label]) => (
-                          <li
-                            key={key}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 6,
-                            }}
-                          >
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: 7,
-                                height: 7,
-                                borderRadius: "50%",
-                                backgroundColor: colors[key],
-                              }}
-                            />
-                            <span
-                              style={{
-                                fontWeight: 600,
-                                fontSize: 10,
-                                color: "black",
-                              }}
-                            >
-                              {label}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    );
-                  }}
-                />
-
+                ;
                 <Bar stackId="a" dataKey="min" fill="none" />
                 <Bar stackId="a" dataKey="bottomWhisker" shape={<DotBar />} />
                 <Bar stackId="a" dataKey="bottomBox" fill="#4A3AFF" />
                 <Bar stackId="a" dataKey="topBox" fill="#4A3AFF" />
                 <Bar stackId="a" dataKey="topWhisker" shape={<DotBar />} />
-
                 {/* Median Line */}
                 <Scatter
                   data={databox.filter((item) => item._median !== undefined)} // Ensure valid data
                   shape={(props) => <HorizonBar {...props} dataKey="_median" />}
                   dataKey="_median"
                 />
-
                 {/* Min Line */}
                 <Scatter
                   data={databox.filter((item) => item._min !== undefined)} // Ensure valid data
@@ -2261,14 +2254,12 @@ const page = ({ patient, scoreGroups, userData }) => {
                   )}
                   dataKey="_min"
                 />
-
                 {/* Max Line */}
                 <Scatter
                   data={databox.filter((item) => item._max !== undefined)} // Ensure valid data
                   shape={(props) => <HorizonBar {...props} dataKey="_max" />}
                   dataKey="_max"
                 />
-
                 <ZAxis type="number" dataKey="size" range={[0, 250]} />
                 <Scatter
                   data={databox.filter(
@@ -2291,7 +2282,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                     />
                   )}
                 />
-
                 <XAxis
                   dataKey="name"
                   type="category"
@@ -2304,7 +2294,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                   axisLine={{ stroke: "#615E83" }}
                   tickLine={{ stroke: "#615E83" }}
                 />
-
                 <YAxis
                   label={{
                     value: "SCORE",
@@ -2348,7 +2337,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                 margin={{ top: 20, bottom: 20, left: 0, right: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (!active || !payload || !Array.isArray(payload))
@@ -2358,6 +2346,42 @@ const page = ({ patient, scoreGroups, userData }) => {
                       typeof label === "number" || typeof label === "string"
                         ? label
                         : "Unknown";
+
+                    // Map original names to renamed keys
+                    const renameMap = {
+                      bottomWhisker: "leastObservedScore",
+                      bottomBox: "belowAverageRange",
+                      topBox: "aboveAverageRange",
+                      topWhisker: "highestObservedRange",
+                      _median: "medianScore",
+                      _min: "minScore",
+                      _max: "maxScore",
+                      // Add 'Patient' if applicable
+                    };
+
+                    // Store renamed entries by key
+                    const renamedEntries = {};
+
+                    payload.forEach((entry) => {
+                      const value = entry?.value;
+                      const color = entry?.color ?? "#000";
+
+                      let renamedName = renameMap[entry?.name] ?? entry?.name;
+
+                      renamedEntries[renamedName] = { value, color };
+                    });
+
+                    // Desired display order
+                    const displayOrder = [
+                      "Patient",
+                      "maxScore",
+                      "highestObservedRange",
+                      "aboveAverageRange",
+                      "medianScore",
+                      "belowAverageRange",
+                      "leastObservedScore",
+                      "minScore",
+                    ];
 
                     return (
                       <div
@@ -2369,20 +2393,19 @@ const page = ({ patient, scoreGroups, userData }) => {
                       >
                         <p
                           style={{ fontWeight: "bold", margin: 0 }}
-                        >{`Day: ${safeLabel}`}</p>
-                        {payload.map((entry, index) => {
-                          const value = entry?.value;
+                        >{`Timepoint: ${safeLabel}`}</p>
+                        {displayOrder.map((key, index) => {
+                          const entry = renamedEntries[key];
+                          if (!entry) return null; // skip if no data for this key
+
                           return (
                             <p
                               key={index}
-                              style={{
-                                margin: 0,
-                                color: entry?.color ?? "#000",
-                              }}
+                              style={{ margin: 0, color: entry.color }}
                             >
-                              {entry.name}:{" "}
-                              {typeof value === "number"
-                                ? value.toFixed(2)
+                              {key}:{" "}
+                              {typeof entry.value === "number"
+                                ? entry.value.toFixed(2)
                                 : "N/A"}
                             </p>
                           );
@@ -2392,6 +2415,7 @@ const page = ({ patient, scoreGroups, userData }) => {
                   }}
                   cursor={{ fill: "rgba(97, 94, 131, 0.1)" }}
                 />
+                ;
                 <Legend
                   verticalAlign="top"
                   align="right"
@@ -2452,20 +2476,17 @@ const page = ({ patient, scoreGroups, userData }) => {
                     );
                   }}
                 />
-
                 <Bar stackId="a" dataKey="min" fill="none" />
                 <Bar stackId="a" dataKey="bottomWhisker" shape={<DotBar />} />
                 <Bar stackId="a" dataKey="bottomBox" fill="#4A3AFF" />
                 <Bar stackId="a" dataKey="topBox" fill="#4A3AFF" />
                 <Bar stackId="a" dataKey="topWhisker" shape={<DotBar />} />
-
                 {/* Median Line */}
                 <Scatter
                   data={sf12Databox}
                   shape={(props) => <HorizonBar {...props} dataKey="_median" />}
                   dataKey="_median"
                 />
-
                 {/* Min Line */}
                 <Scatter
                   data={sf12Databox}
@@ -2474,14 +2495,12 @@ const page = ({ patient, scoreGroups, userData }) => {
                   )}
                   dataKey="_min"
                 />
-
                 {/* Max Line */}
                 <Scatter
                   data={sf12Databox}
                   shape={(props) => <HorizonBar {...props} dataKey="_max" />}
                   dataKey="_max"
                 />
-
                 <ZAxis type="number" dataKey="size" range={[0, 250]} />
                 <Scatter
                   data={sf12Databox.filter(
@@ -2504,7 +2523,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                     />
                   )}
                 />
-
                 <XAxis
                   dataKey="name"
                   type="category"
@@ -2517,7 +2535,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                   axisLine={{ stroke: "#615E83" }}
                   tickLine={{ stroke: "#615E83" }}
                 />
-
                 <YAxis
                   label={{
                     value: "SCORE",
@@ -2555,7 +2572,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                 margin={{ top: 20, bottom: 20, left: 0, right: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (!active || !payload || !Array.isArray(payload))
@@ -2565,6 +2581,42 @@ const page = ({ patient, scoreGroups, userData }) => {
                       typeof label === "number" || typeof label === "string"
                         ? label
                         : "Unknown";
+
+                    // Map original names to renamed keys
+                    const renameMap = {
+                      bottomWhisker: "leastObservedScore",
+                      bottomBox: "belowAverageRange",
+                      topBox: "aboveAverageRange",
+                      topWhisker: "highestObservedRange",
+                      _median: "medianScore",
+                      _min: "minScore",
+                      _max: "maxScore",
+                    };
+
+                    // Collect renamed entries here
+                    const renamedEntries = {};
+
+                    payload.forEach((entry) => {
+                      const value = entry?.value;
+                      const color = entry?.color ?? "#000";
+
+                      // Rename or fallback to original name
+                      const renamedName = renameMap[entry?.name] ?? entry?.name;
+
+                      renamedEntries[renamedName] = { value, color };
+                    });
+
+                    // Specify your desired display order here
+                    const displayOrder = [
+                      "Patient",
+                      "maxScore",
+                      "highestObservedRange",
+                      "aboveAverageRange",
+                      "medianScore",
+                      "belowAverageRange",
+                      "leastObservedScore",
+                      "minScore",
+                    ];
 
                     return (
                       <div
@@ -2577,19 +2629,18 @@ const page = ({ patient, scoreGroups, userData }) => {
                         <p
                           style={{ fontWeight: "bold", margin: 0 }}
                         >{`Day: ${safeLabel}`}</p>
-                        {payload.map((entry, index) => {
-                          const value = entry?.value;
+                        {displayOrder.map((key, index) => {
+                          const entry = renamedEntries[key];
+                          if (!entry) return null; // Skip if this key doesn't exist
+
                           return (
                             <p
                               key={index}
-                              style={{
-                                margin: 0,
-                                color: entry?.color ?? "#000",
-                              }}
+                              style={{ margin: 0, color: entry.color }}
                             >
-                              {entry.name}:{" "}
-                              {typeof value === "number"
-                                ? value.toFixed(2)
+                              {key}:{" "}
+                              {typeof entry.value === "number"
+                                ? entry.value.toFixed(2)
                                 : "N/A"}
                             </p>
                           );
@@ -2599,7 +2650,7 @@ const page = ({ patient, scoreGroups, userData }) => {
                   }}
                   cursor={{ fill: "rgba(97, 94, 131, 0.1)" }}
                 />
-
+                ;
                 <Legend
                   verticalAlign="top"
                   align="right"
@@ -2660,20 +2711,17 @@ const page = ({ patient, scoreGroups, userData }) => {
                     );
                   }}
                 />
-
                 <Bar stackId="a" dataKey="min" fill="none" />
                 <Bar stackId="a" dataKey="bottomWhisker" shape={<DotBar />} />
                 <Bar stackId="a" dataKey="bottomBox" fill="#4A3AFF" />
                 <Bar stackId="a" dataKey="topBox" fill="#4A3AFF" />
                 <Bar stackId="a" dataKey="topWhisker" shape={<DotBar />} />
-
                 {/* Median Line */}
                 <Scatter
                   data={koosDatabox}
                   shape={(props) => <HorizonBar {...props} dataKey="_median" />}
                   dataKey="_median"
                 />
-
                 {/* Min Line */}
                 <Scatter
                   data={koosDatabox}
@@ -2682,14 +2730,12 @@ const page = ({ patient, scoreGroups, userData }) => {
                   )}
                   dataKey="_min"
                 />
-
                 {/* Max Line */}
                 <Scatter
                   data={koosDatabox}
                   shape={(props) => <HorizonBar {...props} dataKey="_max" />}
                   dataKey="_max"
                 />
-
                 <ZAxis type="number" dataKey="size" range={[0, 250]} />
                 <Scatter
                   data={koosDatabox.filter(
@@ -2712,7 +2758,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                     />
                   )}
                 />
-
                 <XAxis
                   dataKey="name"
                   type="category"
@@ -2725,7 +2770,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                   axisLine={{ stroke: "#615E83" }}
                   tickLine={{ stroke: "#615E83" }}
                 />
-
                 <YAxis
                   label={{
                     value: "SCORE",
@@ -2771,7 +2815,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                 margin={{ top: 20, bottom: 20, left: 0, right: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (!active || !payload || !Array.isArray(payload))
@@ -2781,6 +2824,55 @@ const page = ({ patient, scoreGroups, userData }) => {
                       typeof label === "number" || typeof label === "string"
                         ? label
                         : "Unknown";
+
+                    // Rename and collect entries
+                    const renamedEntries = {};
+
+                    payload.forEach((entry) => {
+                      const value = entry?.value;
+                      const color = entry?.color ?? "#000";
+                      let renamedName = entry?.name;
+
+                      switch (renamedName) {
+                        case "bottomWhisker":
+                          renamedName = "leastObservedScore";
+                          break;
+                        case "bottomBox":
+                          renamedName = "belowAverageRange";
+                          break;
+                        case "topBox":
+                          renamedName = "aboveAverageRange";
+                          break;
+                        case "topWhisker":
+                          renamedName = "highestObservedRange";
+                          break;
+                        case "_median":
+                          renamedName = "medianScore";
+                          break;
+                        case "_min":
+                          renamedName = "minScore";
+                          break;
+                        case "_max":
+                          renamedName = "maxScore";
+                          break;
+                        default:
+                          break;
+                      }
+
+                      renamedEntries[renamedName] = { value, color };
+                    });
+
+                    // Order in which you want to display the entries
+                    const displayOrder = [
+                      "Patient",
+                      "maxScore",
+                      "highestObservedRange",
+                      "aboveAverageRange",
+                      "medianScore",
+                      "belowAverageRange",
+                      "leastObservedScore",
+                      "minScore",
+                    ];
 
                     return (
                       <div
@@ -2793,19 +2885,18 @@ const page = ({ patient, scoreGroups, userData }) => {
                         <p
                           style={{ fontWeight: "bold", margin: 0 }}
                         >{`Day: ${safeLabel}`}</p>
-                        {payload.map((entry, index) => {
-                          const value = entry?.value;
+                        {displayOrder.map((key, index) => {
+                          const entry = renamedEntries[key];
+                          if (!entry) return null;
+
                           return (
                             <p
                               key={index}
-                              style={{
-                                margin: 0,
-                                color: entry?.color ?? "#000",
-                              }}
+                              style={{ margin: 0, color: entry.color }}
                             >
-                              {entry.name}:{" "}
-                              {typeof value === "number"
-                                ? value.toFixed(2)
+                              {key}:{" "}
+                              {typeof entry.value === "number"
+                                ? entry.value.toFixed(2)
                                 : "N/A"}
                             </p>
                           );
@@ -2815,7 +2906,7 @@ const page = ({ patient, scoreGroups, userData }) => {
                   }}
                   cursor={{ fill: "rgba(97, 94, 131, 0.1)" }}
                 />
-
+                ;
                 <Legend
                   verticalAlign="top"
                   align="right"
@@ -2876,20 +2967,17 @@ const page = ({ patient, scoreGroups, userData }) => {
                     );
                   }}
                 />
-
                 <Bar stackId="a" dataKey="min" fill="none" />
                 <Bar stackId="a" dataKey="bottomWhisker" shape={<DotBar />} />
                 <Bar stackId="a" dataKey="bottomBox" fill="#4A3AFF" />
                 <Bar stackId="a" dataKey="topBox" fill="#4A3AFF" />
                 <Bar stackId="a" dataKey="topWhisker" shape={<DotBar />} />
-
                 {/* Median Line */}
                 <Scatter
                   data={kssDatabox}
                   shape={(props) => <HorizonBar {...props} dataKey="_median" />}
                   dataKey="_median"
                 />
-
                 {/* Min Line */}
                 <Scatter
                   data={kssDatabox}
@@ -2898,14 +2986,12 @@ const page = ({ patient, scoreGroups, userData }) => {
                   )}
                   dataKey="_min"
                 />
-
                 {/* Max Line */}
                 <Scatter
                   data={kssDatabox}
                   shape={(props) => <HorizonBar {...props} dataKey="_max" />}
                   dataKey="_max"
                 />
-
                 <ZAxis type="number" dataKey="size" range={[0, 250]} />
                 <Scatter
                   data={kssDatabox.filter(
@@ -2928,7 +3014,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                     />
                   )}
                 />
-
                 <XAxis
                   dataKey="name"
                   type="category"
@@ -2941,7 +3026,6 @@ const page = ({ patient, scoreGroups, userData }) => {
                   axisLine={{ stroke: "#615E83" }}
                   tickLine={{ stroke: "#615E83" }}
                 />
-
                 <YAxis
                   label={{
                     value: "SCORE",
@@ -2990,6 +3074,24 @@ const page = ({ patient, scoreGroups, userData }) => {
                         ? label
                         : "Unknown";
 
+                    // Collect entries by name
+                    const entriesByName = {};
+                    payload.forEach((entry) => {
+                      entriesByName[entry.name] = entry;
+                    });
+
+                    // Define the order you want to display
+                    const displayOrder = [
+                      "Patient",
+                      "maxScore",
+                      "highestObservedRange",
+                      "aboveAverageRange",
+                      "medianScore",
+                      "belowAverageRange",
+                      "leastObservedScore",
+                      "minScore",
+                    ];
+
                     return (
                       <div
                         style={{
@@ -3001,17 +3103,20 @@ const page = ({ patient, scoreGroups, userData }) => {
                         <p
                           style={{ fontWeight: "bold", margin: 0 }}
                         >{`Day: ${safeLabel}`}</p>
-                        {payload.map((entry, index) => {
-                          const value = entry?.value;
+                        {displayOrder.map((name, index) => {
+                          const entry = entriesByName[name];
+                          if (!entry) return null;
+                          const value = entry.value;
+
                           return (
                             <p
                               key={index}
                               style={{
                                 margin: 0,
-                                color: entry?.color ?? "#000",
+                                color: entry.color ?? "#000",
                               }}
                             >
-                              {entry.name}:{" "}
+                              {name}:{" "}
                               {value !== null && typeof value === "number"
                                 ? value.toFixed(2)
                                 : "No Data Available"}

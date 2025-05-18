@@ -38,6 +38,8 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
   };
 
   const { width, height } = useWindowSize();
+    const [selectedLeg, setSelectedLeg] = useState("left");
+
 
   const [selectedDate, setSelectedDate] = useState("");
   const dateInputRef = useRef(null);
@@ -136,7 +138,6 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
     }
   };
 
-  const [selectedLeg, setSelectedLeg] = useState("left");
 
   const surgerydatacheck = async () => {
     if (selectedDate.trim() === "") {
