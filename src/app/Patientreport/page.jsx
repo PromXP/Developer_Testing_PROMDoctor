@@ -1377,7 +1377,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
               >
                 <Image
                   className={`rounded-full w-14 h-14`}
-                  src={patient.gender === "male" ? Malepat : Femalepat}
+                  src={patient?.gender === "male" ? Malepat : Femalepat}
                   alt="alex hales"
                 />
 
