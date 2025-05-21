@@ -181,19 +181,23 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
   const [selectedLeg, setSelectedLeg] = useState("left");
 
- const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
 
-useEffect(() => {
-  if (selectedLeg === "left") {
-    setSelectedDate(
-      formatISOToDisplay(patient?.post_surgery_details_left?.date_of_surgery) || ""
-    );
-  } else if (selectedLeg === "right") {
-    setSelectedDate(
-      formatISOToDisplay(patient?.post_surgery_details_right?.date_of_surgery) || ""
-    );
-  }
-}, [selectedLeg, patient]);
+  useEffect(() => {
+    if (selectedLeg === "left") {
+      setSelectedDate(
+        formatISOToDisplay(
+          patient?.post_surgery_details_left?.date_of_surgery
+        ) || ""
+      );
+    } else if (selectedLeg === "right") {
+      setSelectedDate(
+        formatISOToDisplay(
+          patient?.post_surgery_details_right?.date_of_surgery
+        ) || ""
+      );
+    }
+  }, [selectedLeg, patient]);
   const [selectedTime, setSelectedTime] = useState("");
   const [isDateTimeEdited, setIsDateTimeEdited] = useState(false);
 
@@ -292,8 +296,7 @@ useEffect(() => {
   };
 
   const generateChartData = (patient) => {
-    const scores =
-      selectedLeg === "left"
+    const scores =  selectedLeg === "left"
         ? patient?.questionnaire_scores_left || []
         : patient?.questionnaire_scores_right || [];
 
@@ -952,14 +955,17 @@ useEffect(() => {
 
       // ✅ Just store plain dd-mm-yyyy
       const formattedDate = `${dayStr}-${monthStr}-${yearStr}`;
-       if (formattedDate) {
-      const formattedDate1 = new Date(formattedDate).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      });
-      setSelectedDate(formattedDate);
-    }
+      if (formattedDate) {
+        const formattedDate1 = new Date(formattedDate).toLocaleDateString(
+          "en-GB",
+          {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }
+        );
+        setSelectedDate(formattedDate);
+      }
       // setSelectedDate(formattedDate);
     }
   };
@@ -1025,7 +1031,7 @@ useEffect(() => {
     },
     post_surgery_details_right: {
       surgery_date: patient?.post_surgery_details_right?.date_of_surgery
-        ? (patient.post_surgery_details_right.date_of_surgery)
+        ? patient.post_surgery_details_right.date_of_surgery
         : "",
       surgeon: patient?.post_surgery_details_right?.surgeon || "",
       surgery_name: patient?.post_surgery_details_right?.surgery_name || "",
@@ -1132,7 +1138,7 @@ useEffect(() => {
 
     if (field === "surgery_date" && selectedDate) {
       // const isoDate = formatForStorage(selectedDate);
-     
+
       // console.log("ISO Date", selectedDate);
       setEditValues((prev) => ({
         ...prev,
@@ -1159,7 +1165,6 @@ useEffect(() => {
 
     // console.log("Edited Values",new Date(editValues[legKey].surgery_date).toISOString().split("T")[0] );
 
-
     if (editValues.uhid === "") return setWarning("UHID not found");
 
     const payload = {
@@ -1168,7 +1173,9 @@ useEffect(() => {
         ...editValues[legKey],
         date_of_surgery:
           field === "surgery_date"
-            ? new Date(editValues[legKey].surgery_date).toISOString().split("T")[0] 
+            ? new Date(editValues[legKey].surgery_date)
+                .toISOString()
+                .split("T")[0]
             : editValues[legKey].surgery_date,
       },
     };
@@ -1187,7 +1194,6 @@ useEffect(() => {
           body: JSON.stringify(payload),
         }
       );
-     
 
       const result = await response.json();
 
@@ -1232,59 +1238,59 @@ useEffect(() => {
   };
 
   const isreporteditcheckleft = (details, details1) => {
-    let a1=true;
-    let a2=true;
+    let a1 = true;
+    let a2 = true;
 
-  const currentPeriodLeft = getCurrentPeriod("left");
-  const currentPeriodRight = getCurrentPeriod("right");
+    const currentPeriodLeft = getCurrentPeriod("left");
+    const currentPeriodRight = getCurrentPeriod("right");
 
-  const isValidField = (field) =>
-    typeof field === "string" &&
-    field.trim() !== "" &&
-    field.trim().toLowerCase() !== "string";
+    const isValidField = (field) =>
+      typeof field === "string" &&
+      field.trim() !== "" &&
+      field.trim().toLowerCase() !== "string";
 
-  const checkFields = (data) => {
-    if (!data || typeof data !== "object") return false;
+    const checkFields = (data) => {
+      if (!data || typeof data !== "object") return false;
 
-    const { surgeon, surgery_name, procedure, implant, technology } = data;
-    return (
-      isValidField(surgeon) &&
-      isValidField(surgery_name) &&
-      isValidField(procedure) &&
-      isValidField(implant) &&
-      isValidField(technology)
-    );
+      const { surgeon, surgery_name, procedure, implant, technology } = data;
+      return (
+        isValidField(surgeon) &&
+        isValidField(surgery_name) &&
+        isValidField(procedure) &&
+        isValidField(implant) &&
+        isValidField(technology)
+      );
+    };
+
+    const checkFields1 = (data) => {
+      if (!data || typeof data !== "object") return false;
+
+      const { surgeon, surgery_name, procedure, implant, technology } = data;
+      return (
+        isValidField(surgeon) &&
+        isValidField(surgery_name) &&
+        isValidField(procedure) &&
+        isValidField(implant) &&
+        isValidField(technology)
+      );
+    };
+
+    // If currentPeriod for left leg is null, allow details1 validation
+    if (currentPeriodLeft) {
+      a1 = checkFields(details);
+    }
+
+    // If currentPeriod for right leg is null, allow details validation
+    if (currentPeriodRight) {
+      a2 = checkFields1(details1);
+    }
+
+    // Default to checking details (left leg)
+    return a1 && a2;
   };
-
-  const checkFields1 = (data) => {
-    if (!data || typeof data !== "object") return false;
-
-    const { surgeon, surgery_name, procedure, implant, technology } = data;
-    return (
-      isValidField(surgeon) &&
-      isValidField(surgery_name) &&
-      isValidField(procedure) &&
-      isValidField(implant) &&
-      isValidField(technology)
-    );
-  };
-
-  // If currentPeriod for left leg is null, allow details1 validation
-  if (currentPeriodLeft) {
-    a1= checkFields(details);
-  }
-
-  // If currentPeriod for right leg is null, allow details validation
-  if (currentPeriodRight) {
-    a2= checkFields1(details1);
-  }
-
-  // Default to checking details (left leg)
-  return (a1 && a2);
-};
 
   const isreporteditcheckright = (details) => {
-        // console.log("Right Leg",getCurrentPeriod("right"));
+    // console.log("Right Leg",getCurrentPeriod("right"));
 
     if (!details || typeof details !== "object") return false;
 
@@ -1371,7 +1377,7 @@ useEffect(() => {
               >
                 <Image
                   className={`rounded-full w-14 h-14`}
-                  src={patient.gender === "male"?Malepat:Femalepat}
+                  src={patient.gender === "male" ? Malepat : Femalepat}
                   alt="alex hales"
                 />
 
@@ -1498,7 +1504,7 @@ useEffect(() => {
                         {isreporteditcheckleft(
                           surgeryPatient?.post_surgery_details_left ||
                             patient?.post_surgery_details_left,
-                            surgeryPatient?.post_surgery_details_right ||
+                          surgeryPatient?.post_surgery_details_right ||
                             patient?.post_surgery_details_right
                         ) ? (
                           <div className="flex justify-center items-center gap-2 text-green-600 font-bold text-sm">
@@ -1983,7 +1989,8 @@ useEffect(() => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-[#475467] text-sm">
-                        {editValues[legKey]?.procedure?.toLowerCase() || "Not Available"}
+                        {editValues[legKey]?.procedure?.toLowerCase() ||
+                          "Not Available"}
                       </p>
                       <button
                         onClick={() => handleEditClick("procedure")}
