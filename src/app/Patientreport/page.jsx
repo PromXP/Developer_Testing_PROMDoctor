@@ -49,6 +49,8 @@ import {
 } from "@heroicons/react/16/solid";
 import Patientimg from "@/app/assets/patimg.png";
 import Closeicon from "@/app/assets/closeicon.png";
+import Malepat from "@/app/assets/man.png";
+import Femalepat from "@/app/assets/woman.png";
 
 import Surgeryreport from "@/app/Surgeryreport/page";
 
@@ -1369,7 +1371,7 @@ useEffect(() => {
               >
                 <Image
                   className={`rounded-full w-14 h-14`}
-                  src={Patientimg}
+                  src={patient.gender === "male"?Malepat:Femalepat}
                   alt="alex hales"
                 />
 
