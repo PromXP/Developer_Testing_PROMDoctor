@@ -18,6 +18,11 @@ import { Poppins } from "next/font/google";
 import Firstimepassreset from "@/app/Firsttimepasswordreset/page.jsx";
 
 import ProfileImage from "@/app/assets/profile.png";
+import Malepat from "@/app/assets/man.png";
+import Femalepat from "@/app/assets/woman.png";
+import Maledoc from "@/app/assets/maledoc.png";
+import Femaledoc from "@/app/assets/femaledoc.png";
+
 import { UserIcon } from "@heroicons/react/24/outline";
 import { ChevronRightIcon, ArrowUpRightIcon } from "@heroicons/react/16/solid";
 import Patientimg from "@/app/assets/patimg.png";
@@ -141,7 +146,7 @@ useEffect(() => {
       const data = res.data;
 
       setPatients(data);
-      console.log(data);
+      console.log("Paitent list",data);
 
       // Count PRE OP patients for current selected leg
       const preOp = data.filter(
@@ -715,9 +720,9 @@ useEffect(() => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row w-[95%] mx-auto mt-4 items-center justify-between">
+      <div className="flex flex-col lg:flex-row w-[95%] mx-auto mt-4 items-center gap-4 justify-between">
         {/* Greeting Section */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
+        <div className="flex flex-col lg:flex-row md:items-center md:justify-between gap-4 w-full">
           <div className="flex flex-col md:flex-row items-center md:items-end gap-1 md:gap-2">
             <h4 className="font-medium text-black text-xl md:text-[26px]">
               Welcome
@@ -757,7 +762,7 @@ useEffect(() => {
         {/* Right Side: Icons + Profile */}
         <div className="flex items-center mt-3 md:mt-0 gap-3 md:gap-6">
           {/* Notification Bell Icon */}
-          <button className="focus:outline-none w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
+          <button className="hidden focus:outline-none w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
             <svg
               width="27"
               height="27"
@@ -774,7 +779,7 @@ useEffect(() => {
           </button>
 
           {/* Message Icon */}
-          <button className="focus:outline-none w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
+          <button className="hidden focus:outline-none w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
             <svg
               width="26"
               height="27"
@@ -795,7 +800,7 @@ useEffect(() => {
           <div className="h-12 w-36 md:w-40 bg-white border-[#D9D9D9] border-[1.5px] rounded-2xl px-3">
             <div className="h-full flex flex-row gap-3 items-center justify-center">
               <Image
-                src={ProfileImage}
+                src={userData?.user?.gender === "male"?Maledoc:Femaledoc}
                 alt="Profile"
                 className="w-8 h-8 rounded-full object-cover"
               />
@@ -1037,7 +1042,7 @@ useEffect(() => {
                               ? "cursor-pointer"
                               : "cursor-not-allowed"
                           }`}
-                          src={Patientimg}
+                          src={patient.gender === "male"?Malepat:Femalepat}
                           alt={patient.uhid}
                           onDoubleClick={() => {
                             if (patient.vip !== 1) {

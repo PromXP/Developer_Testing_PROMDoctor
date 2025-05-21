@@ -38,27 +38,50 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
   };
 
   const { width, height } = useWindowSize();
-    const [selectedLeg, setSelectedLeg] = useState("left");
+  const [selectedLeg, setSelectedLeg] = useState("left");
+  const [isManualDate, setIsManualDate] = useState(false);
 
+  function formatDateToDDMMYYYY(dateStr) {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split("-");
+    return `${day}-${month}-${year}`;
+  }
 
   const [selectedDate, setSelectedDate] = useState("");
+  useEffect(() => {
+    if (selectedLeg === "left") {
+      setSelectedDate(
+        formatDateToDDMMYYYY(patient?.surgery_scheduled_left.date)
+      );
+      setIsManualDate(false);
+    } else if (selectedLeg === "right") {
+      setSelectedDate(
+        formatDateToDDMMYYYY(patient?.surgery_scheduled_right.date)
+      );
+      setIsManualDate(false);
+    } else {
+      setSelectedDate("");
+      setIsManualDate(false);
+    }
+  }, [selectedLeg]);
+
   const dateInputRef = useRef(null);
 
-  const openDatePicker = () => {
-    dateInputRef.current?.showPicker();
-  };
+  // const openDatePicker = () => {
+  //   dateInputRef.current?.showPicker();
+  // };
 
-  const handleDateChange = (e) => {
-    const dateValue = e.target.value;
-    if (dateValue) {
-      const formattedDate = new Date(dateValue).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      });
-      setSelectedDate(formattedDate);
-    }
-  };
+  // const handleDateChange = (e) => {
+  //   const dateValue = e.target.value;
+  //   if (dateValue) {
+  //     const formattedDate = new Date(dateValue).toLocaleDateString("en-GB", {
+  //       day: "2-digit",
+  //       month: "short",
+  //       year: "numeric",
+  //     });
+  //     setSelectedDate(formattedDate);
+  //   }
+  // };
 
   const [surgery, setSurgery] = useState("");
   const [subdoctor, setSubDoctor] = useState("");
@@ -69,6 +92,8 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
   const [warning, setWarning] = useState("");
 
   const handleManualDateChange = (e) => {
+    setIsManualDate(true);
+
     let value = e.target.value.replace(/\D/g, ""); // Remove all non-digits
 
     if (value.length >= 3 && value.length <= 4) {
@@ -102,7 +127,7 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
         month > 12 ||
         year > currentYear
       ) {
-        alert("Surgery Date should not be a future date");
+        setWarning("Surgery Date should not be a future date");
         setSelectedDate("");
         return;
       }
@@ -113,7 +138,7 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
         manualDate.getMonth() + 1 !== month ||
         manualDate.getFullYear() !== year
       ) {
-        alert("Invalid date combination. Please enter a correct date.");
+        setWarning("Invalid date combination. Please enter a correct date.");
         setSelectedDate("");
         return;
       }
@@ -122,7 +147,7 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
       manualDate.setHours(0, 0, 0, 0);
 
       if (manualDate > today) {
-        alert("Surgery date cannot be a future date.");
+        setWarning("Surgery date cannot be a future date.");
         setSelectedDate("");
         return;
       }
@@ -137,7 +162,6 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
       setSelectedDate(formattedDate);
     }
   };
-
 
   const surgerydatacheck = async () => {
     if (selectedDate.trim() === "") {
@@ -166,10 +190,26 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
       return;
     }
 
-    const payload = {
+    let isoFormattedDate = "";
+
+    if (isManualDate) {
+      const [day, month, year] = selectedDate.split("-");
+      isoFormattedDate = new Date(`${year}-${month}-${day}`)
+        .toISOString()
+        .split("T")[0];
+    } else {
+      // Pre-filled already in dd-mm-yyyy format
+      const [day, month, year] = selectedDate.split("-");
+      isoFormattedDate = `${year}-${month}-${day}`;
+    }
+
+   
+
+    if (selectedLeg === "left") {
+       const payload = {
       uhid: patient?.uhid || "", // ensure patient object is passed as prop
-      post_surgery_details: {
-        date_of_surgery: new Date(selectedDate).toISOString().split("T")[0],
+      post_surgery_details_left: {
+        date_of_surgery: isoFormattedDate,
         surgeon: userData?.user?.doctor_name, // hardcoded for now
         surgery_name: surgery,
         sub_doctor: subdoctor,
@@ -178,27 +218,35 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
         technology: technology,
       },
     };
-
-    if (selectedLeg === "left") {
       try {
-        const response = await fetch(API_URL + "update-post-surgery-details-left", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+        const response = await fetch(
+          API_URL + "update-post-surgery-details-left",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
 
         const result = await response.json();
 
         if (!response.ok) {
-          setWarning(result.detail || "Failed to update surgery details for left leg");
+          setWarning(
+            result.detail || "Failed to update surgery details for left leg"
+          );
           return;
         }
         console.log("Successfully updated left leg");
         setWarning("Left leg Surgery details updated successfully!");
         if (onSurgeryUpdate) {
-          onSurgeryUpdate(payload.post_surgery_details);
+          if(selectedLeg === "left"){
+          onSurgeryUpdate(payload.post_surgery_details_left);
+          }
+          else{
+             onSurgeryUpdate(payload.post_surgery_details_right);
+          }
         }
         setTimeout(() => {
           setWarning("");
@@ -211,19 +259,36 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
     }
 
     if (selectedLeg === "right") {
+       const payload = {
+      uhid: patient?.uhid || "", // ensure patient object is passed as prop
+      post_surgery_details_right: {
+        date_of_surgery: isoFormattedDate,
+        surgeon: userData?.user?.doctor_name, // hardcoded for now
+        surgery_name: surgery,
+        sub_doctor: subdoctor,
+        procedure: procedure,
+        implant: implant,
+        technology: technology,
+      },
+    };
       try {
-        const response = await fetch(API_URL + "update-post-surgery-details-right", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+        const response = await fetch(
+          API_URL + "update-post-surgery-details-right",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
 
         const result = await response.json();
 
         if (!response.ok) {
-          setWarning(result.detail || "Failed to update surgery details for Right Leg");
+          setWarning(
+            result.detail || "Failed to update surgery details for Right Leg"
+          );
           return;
         }
         console.log("Successfully updated right leg");
@@ -343,6 +408,7 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
                       className="w-full text-black py-2 px-4 rounded-sm text-base outline-none"
                       value={selectedDate || ""}
                       onChange={handleManualDateChange}
+                      
                       maxLength={10} // Very important: dd-mm-yyyy is 10 characters
                       style={{
                         backgroundColor: "rgba(217, 217, 217, 0.5)",
@@ -372,7 +438,7 @@ const page = ({ isOpen, onClose, patient, userData, onSurgeryUpdate }) => {
                   type="text"
                   value={surgery}
                   onChange={(e) => setSurgery(e.target.value)}
-                  className="font-medium italic text-[#475467] text-sm py-1 rounded-md py-0"
+                  className="font-medium italic text-[#475467] text-sm py-1 rounded-md"
                   placeholder="Enter surgery name"
                 />
               </div>

@@ -68,6 +68,7 @@ const page = ({ isOpen, onClose }) => {
       }, 2000); // 2000 milliseconds = 2 seconds
 
     } catch (err) {
+      showWarning("User Not found Check the Credentials");
       console.error("POST error:", err);
     }
   };
@@ -139,7 +140,7 @@ const page = ({ isOpen, onClose }) => {
 
               <div className="w-full flex flex-col gap-2">
                 <input
-                  placeholder="PASSWORD"
+                  placeholder="EMAIL"
                   rows={3}
                   type="EMAIL"
                   className="w-full text-black px-4 py-2  text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

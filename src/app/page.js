@@ -45,6 +45,14 @@ export default function Home() {
     return size;
   };
 
+    const [showAlert, setshowAlert] = useState(false);
+    const [alermessage, setAlertMessage] = useState("");
+    const showWarning = (message) => {
+    setAlertMessage(message);
+    setshowAlert(true);
+    setTimeout(() => setshowAlert(false), 4000);
+  };
+
   const { width, height } = useWindowSize();
   const router = useRouter();
   const [identifier, setIdentifier] = useState("");
@@ -80,7 +88,7 @@ export default function Home() {
 
         router.push("/Landing");
       } catch (error) {
-        alert("Login failed. Please check your credentials.");
+        showWarning("Login failed. Please check your credentials.");
       } finally {
         setLoading(false);
       }
@@ -179,6 +187,13 @@ export default function Home() {
               className="absolute w-[95%] h-[90%] left-1/2 bottom-0 transform -translate-x-1/2 object-cover"
             />
           </div>
+          {showAlert && (
+                <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+                  <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
+                    {alermessage}
+                  </div>
+                </div>
+              )}
         </div>
       )}
 
@@ -281,6 +296,13 @@ export default function Home() {
               className="absolute w-[80%] h-[100%] object-fit"
             />
           </div>
+          {showAlert && (
+                <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+                  <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
+                    {alermessage}
+                  </div>
+                </div>
+              )}
         </div>
       )}
 

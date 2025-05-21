@@ -179,9 +179,19 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
   const [selectedLeg, setSelectedLeg] = useState("left");
 
-  const [selectedDate, setSelectedDate] = useState(
-    formatISOToDisplay(patient?.post_surgery_details?.date_of_surgery) || ""
-  );
+ const [selectedDate, setSelectedDate] = useState("");
+
+useEffect(() => {
+  if (selectedLeg === "left") {
+    setSelectedDate(
+      formatISOToDisplay(patient?.post_surgery_details_left?.date_of_surgery) || ""
+    );
+  } else if (selectedLeg === "right") {
+    setSelectedDate(
+      formatISOToDisplay(patient?.post_surgery_details_right?.date_of_surgery) || ""
+    );
+  }
+}, [selectedLeg, patient]);
   const [selectedTime, setSelectedTime] = useState("");
   const [isDateTimeEdited, setIsDateTimeEdited] = useState(false);
 
@@ -481,7 +491,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
   }, [questionnaire_assigned_left, questionnaire_assigned_right]);
 
   const parseValues = (arr) => {
-    console.log("Parse values", arr);
+    // console.log("Parse values", arr);
 
     if (!arr || arr.length === 0) return null;
     return arr
@@ -699,7 +709,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
     (koosBoxPlotData ?? []).map((item, index) => {
       const stats = computeBoxStats(item.boxData, item.dotValue);
 
-      console.log("KOOS Stats", koosBoxPlotData);
+      // console.log("KOOS Stats", koosBoxPlotData);
 
       const isValidDot =
         stats.Patient !== undefined &&
@@ -913,7 +923,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
         month > 12 ||
         year > currentYear
       ) {
-        alert("Surgery Date should not be a future date");
+        setWarning("Surgery Date should not be a future date");
         setSelectedDate("");
         return;
       }
@@ -924,7 +934,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
         manualDate.getMonth() + 1 !== month ||
         manualDate.getFullYear() !== year
       ) {
-        alert("Invalid date combination. Please enter a correct date.");
+        setWarning("Invalid date combination. Please enter a correct date.");
         setSelectedDate("");
         return;
       }
@@ -933,14 +943,22 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
       manualDate.setHours(0, 0, 0, 0);
 
       if (manualDate > today) {
-        alert("Surgery date cannot be a future date.");
+        setWarning("Surgery date cannot be a future date.");
         setSelectedDate("");
         return;
       }
 
       // ✅ Just store plain dd-mm-yyyy
       const formattedDate = `${dayStr}-${monthStr}-${yearStr}`;
+       if (formattedDate) {
+      const formattedDate1 = new Date(formattedDate).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
       setSelectedDate(formattedDate);
+    }
+      // setSelectedDate(formattedDate);
     }
   };
 
@@ -948,7 +966,12 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
   function formatForStorage(dateString) {
     const [day, month, year] = dateString.split("-");
-    const date = new Date(`${year}-${month}-${day}`);
+    if (!day || !month || !year) return "";
+
+    // Create a UTC ISO string manually
+    const date = new Date(
+      Date.UTC(Number(year), Number(month) - 1, Number(day))
+    );
     return date.toISOString().replace("Z", "+00:00");
   }
 
@@ -961,69 +984,94 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
     const month = String(date.getMonth() + 1).padStart(2, "0"); // Month is 0-indexed
     const year = date.getFullYear();
 
-    return `${day}-${month}-${year}`;
+    return `${year}-${month}-${day}`;
   }
 
   const fieldRefs = useRef({});
 
-  const [editMode, setEditMode] = useState({});
-  const [editValues, setEditValues] = useState({
-    uhid: patient?.uhid || "",
-    surgeon: patient?.post_surgery_details?.surgeon || "",
-    surgery_name: patient?.post_surgery_details?.surgery_name || "",
-    sub_doctor_name: patient?.post_surgery_details?.sub_doctor || "",
-    procedure: patient?.post_surgery_details?.procedure || "",
-    implant: patient?.post_surgery_details?.implant || "",
-    technology: patient?.post_surgery_details?.technology || "",
-    surgery_date:
-      formatISOToDisplay(patient?.post_surgery_details?.date_of_surgery) || "", // <-- Added this line
-  });
-
-  //   const [selectedLeg, setSelectedLeg] = useState("left");
   // const [editMode, setEditMode] = useState({});
-  // const [editValues, setEditValues] = useState(() => {
-  //   const surgeryDetails =
-  //     selectedLeg === "left"
-  //       ? patient?.post_surgery_details_left
-  //       : patient?.post_surgery_details_right;
-
-  //   return {
-  //     uhid: patient?.uhid || "",
-  //     surgeon: surgeryDetails?.surgeon || "",
-  //     surgery_name: surgeryDetails?.surgery_name || "",
-  //     sub_doctor_name: surgeryDetails?.sub_doctor || "",
-  //     procedure: surgeryDetails?.procedure || "",
-  //     implant: surgeryDetails?.implant || "",
-  //     technology: surgeryDetails?.technology || "",
-  //     surgery_date: surgeryDetails?.date_of_surgery
-  //       ? formatISOToDisplay(surgeryDetails.date_of_surgery)
-  //       : "",
-  //   };
+  // const [editValues, setEditValues] = useState({
+  //   uhid: patient?.uhid || "",
+  //   surgeon: patient?.post_surgery_details?.surgeon || "",
+  //   surgery_name: patient?.post_surgery_details?.surgery_name || "",
+  //   sub_doctor_name: patient?.post_surgery_details?.sub_doctor || "",
+  //   procedure: patient?.post_surgery_details?.procedure || "",
+  //   implant: patient?.post_surgery_details?.implant || "",
+  //   technology: patient?.post_surgery_details?.technology || "",
+  //   surgery_date:
+  //     formatISOToDisplay(patient?.post_surgery_details?.date_of_surgery) || "", // <-- Added this line
   // });
 
+  //   const [selectedLeg, setSelectedLeg] = useState("left");
+  const [editMode, setEditMode] = useState({
+    post_surgery_details_left: {},
+    post_surgery_details_right: {},
+  });
+
+  const [editValues, setEditValues] = useState(() => ({
+    uhid: patient?.uhid || "",
+    post_surgery_details_left: {
+      surgery_date: patient?.post_surgery_details_left?.date_of_surgery
+        ? patient.post_surgery_details_left.date_of_surgery
+        : "",
+      surgeon: patient?.post_surgery_details_left?.surgeon || "",
+      surgery_name: patient?.post_surgery_details_left?.surgery_name || "",
+      sub_doctor: patient?.post_surgery_details_left?.sub_doctor || "",
+      procedure: patient?.post_surgery_details_left?.procedure || "",
+      implant: patient?.post_surgery_details_left?.implant || "",
+      technology: patient?.post_surgery_details_left?.technology || "",
+    },
+    post_surgery_details_right: {
+      surgery_date: patient?.post_surgery_details_right?.date_of_surgery
+        ? (patient.post_surgery_details_right.date_of_surgery)
+        : "",
+      surgeon: patient?.post_surgery_details_right?.surgeon || "",
+      surgery_name: patient?.post_surgery_details_right?.surgery_name || "",
+      sub_doctor: patient?.post_surgery_details_right?.sub_doctor || "",
+      procedure: patient?.post_surgery_details_right?.procedure || "",
+      implant: patient?.post_surgery_details_right?.implant || "",
+      technology: patient?.post_surgery_details_right?.technology || "",
+    },
+  }));
+
   const [previousValues, setPreviousValues] = useState({});
+  const isLeft = selectedLeg === "left";
+  const isRight = selectedLeg === "right";
+
+  const legKey =
+    selectedLeg === "left"
+      ? "post_surgery_details_left"
+      : "post_surgery_details_right";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      const legKey =
+        selectedLeg === "left"
+          ? "post_surgery_details_left"
+          : "post_surgery_details_right";
+
       Object.keys(fieldRefs.current).forEach((field) => {
         if (
-          editMode[field] &&
+          editMode[legKey]?.[field] &&
           fieldRefs.current[field] &&
           !fieldRefs.current[field].contains(event.target)
         ) {
-          // Restore old value from previousValues
           setEditValues((prev) => ({
             ...prev,
-            [field]: previousValues[field] ?? prev[field], // restore backup if exists
+            [legKey]: {
+              ...prev[legKey],
+              [field]: previousValues[field] ?? prev[legKey][field],
+            },
           }));
 
-          // Close edit mode
           setEditMode((prev) => ({
             ...prev,
-            [field]: false,
+            [legKey]: {
+              ...prev[legKey],
+              [field]: false,
+            },
           }));
 
-          // Clear backup
           setPreviousValues((prev) => {
             const updated = { ...prev };
             delete updated[field];
@@ -1037,141 +1085,129 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [editMode, previousValues]);
+  }, [editMode, previousValues, selectedLeg]);
 
   const handleEditClick = (field) => {
+    const legKey =
+      selectedLeg === "left"
+        ? "post_surgery_details_left"
+        : "post_surgery_details_right";
+
     setPreviousValues((prev) => ({
       ...prev,
-      [field]: editValues[field], // Store current value before editing
+      [field]: editValues[legKey][field],
     }));
 
-    setEditMode((prev) => ({ ...prev, [field]: true }));
+    setEditMode((prev) => ({
+      ...prev,
+      [legKey]: {
+        ...prev[legKey],
+        [field]: true,
+      },
+    }));
+  };
+
+  const handleChange = (field, value) => {
+    const legKey =
+      selectedLeg === "left"
+        ? "post_surgery_details_left"
+        : "post_surgery_details_right";
+
+    setEditValues((prev) => ({
+      ...prev,
+      [legKey]: {
+        ...prev[legKey],
+        [field]: value,
+      },
+    }));
   };
 
   const handleSaveClick = async (field) => {
-    if (field === "surgery_date" && selectedDate) {
-      const isoDate = formatForStorage(selectedDate);
+    const legKey =
+      selectedLeg === "left"
+        ? "post_surgery_details_left"
+        : "post_surgery_details_right";
 
+    if (field === "surgery_date" && selectedDate) {
+      // const isoDate = formatForStorage(selectedDate);
+     
+      // console.log("ISO Date", selectedDate);
       setEditValues((prev) => ({
         ...prev,
-        [field]: isoDate,
+        [legKey]: {
+          ...prev[legKey],
+          [field]: selectedDate,
+        },
       }));
     }
 
-    // After save, no need for backup anymore
     setPreviousValues((prev) => {
       const updated = { ...prev };
       delete updated[field];
       return updated;
     });
 
-    setEditMode((prev) => ({ ...prev, [field]: false }));
-    console.log("Edited Values", editValues);
+    setEditMode((prev) => ({
+      ...prev,
+      [legKey]: {
+        ...prev[legKey],
+        [field]: false,
+      },
+    }));
+
+    // console.log("Edited Values",new Date(editValues[legKey].surgery_date).toISOString().split("T")[0] );
+
 
     if (editValues.uhid === "") return setWarning("UHID not found");
 
-    // if (selectedLeg === "left") {
-    //   try {
-    //     const response = await fetch(
-    //       API_URL + "update-post-surgery-details-left",
-    //       {
-    //         method: "PUT",
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //         },
-    //         body: JSON.stringify(editValues),
-    //       }
-    //     );
+    const payload = {
+      uhid: editValues.uhid,
+      [legKey]: {
+        ...editValues[legKey],
+        date_of_surgery:
+          field === "surgery_date"
+            ? new Date(editValues[legKey].surgery_date).toISOString().split("T")[0] 
+            : editValues[legKey].surgery_date,
+      },
+    };
 
-    //     const result = await response.json();
-
-    //     if (!response.ok) {
-    //       setWarning(
-    //         result.detail || "Failed to update surgery details for left leg"
-    //       );
-    //       return;
-    //     }
-    //     console.log("Successfully updated left leg");
-    //     setWarning("Left leg Surgery details updated successfully!");
-    //     if (onSurgeryUpdate) {
-    //       onSurgeryUpdate(payload.post_surgery_details);
-    //     }
-    //     setTimeout(() => {
-    //       setWarning("");
-    //       onClose(); // close the modal
-    //     }, 2000);
-    //   } catch (error) {
-    //     console.error("Error left leg:", error);
-    //     setWarning("Something went wrong while updating left leg.");
-    //   }
-    // }
-
-    // if (selectedLeg === "right") {
-    //   try {
-    //     const response = await fetch(
-    //       API_URL + "update-post-surgery-details-right",
-    //       {
-    //         method: "PUT",
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //         },
-    //         body: JSON.stringify(editValues),
-    //       }
-    //     );
-
-    //     const result = await response.json();
-
-    //     if (!response.ok) {
-    //       setWarning(
-    //         result.detail || "Failed to update surgery details for Right Leg"
-    //       );
-    //       return;
-    //     }
-    //     console.log("Successfully updated right leg");
-    //     setWarning("Surgery details updated successfully for Right Leg!");
-    //     if (onSurgeryUpdate) {
-    //       onSurgeryUpdate(payload.post_surgery_details);
-    //     }
-    //     setTimeout(() => {
-    //       setWarning("");
-    //       onClose(); // close the modal
-    //     }, 2000);
-    //   } catch (error) {
-    //     console.error("Error right leg:", error);
-    //     setWarning("Something went wrong while updating right leg.");
-    //   }
-    // }
+    // console.log("Payload surgery", payload);
 
     try {
-      const response = await fetch(API_URL + "patients/update-post-surgery", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(editValues),
-      });
+      const response = await fetch(
+        API_URL +
+          (selectedLeg === "left"
+            ? "update-post-surgery-details-left"
+            : "update-post-surgery-details-right"),
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+     
 
       const result = await response.json();
 
       if (!response.ok) {
-        setWarning(result.detail || "Failed to update surgery details");
+        setWarning(
+          result.detail ||
+            `Failed to update surgery details for ${selectedLeg} leg`
+        );
         return;
       }
-      console.log("Successfully updated");
-      setWarning("Surgery details updated successfully!");
 
-      setTimeout(() => {
-        setWarning("");
-        onClose(); // close the modal
-      }, 2000);
+      // console.log(`Successfully updated ${selectedLeg} leg`);
+      setWarning(
+        `Surgery details updated successfully for ${selectedLeg} leg!`
+      );
+      // if (onSurgeryUpdate) {
+      //   onSurgeryUpdate(result);
+      // }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Something went wrong while updating.");
+      console.error(`Error ${selectedLeg} leg:`, error);
+      setWarning(`Something went wrong while updating ${selectedLeg} leg.`);
     }
-  };
-
-  const handleChange = (field, value) => {
-    setEditValues((prev) => ({ ...prev, [field]: value }));
   };
 
   const isPostSurgeryDetailsFilled = (details) => {
@@ -1182,7 +1218,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
     const isValidField = (field) =>
       typeof field === "string" &&
       field.trim() !== "" &&
-      field.trim().toLowerCase() !== "string"; // 👈 treating "string" as unfilled
+      field.trim().toLowerCase() !== "string";
 
     return (
       isValidField(surgeon) &&
@@ -1192,6 +1228,96 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
       isValidField(technology)
     );
   };
+
+  const isreporteditcheckleft = (details, details1) => {
+    let a1=true;
+    let a2=true;
+
+  const currentPeriodLeft = getCurrentPeriod("left");
+  const currentPeriodRight = getCurrentPeriod("right");
+
+  const isValidField = (field) =>
+    typeof field === "string" &&
+    field.trim() !== "" &&
+    field.trim().toLowerCase() !== "string";
+
+  const checkFields = (data) => {
+    if (!data || typeof data !== "object") return false;
+
+    const { surgeon, surgery_name, procedure, implant, technology } = data;
+    return (
+      isValidField(surgeon) &&
+      isValidField(surgery_name) &&
+      isValidField(procedure) &&
+      isValidField(implant) &&
+      isValidField(technology)
+    );
+  };
+
+  const checkFields1 = (data) => {
+    if (!data || typeof data !== "object") return false;
+
+    const { surgeon, surgery_name, procedure, implant, technology } = data;
+    return (
+      isValidField(surgeon) &&
+      isValidField(surgery_name) &&
+      isValidField(procedure) &&
+      isValidField(implant) &&
+      isValidField(technology)
+    );
+  };
+
+  // If currentPeriod for left leg is null, allow details1 validation
+  if (currentPeriodLeft) {
+    a1= checkFields(details);
+  }
+
+  // If currentPeriod for right leg is null, allow details validation
+  if (currentPeriodRight) {
+    a2= checkFields1(details1);
+  }
+
+  // Default to checking details (left leg)
+  return (a1 && a2);
+};
+
+  const isreporteditcheckright = (details) => {
+        // console.log("Right Leg",getCurrentPeriod("right"));
+
+    if (!details || typeof details !== "object") return false;
+
+    const { surgeon, surgery_name, procedure, implant, technology } = details;
+
+    const isValidField = (field) =>
+      typeof field === "string" &&
+      field.trim() !== "" &&
+      field.trim().toLowerCase() !== "string";
+
+    return (
+      isValidField(surgeon) &&
+      isValidField(surgery_name) &&
+      isValidField(procedure) &&
+      isValidField(implant) &&
+      isValidField(technology)
+    );
+  };
+
+  const getSelectedLegData = () => {
+    return selectedLeg === "left"
+      ? surgeryPatient?.post_surgery_details_left ||
+          patient?.post_surgery_details_left
+      : selectedLeg === "right"
+      ? surgeryPatient?.post_surgery_details_right ||
+        patient?.post_surgery_details_right
+      : surgeryPatient?.post_surgery_details || patient?.post_surgery_details;
+  };
+
+  const editModeKey = isLeft
+    ? "post_surgery_details_left"
+    : "post_surgery_details_right";
+  const currentEditMode = editMode[editModeKey] || {};
+  // console.log("Edit Mode", currentEditMode);
+  const currentEditValues = editValues[editModeKey] || {};
 
   // console.log("Box plot:", JSON.stringify(databox, null, 2));
 
@@ -1367,9 +1493,11 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                           width < 530 ? "justify-center" : "justify-start"
                         }`}
                       >
-                        {isPostSurgeryDetailsFilled(
-                          surgeryPatient?.post_surgery_details ||
-                            patient?.post_surgery_details
+                        {isreporteditcheckleft(
+                          surgeryPatient?.post_surgery_details_left ||
+                            patient?.post_surgery_details_left,
+                            surgeryPatient?.post_surgery_details_right ||
+                            patient?.post_surgery_details_right
                         ) ? (
                           <div className="flex justify-center items-center gap-2 text-green-600 font-bold text-sm">
                             <p>COMPLETED</p>
@@ -1480,7 +1608,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                     if (label === "SURGERY" || !active || !payload?.length)
                       return null;
 
-                    console.log("PROM Payload" + payload);
+                    // console.log("PROM Payload" + payload);
 
                     return (
                       <div className="bg-white p-2 border rounded shadow text-black">
@@ -1632,9 +1760,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
             className={`bg-white rounded-2xl px-4 pt-4 pb-8 flex flex-col shadow-lg justify-between 
     ${width < 1415 ? "w-full h-1/2" : "w-1/2"} 
     ${
-      !isPostSurgeryDetailsFilled(
-        surgeryPatient?.post_surgery_details || patient?.post_surgery_details
-      )
+      !isPostSurgeryDetailsFilled(getSelectedLegData())
         ? "pointer-events-none opacity-50"
         : ""
     }
@@ -1661,7 +1787,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                     <p className="font-semibold text-[#475467] text-sm">
                       DATE OF SURGERY
                     </p>
-                    {editMode.surgery_date ? (
+                    {editMode[legKey]?.surgery_date ? (
                       <div className="flex w-full gap-2">
                         <input
                           type="text"
@@ -1693,6 +1819,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                     )}
                   </div>
                 </div>
+
                 {/* Surgeon */}
                 <div
                   ref={(el) => (fieldRefs.current.surgeon = el)}
@@ -1703,7 +1830,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   <p className="font-semibold text-[#475467] text-sm">
                     SURGEON
                   </p>
-                  {editMode.surgeon ? (
+                  {editMode[legKey]?.surgeon ? (
                     <div className="flex w-full gap-2">
                       <input
                         value={editValues.surgeon}
@@ -1722,7 +1849,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <p className="font-medium italic text-[#475467] text-sm">
-                        {editValues.surgeon || "Not Available"}
+                        {editValues[legKey]?.surgeon || "Not Available"}
                       </p>
                       <button
                         onClick={() => handleEditClick("surgeon")}
@@ -1744,7 +1871,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   <p className="font-semibold text-[#475467] text-sm">
                     SURGERY NAME
                   </p>
-                  {editMode.surgery_name ? (
+                  {editMode[legKey]?.surgery_name ? (
                     <div className="flex w-full gap-2">
                       <input
                         value={editValues.surgery_name}
@@ -1763,7 +1890,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <p className="font-medium italic text-[#475467] text-sm">
-                        {editValues.surgery_name || "Not Available"}
+                        {editValues[legKey]?.surgery_name || "Not Available"}
                       </p>
                       <button
                         onClick={() => handleEditClick("surgery_name")}
@@ -1784,7 +1911,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
               >
                 {/* Sub Doctor */}
                 <div
-                  ref={(el) => (fieldRefs.current.sub_doctor_name = el)}
+                  ref={(el) => (fieldRefs.current.sub_doctor = el)}
                   className={`flex flex-col ${
                     width < 530 ? "w-full" : "w-1/2"
                   }`}
@@ -1792,17 +1919,17 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   <p className="font-semibold text-[#475467] text-sm">
                     SUB DOCTOR NAME
                   </p>
-                  {editMode.sub_doctor_name ? (
+                  {editMode[legKey]?.sub_doctor ? (
                     <div className="flex gap-2">
                       <input
-                        value={editValues.sub_doctor_name}
+                        value={editValues.sub_doctor}
                         onChange={(e) =>
-                          handleChange("sub_doctor_name", e.target.value)
+                          handleChange("sub_doctor", e.target.value)
                         }
                         className="border bg-gray-100 text-black p-1 rounded-md text-sm"
                       />
                       <button
-                        onClick={() => handleSaveClick("sub_doctor_name")}
+                        onClick={() => handleSaveClick("sub_doctor")}
                         className="text-green-600 text-xs cursor-pointer"
                       >
                         <ClipboardDocumentCheckIcon className="w-4 h-4" />
@@ -1811,10 +1938,10 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <p className="font-medium italic text-[#475467] text-sm">
-                        {editValues.sub_doctor_name || "Not Available"}
+                        {editValues[legKey]?.sub_doctor || "Not Available"}
                       </p>
                       <button
-                        onClick={() => handleEditClick("sub_doctor_name")}
+                        onClick={() => handleEditClick("sub_doctor")}
                         className="text-gray-400 hover:text-gray-600 cursor-pointer"
                       >
                         <PencilIcon className="w-4 h-4" />
@@ -1833,7 +1960,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   <p className="font-semibold text-[#475467] text-sm">
                     PROCEDURE
                   </p>
-                  {editMode.procedure ? (
+                  {editMode[legKey]?.procedure ? (
                     <div className="flex gap-2">
                       <textarea
                         rows={3}
@@ -1854,7 +1981,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-[#475467] text-sm">
-                        {editValues.procedure?.toLowerCase() || "Not Available"}
+                        {editValues[legKey]?.procedure?.toLowerCase() || "Not Available"}
                       </p>
                       <button
                         onClick={() => handleEditClick("procedure")}
@@ -1883,7 +2010,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   <p className="font-semibold text-[#475467] text-sm">
                     IMPLANT
                   </p>
-                  {editMode.implant ? (
+                  {editMode[legKey]?.implant ? (
                     <div className="flex gap-2">
                       <input
                         value={editValues.implant}
@@ -1902,7 +2029,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-[#475467] text-sm">
-                        {editValues.implant || "Not Available"}
+                        {editValues[legKey]?.implant || "Not Available"}
                       </p>
                       <button
                         onClick={() => handleEditClick("implant")}
@@ -1924,7 +2051,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   <p className="font-semibold text-[#475467] text-sm">
                     TECHNOLOGY
                   </p>
-                  {editMode.technology ? (
+                  {editMode[legKey]?.technology ? (
                     <div className="flex gap-2">
                       <input
                         value={editValues.technology}
@@ -1943,7 +2070,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <p className="font-medium italic text-[#475467] text-sm">
-                        {editValues.technology || "Not Available"}
+                        {editValues[legKey]?.technology || "Not Available"}
                       </p>
                       <button
                         onClick={() => handleEditClick("technology")}
@@ -2167,14 +2294,14 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
                     // Map original names to renamed keys
                     const renameMap = {
-                      bottomWhisker: "leastObservedRange",
-                      bottomBox: "belowAverageRange",
-                      topBox: "aboveAverageRange",
-                      topWhisker: "highestObservedRange",
-                      _median: "medianScore",
-                      _min: "minScore",
-                      _max: "maxScore",
-                      Patient: "Patient",
+                      bottomWhisker: "poorestFunctionObserved",
+                      bottomBox: "belowAverageFunctionRange",
+                      topBox: "aboveAverageFunctionRange",
+                      topWhisker: "bestFunctionObserved",
+                      _median: "groupMedianFunctionScore",
+                      _min: "lowestFunctionScore",
+                      _max: "highestFunctionScore",
+                      Patient: "patientFunctionScore",
                     };
 
                     // Create a dictionary of renamed keys to their values and colors
@@ -2192,14 +2319,14 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
                     // Desired display order
                     const displayOrder = [
-                      "Patient",
-                      "maxScore",
-                      "highestObservedRange",
-                      "aboveAverageRange",
-                      "medianScore",
-                      "belowAverageRange",
-                      "leastObservedRange",
-                      "minScore",
+                      "patientFunctionScore",
+                      "highestFunctionScore",
+                      "bestFunctionObserved",
+                      "aboveAverageFunctionRange",
+                      "groupMedianFunctionScore",
+                      "belowAverageFunctionRange",
+                      "poorestFunctionObserved",
+                      "lowestFunctionScore",
                     ];
 
                     return (
@@ -2349,14 +2476,14 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
                     // Map original names to renamed keys
                     const renameMap = {
-                      bottomWhisker: "leastObservedScore",
-                      bottomBox: "belowAverageRange",
-                      topBox: "aboveAverageRange",
-                      topWhisker: "highestObservedRange",
-                      _median: "medianScore",
-                      _min: "minScore",
-                      _max: "maxScore",
-                      // Add 'Patient' if applicable
+                      bottomWhisker: "poorestFunctionObserved",
+                      bottomBox: "belowAverageFunctionRange",
+                      topBox: "aboveAverageFunctionRange",
+                      topWhisker: "bestFunctionObserved",
+                      _median: "groupMedianFunctionScore",
+                      _min: "lowestFunctionScore",
+                      _max: "highestFunctionScore",
+                      Patient: "patientFunctionScore",
                     };
 
                     // Store renamed entries by key
@@ -2373,14 +2500,14 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
                     // Desired display order
                     const displayOrder = [
-                      "Patient",
-                      "maxScore",
-                      "highestObservedRange",
-                      "aboveAverageRange",
-                      "medianScore",
-                      "belowAverageRange",
-                      "leastObservedScore",
-                      "minScore",
+                      "patientFunctionScore",
+                      "highestFunctionScore",
+                      "bestFunctionObserved",
+                      "aboveAverageFunctionRange",
+                      "groupMedianFunctionScore",
+                      "belowAverageFunctionRange",
+                      "poorestFunctionObserved",
+                      "lowestFunctionScore",
                     ];
 
                     return (
@@ -2584,13 +2711,14 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
                     // Map original names to renamed keys
                     const renameMap = {
-                      bottomWhisker: "leastObservedScore",
-                      bottomBox: "belowAverageRange",
-                      topBox: "aboveAverageRange",
-                      topWhisker: "highestObservedRange",
-                      _median: "medianScore",
-                      _min: "minScore",
-                      _max: "maxScore",
+                      bottomWhisker: "poorestFunctionObserved",
+                      bottomBox: "belowAverageFunctionRange",
+                      topBox: "aboveAverageFunctionRange",
+                      topWhisker: "bestFunctionObserved",
+                      _median: "groupMedianFunctionScore",
+                      _min: "lowestFunctionScore",
+                      _max: "highestFunctionScore",
+                      Patient: "patientFunctionScore",
                     };
 
                     // Collect renamed entries here
@@ -2608,14 +2736,14 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
                     // Specify your desired display order here
                     const displayOrder = [
-                      "Patient",
-                      "maxScore",
-                      "highestObservedRange",
-                      "aboveAverageRange",
-                      "medianScore",
-                      "belowAverageRange",
-                      "leastObservedScore",
-                      "minScore",
+                      "patientFunctionScore",
+                      "highestFunctionScore",
+                      "bestFunctionObserved",
+                      "aboveAverageFunctionRange",
+                      "groupMedianFunctionScore",
+                      "belowAverageFunctionRange",
+                      "poorestFunctionObserved",
+                      "lowestFunctionScore",
                     ];
 
                     return (
@@ -2825,53 +2953,41 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                         ? label
                         : "Unknown";
 
-                    // Rename and collect entries
+                    // Map original names to renamed keys
+                    const renameMap = {
+                      bottomWhisker: "poorestFunctionObserved",
+                      bottomBox: "belowAverageFunctionRange",
+                      topBox: "aboveAverageFunctionRange",
+                      topWhisker: "bestFunctionObserved",
+                      _median: "groupMedianFunctionScore",
+                      _min: "lowestFunctionScore",
+                      _max: "highestFunctionScore",
+                      Patient: "patientFunctionScore",
+                    };
+
+                    // Collect renamed entries here
                     const renamedEntries = {};
 
                     payload.forEach((entry) => {
                       const value = entry?.value;
                       const color = entry?.color ?? "#000";
-                      let renamedName = entry?.name;
 
-                      switch (renamedName) {
-                        case "bottomWhisker":
-                          renamedName = "leastObservedScore";
-                          break;
-                        case "bottomBox":
-                          renamedName = "belowAverageRange";
-                          break;
-                        case "topBox":
-                          renamedName = "aboveAverageRange";
-                          break;
-                        case "topWhisker":
-                          renamedName = "highestObservedRange";
-                          break;
-                        case "_median":
-                          renamedName = "medianScore";
-                          break;
-                        case "_min":
-                          renamedName = "minScore";
-                          break;
-                        case "_max":
-                          renamedName = "maxScore";
-                          break;
-                        default:
-                          break;
-                      }
+                      // Rename or fallback to original name
+                      const renamedName = renameMap[entry?.name] ?? entry?.name;
 
                       renamedEntries[renamedName] = { value, color };
                     });
 
                     // Order in which you want to display the entries
                     const displayOrder = [
-                      "Patient",
-                      "maxScore",
-                      "highestObservedRange",
-                      "aboveAverageRange",
-                      "medianScore",
-                      "belowAverageRange",
-                      "leastObservedScore",
-                      "minScore",
+                      "patientFunctionScore",
+                      "highestFunctionScore",
+                      "bestFunctionObserved",
+                      "aboveAverageFunctionRange",
+                      "groupMedianFunctionScore",
+                      "belowAverageFunctionRange",
+                      "poorestFunctionObserved",
+                      "lowestFunctionScore",
                     ];
 
                     return (
@@ -3074,22 +3190,41 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                         ? label
                         : "Unknown";
 
-                    // Collect entries by name
-                    const entriesByName = {};
+                    // Map original names to renamed keys
+                    const renameMap = {
+                      bottomWhisker: "poorestFunctionObserved",
+                      bottomBox: "belowAverageFunctionRange",
+                      topBox: "aboveAverageFunctionRange",
+                      topWhisker: "bestFunctionObserved",
+                      _median: "groupMedianFunctionScore",
+                      _min: "lowestFunctionScore",
+                      _max: "highestFunctionScore",
+                      Patient: "patientFunctionScore",
+                    };
+
+                    // Collect renamed entries here
+                    const renamedEntries = {};
+
                     payload.forEach((entry) => {
-                      entriesByName[entry.name] = entry;
+                      const value = entry?.value;
+                      const color = entry?.color ?? "#000";
+
+                      // Rename or fallback to original name
+                      const renamedName = renameMap[entry?.name] ?? entry?.name;
+
+                      renamedEntries[renamedName] = { value, color };
                     });
 
-                    // Define the order you want to display
+                    // Order in which you want to display the entries
                     const displayOrder = [
-                      "Patient",
-                      "maxScore",
-                      "highestObservedRange",
-                      "aboveAverageRange",
-                      "medianScore",
-                      "belowAverageRange",
-                      "leastObservedScore",
-                      "minScore",
+                      "patientFunctionScore",
+                      "highestFunctionScore",
+                      "bestFunctionObserved",
+                      "aboveAverageFunctionRange",
+                      "groupMedianFunctionScore",
+                      "belowAverageFunctionRange",
+                      "poorestFunctionObserved",
+                      "lowestFunctionScore",
                     ];
 
                     return (
@@ -3104,7 +3239,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                           style={{ fontWeight: "bold", margin: 0 }}
                         >{`Day: ${safeLabel}`}</p>
                         {displayOrder.map((name, index) => {
-                          const entry = entriesByName[name];
+                          const entry = renamedEntries[name];
                           if (!entry) return null;
                           const value = entry.value;
 
