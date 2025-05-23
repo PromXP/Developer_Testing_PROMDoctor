@@ -7,6 +7,7 @@ import React, {
   useMemo,
 } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 import {
   LineChart,
@@ -155,7 +156,7 @@ const useBoxPlot = (boxPlots) => {
   );
 };
 
-const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
+const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
   const useWindowSize = () => {
     const [size, setSize] = useState({
       width: 0,
@@ -181,23 +182,162 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
 
   const [selectedLeg, setSelectedLeg] = useState("left");
 
+  const [leftscoreGroups, setLeftScoreGroups] = useState({});
+  const [rightscoreGroups, setRightScoreGroups] = useState({});
+
   const [selectedDate, setSelectedDate] = useState("");
+  const [patient, setpatient] = useState(null);
 
   useEffect(() => {
-    if (selectedLeg === "left") {
-      setSelectedDate(
-        formatISOToDisplay(
-          patient?.post_surgery_details_left?.date_of_surgery
-        ) || ""
-      );
-    } else if (selectedLeg === "right") {
-      setSelectedDate(
-        formatISOToDisplay(
-          patient?.post_surgery_details_right?.date_of_surgery
-        ) || ""
-      );
+    if (typeof window !== "undefined") {
+      const uid = sessionStorage.getItem("patientUHID");
+      const pass = sessionStorage.getItem("patientPASSWORD");
+      console.log("user from localStorage1 :", uid + " " + pass);
+
+      if (uid !== "undefined" && pass !== "undefined") {
+        console.log("user from localStorage 2:", uid + " " + pass);
+
+        // Attempt to log in again using the stored credentials
+        const loginWithStoredUser = async () => {
+          try {
+            const response = await axios.post(API_URL + "login", {
+              identifier: uid,
+              password: pass,
+              role: "patient", // Assuming role is stored and needed
+            });
+
+            setpatient(response.data.user); // Store the full response data (e.g., tokens)
+            // console.log("API Response:", response.data.user);
+          } catch (error) {
+            console.error("Login failed with stored credentials", error);
+          }
+        };
+
+        // Call login function
+        loginWithStoredUser();
+      }
     }
-  }, [selectedLeg, patient]);
+  }, []);
+
+  useEffect(() => {
+    if (!patient?.doctor_assigned) return;
+    console.log("Doctor email", patient?.doctor_assigned);
+
+    const fetchPatients = async () => {
+      if (!patient?.doctor_assigned) return;
+
+      try {
+        const res = await axios.get(
+          API_URL + `patients/by-doctor/${patient?.doctor_assigned}`
+        );
+        const data = res.data;
+
+        console.log("Paitent list", data);
+
+        // Count PRE OP patients for current selected leg
+        const preOp = data.filter(
+          (patient) =>
+            getCurrentPeriod(patient, selectedLeg).toLowerCase() === "pre op"
+        ).length;
+        // Count POST OP stages
+        const stageCounts = {
+          "6W": 0,
+          "3M": 0,
+          "6M": 0,
+          "1Y": 0,
+          "2Y": 0,
+        };
+
+        data.forEach((patient) => {
+          const status = getCurrentPeriod(patient, selectedLeg).toUpperCase();
+          if (stageCounts.hasOwnProperty(status)) {
+            stageCounts[status]++;
+          }
+        });
+
+        // === Separate Score Grouping Logic ===
+
+        const leftScoreGroups = {};
+        const rightScoreGroups = {};
+
+        // LEFT
+        data.forEach((patient) => {
+          patient.questionnaire_scores_left?.forEach((q1) => {
+            const key = `${q1.name}|${q1.period}`;
+            if (!leftScoreGroups[key]) leftScoreGroups[key] = [];
+
+            data.forEach((otherPatient) => {
+              otherPatient.questionnaire_scores_left?.forEach((q2) => {
+                if (q2.name.includes(q1.name) && q2.period === q1.period) {
+                  if (q2.score && q2.score.length > 0) {
+                    leftScoreGroups[key].push(q2.score);
+                  }
+                }
+              });
+            });
+          });
+        });
+
+        // RIGHT
+        data.forEach((patient) => {
+          patient.questionnaire_scores_right?.forEach((q1) => {
+            const key = `${q1.name}|${q1.period}`;
+            if (!rightScoreGroups[key]) rightScoreGroups[key] = [];
+
+            data.forEach((otherPatient) => {
+              otherPatient.questionnaire_scores_right?.forEach((q2) => {
+                if (q2.name.includes(q1.name) && q2.period === q1.period) {
+                  if (q2.score && q2.score.length > 0) {
+                    rightScoreGroups[key].push(q2.score);
+                  }
+                }
+              });
+            });
+          });
+        });
+
+        console.log("LEFT Score Groups:", leftScoreGroups);
+        console.log("RIGHT Score Groups:", rightScoreGroups);
+
+        // Store both separately
+        setLeftScoreGroups(leftScoreGroups);
+        setRightScoreGroups(rightScoreGroups);
+      } catch (err) {
+        console.error("Failed to fetch patients", err);
+      }
+    };
+
+    fetchPatients();
+  }, [patient?.doctor_assigned]);
+
+  useEffect(() => {
+    if (!patient) return;
+
+    const isInvalidDateOfSurgery = (date) =>
+      !date || date.toString().startsWith("0001-01-01");
+
+    if (selectedLeg === "left") {
+      const dateOfSurgery = patient?.post_surgery_details_left?.date_of_surgery;
+      const fallbackDate = patient?.surgery_scheduled_left?.date;
+
+      const finalDate = isInvalidDateOfSurgery(dateOfSurgery)
+        ? fallbackDate
+        : dateOfSurgery;
+
+      setSelectedDate(formatISOToDisplay(finalDate || ""));
+    } else if (selectedLeg === "right") {
+      const dateOfSurgery =
+        patient?.post_surgery_details_right?.date_of_surgery;
+      const fallbackDate = patient?.surgery_scheduled_right?.date;
+
+      const finalDate = isInvalidDateOfSurgery(dateOfSurgery)
+        ? fallbackDate
+        : dateOfSurgery;
+
+      setSelectedDate(formatISOToDisplay(finalDate || ""));
+    }
+  }, [patient, selectedLeg]);
+
   const [selectedTime, setSelectedTime] = useState("");
   const [isDateTimeEdited, setIsDateTimeEdited] = useState(false);
 
@@ -296,7 +436,8 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
   };
 
   const generateChartData = (patient) => {
-    const scores =  selectedLeg === "left"
+    const scores =
+      selectedLeg === "left"
         ? patient?.questionnaire_scores_left || []
         : patient?.questionnaire_scores_right || [];
 
@@ -583,6 +724,8 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
     const scoreGroups =
       selectedLeg === "left" ? leftscoreGroups : rightscoreGroups;
 
+    console.log("SF-12 Box Plot", scoreGroups);
+
     if (!scoreGroups) return [];
 
     let data = Object.entries(scoreGroups)
@@ -674,7 +817,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
           selectedLeg === "left"
             ? patient?.questionnaire_scores_left
             : patient?.questionnaire_scores_right;
-        const patientValue = sc.find(
+        const patientValue = sc?.find(
           (s) =>
             s.name ===
               "Knee Injury and Ostheoarthritis Outcome Score, Joint Replacement (KOOS, JR)" &&
@@ -970,6 +1113,44 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
     }
   };
 
+  const handleManualTimeChange = (e) => {
+  let value = e.target.value.replace(/\D/g, ""); // Remove all non-digit characters
+
+  // Add colon after HH
+  if (value.length >= 3) {
+    value = value.slice(0, 2) + ":" + value.slice(2, 4);
+  }
+
+  if (value.length > 5) {
+    value = value.slice(0, 5); // Limit to 5 characters (HH:MM)
+  }
+
+  setSelectedTime(value);
+
+  // Validate only when 5 characters entered (HH:MM)
+  if (value.length === 5) {
+    const [hourStr, minuteStr] = value.split(":");
+    const hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+
+    if (
+      isNaN(hour) ||
+      isNaN(minute) ||
+      hour < 0 || hour > 23 ||
+      minute < 0 || minute > 59
+    ) {
+      setWarning("Please enter a valid time in HH:MM format");
+      setSelectedTime("");
+      return;
+    }
+
+    // Optional: Convert to 24-hour format or store as-is
+    const formattedTime = `${hourStr.padStart(2, "0")}:${minuteStr.padStart(2, "0")}`;
+    setSelectedTime(formattedTime);
+  }
+};
+
+
   const [warning, setWarning] = useState("");
 
   function formatForStorage(dateString) {
@@ -995,7 +1176,12 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
     return `${year}-${month}-${day}`;
   }
 
-  const fieldRefs = useRef({});
+
+const [selectedDate1, setSelectedDate1] = useState(""); // e.g. "2025-05-23"
+const [selectedTime1, setSelectedTime1] = useState(""); // e.g. "14:30"
+
+
+  
 
   // const [editMode, setEditMode] = useState({});
   // const [editValues, setEditValues] = useState({
@@ -1011,36 +1197,95 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
   // });
 
   //   const [selectedLeg, setSelectedLeg] = useState("left");
+ const fieldRefs = useRef({});
   const [editMode, setEditMode] = useState({
     post_surgery_details_left: {},
     post_surgery_details_right: {},
   });
 
-  const [editValues, setEditValues] = useState(() => ({
-    uhid: patient?.uhid || "",
+  const [editValues, setEditValues] = useState({
+    uhid: "",
     post_surgery_details_left: {
-      surgery_date: patient?.post_surgery_details_left?.date_of_surgery
-        ? patient.post_surgery_details_left.date_of_surgery
-        : "",
-      surgeon: patient?.post_surgery_details_left?.surgeon || "",
-      surgery_name: patient?.post_surgery_details_left?.surgery_name || "",
-      sub_doctor: patient?.post_surgery_details_left?.sub_doctor || "",
-      procedure: patient?.post_surgery_details_left?.procedure || "",
-      implant: patient?.post_surgery_details_left?.implant || "",
-      technology: patient?.post_surgery_details_left?.technology || "",
+      surgery_date: "",
+      surgeon: "",
+      surgery_name: "",
+      sub_doctor: "",
+      procedure: "",
+      implant: "",
+      technology: "",
     },
     post_surgery_details_right: {
-      surgery_date: patient?.post_surgery_details_right?.date_of_surgery
-        ? patient.post_surgery_details_right.date_of_surgery
-        : "",
-      surgeon: patient?.post_surgery_details_right?.surgeon || "",
-      surgery_name: patient?.post_surgery_details_right?.surgery_name || "",
-      sub_doctor: patient?.post_surgery_details_right?.sub_doctor || "",
-      procedure: patient?.post_surgery_details_right?.procedure || "",
-      implant: patient?.post_surgery_details_right?.implant || "",
-      technology: patient?.post_surgery_details_right?.technology || "",
+      surgery_date: "",
+      surgeon: "",
+      surgery_name: "",
+      sub_doctor: "",
+      procedure: "",
+      implant: "",
+      technology: "",
     },
-  }));
+  });
+
+  // Update when `patient` is loaded
+  useEffect(() => {
+    if (!patient) return;
+
+    const datetimeStrLeft = patient.post_surgery_details_left?.date_of_surgery || "";
+    const datetimeStrRight = patient.post_surgery_details_right?.date_of_surgery || "";
+
+    // Parse left side datetime string
+  let dateLeft = "";
+let timeLeft = "";
+if (datetimeStrLeft) {
+  const dt = new Date(datetimeStrLeft);
+  dateLeft = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  timeLeft = dt.toTimeString().slice(0, 5);
+}
+
+let dateRight = "";
+let timeRight = "";
+if (datetimeStrRight) {
+  const dt = new Date(datetimeStrRight);
+  dateRight = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  timeRight = dt.toTimeString().slice(0, 5);
+}
+
+
+    setEditValues({
+      uhid: patient.uhid || "",
+      post_surgery_details_left: {
+        ...patient.post_surgery_details_left,
+        surgery_date: datetimeStrLeft,
+        date_only: dateLeft,
+        time_only: timeLeft,
+        surgeon: patient.post_surgery_details_left?.surgeon || "",
+        surgery_name: patient.post_surgery_details_left?.surgery_name || "",
+        sub_doctor: patient.post_surgery_details_left?.sub_doctor || "",
+        procedure: patient.post_surgery_details_left?.procedure || "",
+        implant: patient.post_surgery_details_left?.implant || "",
+        technology: patient.post_surgery_details_left?.technology || "",
+      },
+      post_surgery_details_right: {
+        ...patient.post_surgery_details_right,
+        surgery_date: datetimeStrRight,
+        date_only: dateRight,
+        time_only: timeRight,
+        surgeon: patient.post_surgery_details_right?.surgeon || "",
+        surgery_name: patient.post_surgery_details_right?.surgery_name || "",
+        sub_doctor: patient.post_surgery_details_right?.sub_doctor || "",
+        procedure: patient.post_surgery_details_right?.procedure || "",
+        implant: patient.post_surgery_details_right?.implant || "",
+        technology: patient.post_surgery_details_right?.technology || "",
+      },
+    });
+    // Also set the UI states for date/time for the selected leg:
+    if (selectedLeg === "left") {
+      setSelectedDate(dateLeft);
+      setSelectedTime(timeLeft);
+    } else {
+      setSelectedDate(dateRight);
+      setSelectedTime(timeRight);
+    }
+  }, [patient]);
 
   const [previousValues, setPreviousValues] = useState({});
   const isLeft = selectedLeg === "left";
@@ -1135,16 +1380,22 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
       selectedLeg === "left"
         ? "post_surgery_details_left"
         : "post_surgery_details_right";
+        let combinedDateTime = null;
 
     if (field === "surgery_date" && selectedDate) {
       // const isoDate = formatForStorage(selectedDate);
 
       // console.log("ISO Date", selectedDate);
+      const [day, month, year] = selectedDate.split("-");
+const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+ combinedDateTime = new Date(`${formattedDate}T${selectedTime}:00`);
+
+      console.log("Combined Date Time",combinedDateTime);
       setEditValues((prev) => ({
         ...prev,
         [legKey]: {
           ...prev[legKey],
-          [field]: selectedDate,
+          [field]: combinedDateTime.toISOString(),
         },
       }));
     }
@@ -1173,7 +1424,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
         ...editValues[legKey],
         date_of_surgery:
           field === "surgery_date"
-            ? new Date(editValues[legKey].surgery_date)
+            ? combinedDateTime
                 .toISOString()
                 .split("T")[0]
             : editValues[legKey].surgery_date,
@@ -1788,7 +2039,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                 <div
                   ref={(el) => (fieldRefs.current.surgery_date = el)}
                   className={`flex flex-row ${
-                    width < 530 ? "w-full" : "w-1/3"
+                    width < 530 ? "w-full" : "w-1/2"
                   }`}
                 >
                   <div className="w-full flex flex-col">
@@ -1800,11 +2051,20 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                         <input
                           type="text"
                           placeholder="dd-mm-yyyy"
-                          className=" flex-1 border bg-gray-100 text-black p-1 rounded-md text-sm"
+                          className=" flex-1 border bg-gray-100 text-black p-1 rounded-md text-sm w-1/2"
                           value={selectedDate || ""}
                           onChange={handleManualDateChange}
                           maxLength={10} // Very important: dd-mm-yyyy is 10 character
                         />
+                        <input
+                          type="text"
+                          placeholder="HH:MM"
+                          className="flex-1 border bg-gray-100 text-black p-1 rounded-md text-sm w-1/2"
+                          value={selectedTime || ""}
+                          onChange={handleManualTimeChange}
+                          maxLength={5} // HH:MM is exactly 5 characters
+                        />
+
                         <button
                           onClick={() => handleSaveClick("surgery_date")}
                           className="text-green-600 text-xs cursor-pointer"
@@ -1815,7 +2075,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                     ) : (
                       <div className="flex items-center gap-2">
                         <p className="font-medium italic text-[#475467] text-sm">
-                          {selectedDate || "Not Available"}
+                          {selectedDate || "Not Available"} {selectedTime || "Not Available"}
                         </p>
                         <button
                           onClick={() => handleEditClick("surgery_date")}
@@ -1828,52 +2088,11 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   </div>
                 </div>
 
-                {/* Surgeon */}
-                <div
-                  ref={(el) => (fieldRefs.current.surgeon = el)}
-                  className={`flex flex-col ${
-                    width < 530 ? "w-full" : "w-1/3"
-                  }`}
-                >
-                  <p className="font-semibold text-[#475467] text-sm">
-                    SURGEON
-                  </p>
-                  {editMode[legKey]?.surgeon ? (
-                    <div className="flex w-full gap-2">
-                      <input
-                        value={editValues.surgeon}
-                        onChange={(e) =>
-                          handleChange("surgeon", e.target.value)
-                        }
-                        className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
-                      />
-                      <button
-                        onClick={() => handleSaveClick("surgeon")}
-                        className="text-green-600 text-xs cursor-pointer"
-                      >
-                        <ClipboardDocumentCheckIcon className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium italic text-[#475467] text-sm">
-                        {editValues[legKey]?.surgeon || "Not Available"}
-                      </p>
-                      <button
-                        onClick={() => handleEditClick("surgeon")}
-                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                      >
-                        <PencilIcon className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
                 {/* Surgery Name */}
                 <div
                   ref={(el) => (fieldRefs.current.surgery_name = el)}
                   className={`flex flex-col ${
-                    width < 530 ? "w-full" : "w-1/3"
+                    width < 530 ? "w-full" : "w-1/2"
                   }`}
                 >
                   <p className="font-semibold text-[#475467] text-sm">
@@ -1917,11 +2136,52 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   width < 530 ? "flex-col gap-4" : "flex-row"
                 }`}
               >
+                {/* Surgeon */}
+                <div
+                  ref={(el) => (fieldRefs.current.surgeon = el)}
+                  className={`flex flex-col ${
+                    width < 530 ? "w-full" : "w-1/3"
+                  }`}
+                >
+                  <p className="font-semibold text-[#475467] text-sm">
+                    SURGEON
+                  </p>
+                  {editMode[legKey]?.surgeon ? (
+                    <div className="flex w-full gap-2">
+                      <input
+                        value={editValues.surgeon}
+                        onChange={(e) =>
+                          handleChange("surgeon", e.target.value)
+                        }
+                        className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                      />
+                      <button
+                        onClick={() => handleSaveClick("surgeon")}
+                        className="text-green-600 text-xs cursor-pointer"
+                      >
+                        <ClipboardDocumentCheckIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium italic text-[#475467] text-sm">
+                        {editValues[legKey]?.surgeon || "Not Available"}
+                      </p>
+                      <button
+                        onClick={() => handleEditClick("surgeon")}
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 {/* Sub Doctor */}
                 <div
                   ref={(el) => (fieldRefs.current.sub_doctor = el)}
                   className={`flex flex-col ${
-                    width < 530 ? "w-full" : "w-1/2"
+                    width < 530 ? "w-full" : "w-1/3"
                   }`}
                 >
                   <p className="font-semibold text-[#475467] text-sm">
@@ -1962,7 +2222,7 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                 <div
                   ref={(el) => (fieldRefs.current.procedure = el)}
                   className={`flex flex-col ${
-                    width < 530 ? "w-full" : "w-1/2"
+                    width < 530 ? "w-full" : "w-1/3"
                   }`}
                 >
                   <p className="font-semibold text-[#475467] text-sm">
@@ -2161,7 +2421,30 @@ const page = ({ patient, leftscoreGroups, rightscoreGroups, userData }) => {
                   }}
                 />
 
-                <Tooltip />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div
+                          style={{
+                            backgroundColor: "white",
+                            border: "1px solid #ccc",
+                            borderRadius: 5,
+                            padding: 8,
+                            fontSize: 12,
+                            fontWeight: 500,
+                            color: "#333",
+                          }}
+                        >
+                          <p style={{ margin: 0 }}>
+                            Value: {payload[0].payload.y}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
 
                 <Legend
                   verticalAlign="top"

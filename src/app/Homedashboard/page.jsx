@@ -132,106 +132,103 @@ const page = ({ goToReport }) => {
   const [leftscoreGroups, setLeftScoreGroups] = useState({});
   const [rightscoreGroups, setRightScoreGroups] = useState({});
 
-
   const [selectedLeg, setSelectedLeg] = useState("left");
 
-useEffect(() => {
-  const fetchPatients = async () => {
-    if (!userData?.user?.email) return;
+  useEffect(() => {
+    const fetchPatients = async () => {
+      if (!userData?.user?.email) return;
 
-    try {
-      const res = await axios.get(
-        API_URL + `patients/by-doctor/${userData.user.email}`
-      );
-      const data = res.data;
+      try {
+        const res = await axios.get(
+          API_URL + `patients/by-doctor/${userData.user.email}`
+        );
+        const data = res.data;
 
-      setPatients(data);
-      console.log("Paitent list",data);
+        setPatients(data);
+        console.log("Paitent list", data);
 
-      // Count PRE OP patients for current selected leg
-      const preOp = data.filter(
-        (patient) =>
-          getCurrentPeriod(patient, selectedLeg).toLowerCase() === "pre op"
-      ).length;
-      setPreOpCount(preOp);
+        // Count PRE OP patients for current selected leg
+        const preOp = data.filter(
+          (patient) =>
+            getCurrentPeriod(patient, selectedLeg).toLowerCase() === "pre op"
+        ).length;
+        setPreOpCount(preOp);
 
-      // Count POST OP stages
-      const stageCounts = {
-        "6W": 0,
-        "3M": 0,
-        "6M": 0,
-        "1Y": 0,
-        "2Y": 0,
-      };
+        // Count POST OP stages
+        const stageCounts = {
+          "6W": 0,
+          "3M": 0,
+          "6M": 0,
+          "1Y": 0,
+          "2Y": 0,
+        };
 
-      data.forEach((patient) => {
-        const status = getCurrentPeriod(patient, selectedLeg).toUpperCase();
-        if (stageCounts.hasOwnProperty(status)) {
-          stageCounts[status]++;
-        }
-      });
+        data.forEach((patient) => {
+          const status = getCurrentPeriod(patient, selectedLeg).toUpperCase();
+          if (stageCounts.hasOwnProperty(status)) {
+            stageCounts[status]++;
+          }
+        });
 
-      setPostOpStages(stageCounts);
-      setPostOpTotal(
-        Object.values(stageCounts).reduce((sum, val) => sum + val, 0)
-      );
+        setPostOpStages(stageCounts);
+        setPostOpTotal(
+          Object.values(stageCounts).reduce((sum, val) => sum + val, 0)
+        );
 
-      // === Separate Score Grouping Logic ===
+        // === Separate Score Grouping Logic ===
 
-      const leftScoreGroups = {};
-      const rightScoreGroups = {};
+        const leftScoreGroups = {};
+        const rightScoreGroups = {};
 
-      // LEFT
-      data.forEach((patient) => {
-        patient.questionnaire_scores_left?.forEach((q1) => {
-          const key = `${q1.name}|${q1.period}`;
-          if (!leftScoreGroups[key]) leftScoreGroups[key] = [];
+        // LEFT
+        data.forEach((patient) => {
+          patient.questionnaire_scores_left?.forEach((q1) => {
+            const key = `${q1.name}|${q1.period}`;
+            if (!leftScoreGroups[key]) leftScoreGroups[key] = [];
 
-          data.forEach((otherPatient) => {
-            otherPatient.questionnaire_scores_left?.forEach((q2) => {
-              if (q2.name.includes(q1.name) && q2.period === q1.period) {
-                if (q2.score && q2.score.length > 0) {
-                  leftScoreGroups[key].push(q2.score);
+            data.forEach((otherPatient) => {
+              otherPatient.questionnaire_scores_left?.forEach((q2) => {
+                if (q2.name.includes(q1.name) && q2.period === q1.period) {
+                  if (q2.score && q2.score.length > 0) {
+                    leftScoreGroups[key].push(q2.score);
+                  }
                 }
-              }
+              });
             });
           });
         });
-      });
 
-      // RIGHT
-      data.forEach((patient) => {
-        patient.questionnaire_scores_right?.forEach((q1) => {
-          const key = `${q1.name}|${q1.period}`;
-          if (!rightScoreGroups[key]) rightScoreGroups[key] = [];
+        // RIGHT
+        data.forEach((patient) => {
+          patient.questionnaire_scores_right?.forEach((q1) => {
+            const key = `${q1.name}|${q1.period}`;
+            if (!rightScoreGroups[key]) rightScoreGroups[key] = [];
 
-          data.forEach((otherPatient) => {
-            otherPatient.questionnaire_scores_right?.forEach((q2) => {
-              if (q2.name.includes(q1.name) && q2.period === q1.period) {
-                if (q2.score && q2.score.length > 0) {
-                  rightScoreGroups[key].push(q2.score);
+            data.forEach((otherPatient) => {
+              otherPatient.questionnaire_scores_right?.forEach((q2) => {
+                if (q2.name.includes(q1.name) && q2.period === q1.period) {
+                  if (q2.score && q2.score.length > 0) {
+                    rightScoreGroups[key].push(q2.score);
+                  }
                 }
-              }
+              });
             });
           });
         });
-      });
 
-      console.log("LEFT Score Groups:", leftScoreGroups);
-      console.log("RIGHT Score Groups:", rightScoreGroups);
+        console.log("LEFT Score Groups:", leftScoreGroups);
+        console.log("RIGHT Score Groups:", rightScoreGroups);
 
-      // Store both separately
-      setLeftScoreGroups(leftScoreGroups);
-      setRightScoreGroups(rightScoreGroups);
+        // Store both separately
+        setLeftScoreGroups(leftScoreGroups);
+        setRightScoreGroups(rightScoreGroups);
+      } catch (err) {
+        console.error("Failed to fetch patients", err);
+      }
+    };
 
-    } catch (err) {
-      console.error("Failed to fetch patients", err);
-    }
-  };
-
-  fetchPatients();
-}, [userData?.user?.email]);
-
+    fetchPatients();
+  }, [userData?.user?.email]);
 
   const makeVip = async (uhid) => {
     try {
@@ -696,7 +693,7 @@ useEffect(() => {
 
   // Calculate total pages and current visible patients
   const totalPages = Math.ceil(filteredPatients.length / cardsPerPage);
-  const paginatedPatients = filteredPatients.slice(
+  const paginatedPatients = sortedPatients.slice(
     (currentPage - 1) * cardsPerPage,
     currentPage * cardsPerPage
   );
@@ -800,7 +797,7 @@ useEffect(() => {
           <div className="h-12 w-36 md:w-40 bg-white border-[#D9D9D9] border-[1.5px] rounded-2xl px-3">
             <div className="h-full flex flex-row gap-3 items-center justify-center">
               <Image
-                src={userData?.user?.gender === "male"?Maledoc:Femaledoc}
+                src={userData?.user?.gender === "male" ? Maledoc : Femaledoc}
                 alt="Profile"
                 className="w-8 h-8 rounded-full object-cover"
               />
@@ -1042,7 +1039,7 @@ useEffect(() => {
                               ? "cursor-pointer"
                               : "cursor-not-allowed"
                           }`}
-                          src={patient.gender === "male"?Malepat:Femalepat}
+                          src={patient.gender === "male" ? Malepat : Femalepat}
                           alt={patient.uhid}
                           onDoubleClick={() => {
                             if (patient.vip !== 1) {
@@ -1179,9 +1176,24 @@ useEffect(() => {
                               ? "w-full justify-center"
                               : ""
                           }`}
-                          onClick={() =>
-                            goToReport(patient, leftscoreGroups,rightscoreGroups, userData)
-                          }
+                          onClick={() => {
+                            goToReport(
+                              patient,
+                              leftscoreGroups,
+                              rightscoreGroups,
+                              userData
+                            );
+                            if (typeof window !== "undefined") {
+                              sessionStorage.setItem(
+                                "patientUHID",
+                                patient?.uhid
+                              );
+                              sessionStorage.setItem(
+                                "patientPASSWORD",
+                                patient?.password
+                              );
+                            }
+                          }}
                         >
                           <div className="text-sm font-medium border-b-2 text-[#476367] border-blue-gray-500 cursor-pointer">
                             Report

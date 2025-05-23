@@ -43,24 +43,48 @@ const page = () => {
 
   const { width, height } = useWindowSize();
 
-  const [selected, setSelected] = useState("home");
+  const [selected, setSelected] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("selectedTab") || "home";
+    }
+    return "home"; // fallback for SSR
+  });
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [leftgroupedScores, setleftGroupedScores] = useState({});
   const [rightgroupedScores, setrightGroupedScores] = useState({});
   const [userData, setUserData] = useState(null);
   // This will be passed to HomeDashboard
-  const handleGoToReport = (patient, scoresleftscoreGroups,rightscoreGroups, userData) => {
+  const handleGoToReport = (
+    patient,
+    scoresleftscoreGroups,
+    rightscoreGroups,
+    userData
+  ) => {
     setSelectedPatient(patient);
     setleftGroupedScores(scoresleftscoreGroups);
     setrightGroupedScores(rightscoreGroups);
     setUserData(userData);
     setSelected("report");
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedTab", "report");
+    }
     // console.log("SF - 12 Box plot", groupedScores);
   };
 
   const handleSelect = (index) => {
     setSelected(index);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedTab", index);
+    }
   };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedSelected = sessionStorage.getItem("selectedTab");
+      setSelected(selected);
+    }
+  }, []);
 
   const [selectedComponent, setSelectedComponent] = useState("");
 
@@ -201,6 +225,9 @@ const page = () => {
             onClick={() => {
               router.replace("/");
               localStorage.removeItem("userData");
+              sessionStorage.removeItem("selectedTab");
+              sessionStorage.removeItem("patientUHID");
+              sessionStorage.removeItem("patientPASSWORD");
             }}
           >
             <svg
