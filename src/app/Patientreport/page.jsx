@@ -1114,42 +1114,46 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
   };
 
   const handleManualTimeChange = (e) => {
-  let value = e.target.value.replace(/\D/g, ""); // Remove all non-digit characters
+    let value = e.target.value.replace(/\D/g, ""); // Remove all non-digit characters
 
-  // Add colon after HH
-  if (value.length >= 3) {
-    value = value.slice(0, 2) + ":" + value.slice(2, 4);
-  }
-
-  if (value.length > 5) {
-    value = value.slice(0, 5); // Limit to 5 characters (HH:MM)
-  }
-
-  setSelectedTime(value);
-
-  // Validate only when 5 characters entered (HH:MM)
-  if (value.length === 5) {
-    const [hourStr, minuteStr] = value.split(":");
-    const hour = parseInt(hourStr, 10);
-    const minute = parseInt(minuteStr, 10);
-
-    if (
-      isNaN(hour) ||
-      isNaN(minute) ||
-      hour < 0 || hour > 23 ||
-      minute < 0 || minute > 59
-    ) {
-      setWarning("Please enter a valid time in HH:MM format");
-      setSelectedTime("");
-      return;
+    // Add colon after HH
+    if (value.length >= 3) {
+      value = value.slice(0, 2) + ":" + value.slice(2, 4);
     }
 
-    // Optional: Convert to 24-hour format or store as-is
-    const formattedTime = `${hourStr.padStart(2, "0")}:${minuteStr.padStart(2, "0")}`;
-    setSelectedTime(formattedTime);
-  }
-};
+    if (value.length > 5) {
+      value = value.slice(0, 5); // Limit to 5 characters (HH:MM)
+    }
 
+    setSelectedTime(value);
+
+    // Validate only when 5 characters entered (HH:MM)
+    if (value.length === 5) {
+      const [hourStr, minuteStr] = value.split(":");
+      const hour = parseInt(hourStr, 10);
+      const minute = parseInt(minuteStr, 10);
+
+      if (
+        isNaN(hour) ||
+        isNaN(minute) ||
+        hour < 0 ||
+        hour > 23 ||
+        minute < 0 ||
+        minute > 59
+      ) {
+        setWarning("Please enter a valid time in HH:MM format");
+        setSelectedTime("");
+        return;
+      }
+
+      // Optional: Convert to 24-hour format or store as-is
+      const formattedTime = `${hourStr.padStart(2, "0")}:${minuteStr.padStart(
+        2,
+        "0"
+      )}`;
+      setSelectedTime(formattedTime);
+    }
+  };
 
   const [warning, setWarning] = useState("");
 
@@ -1176,12 +1180,8 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
     return `${year}-${month}-${day}`;
   }
 
-
-const [selectedDate1, setSelectedDate1] = useState(""); // e.g. "2025-05-23"
-const [selectedTime1, setSelectedTime1] = useState(""); // e.g. "14:30"
-
-
-  
+  const [selectedDate1, setSelectedDate1] = useState(""); // e.g. "2025-05-23"
+  const [selectedTime1, setSelectedTime1] = useState(""); // e.g. "14:30"
 
   // const [editMode, setEditMode] = useState({});
   // const [editValues, setEditValues] = useState({
@@ -1197,7 +1197,7 @@ const [selectedTime1, setSelectedTime1] = useState(""); // e.g. "14:30"
   // });
 
   //   const [selectedLeg, setSelectedLeg] = useState("left");
- const fieldRefs = useRef({});
+  const fieldRefs = useRef({});
   const [editMode, setEditMode] = useState({
     post_surgery_details_left: {},
     post_surgery_details_right: {},
@@ -1226,66 +1226,87 @@ const [selectedTime1, setSelectedTime1] = useState(""); // e.g. "14:30"
   });
 
   // Update when `patient` is loaded
-  useEffect(() => {
-    if (!patient) return;
+ useEffect(() => {
+  if (!patient) return;
 
-    const datetimeStrLeft = patient.post_surgery_details_left?.date_of_surgery || "";
-    const datetimeStrRight = patient.post_surgery_details_right?.date_of_surgery || "";
+  const processDateTime = (surgeryDetails, scheduledDetails) => {
+    const rawDateTime = surgeryDetails?.date_of_surgery || "";
+    const isDefaultDate = rawDateTime.startsWith("0001") || rawDateTime === "";
 
-    // Parse left side datetime string
-  let dateLeft = "";
-let timeLeft = "";
-if (datetimeStrLeft) {
-  const dt = new Date(datetimeStrLeft);
-  dateLeft = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-  timeLeft = dt.toTimeString().slice(0, 5);
-}
+    let dateStr = "";
+    let timeStr = "";
 
-let dateRight = "";
-let timeRight = "";
-if (datetimeStrRight) {
-  const dt = new Date(datetimeStrRight);
-  dateRight = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-  timeRight = dt.toTimeString().slice(0, 5);
-}
-
-
-    setEditValues({
-      uhid: patient.uhid || "",
-      post_surgery_details_left: {
-        ...patient.post_surgery_details_left,
-        surgery_date: datetimeStrLeft,
-        date_only: dateLeft,
-        time_only: timeLeft,
-        surgeon: patient.post_surgery_details_left?.surgeon || "",
-        surgery_name: patient.post_surgery_details_left?.surgery_name || "",
-        sub_doctor: patient.post_surgery_details_left?.sub_doctor || "",
-        procedure: patient.post_surgery_details_left?.procedure || "",
-        implant: patient.post_surgery_details_left?.implant || "",
-        technology: patient.post_surgery_details_left?.technology || "",
-      },
-      post_surgery_details_right: {
-        ...patient.post_surgery_details_right,
-        surgery_date: datetimeStrRight,
-        date_only: dateRight,
-        time_only: timeRight,
-        surgeon: patient.post_surgery_details_right?.surgeon || "",
-        surgery_name: patient.post_surgery_details_right?.surgery_name || "",
-        sub_doctor: patient.post_surgery_details_right?.sub_doctor || "",
-        procedure: patient.post_surgery_details_right?.procedure || "",
-        implant: patient.post_surgery_details_right?.implant || "",
-        technology: patient.post_surgery_details_right?.technology || "",
-      },
-    });
-    // Also set the UI states for date/time for the selected leg:
-    if (selectedLeg === "left") {
-      setSelectedDate(dateLeft);
-      setSelectedTime(timeLeft);
-    } else {
-      setSelectedDate(dateRight);
-      setSelectedTime(timeRight);
+    if (!isDefaultDate) {
+      const dt = new Date(rawDateTime);
+      if (!isNaN(dt.getTime())) {
+        dateStr =
+          String(dt.getDate()).padStart(2, "0") +
+          "-" +
+          String(dt.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          dt.getFullYear();
+        timeStr =
+          String(dt.getHours()).padStart(2, "0") +
+          ":" +
+          String(dt.getMinutes()).padStart(2, "0");
+      }
+    } else if (scheduledDetails?.date && scheduledDetails?.time) {
+      // Fallback to scheduled values if date_of_surgery is invalid
+      const [year, month, day] = scheduledDetails.date.split("-");
+      dateStr = `${day}-${month}-${year}`;
+      timeStr = scheduledDetails.time;
     }
-  }, [patient]);
+
+    return { dateStr, timeStr, rawDateTime };
+  };
+
+  const left = processDateTime(
+    patient.post_surgery_details_left,
+    patient.surgery_scheduled_left
+  );
+  const right = processDateTime(
+    patient.post_surgery_details_right,
+    patient.surgery_scheduled_right
+  );
+
+  setEditValues({
+    uhid: patient.uhid || "",
+    post_surgery_details_left: {
+      ...patient.post_surgery_details_left,
+      surgery_date: left.rawDateTime,
+      date_only: left.dateStr,
+      time_only: left.timeStr,
+      surgeon: patient.post_surgery_details_left?.surgeon || "",
+      surgery_name: patient.post_surgery_details_left?.surgery_name || "",
+      sub_doctor: patient.post_surgery_details_left?.sub_doctor || "",
+      procedure: patient.post_surgery_details_left?.procedure || "",
+      implant: patient.post_surgery_details_left?.implant || "",
+      technology: patient.post_surgery_details_left?.technology || "",
+    },
+    post_surgery_details_right: {
+      ...patient.post_surgery_details_right,
+      surgery_date: right.rawDateTime,
+      date_only: right.dateStr,
+      time_only: right.timeStr,
+      surgeon: patient.post_surgery_details_right?.surgeon || "",
+      surgery_name: patient.post_surgery_details_right?.surgery_name || "",
+      sub_doctor: patient.post_surgery_details_right?.sub_doctor || "",
+      procedure: patient.post_surgery_details_right?.procedure || "",
+      implant: patient.post_surgery_details_right?.implant || "",
+      technology: patient.post_surgery_details_right?.technology || "",
+    },
+  });
+
+  // Also update UI date/time
+  if (selectedLeg === "left") {
+    setSelectedDate(left.dateStr);
+    setSelectedTime(left.timeStr);
+  } else {
+    setSelectedDate(right.dateStr);
+    setSelectedTime(right.timeStr);
+  }
+}, [patient, selectedLeg]);
+
 
   const [previousValues, setPreviousValues] = useState({});
   const isLeft = selectedLeg === "left";
@@ -1309,6 +1330,10 @@ if (datetimeStrRight) {
           fieldRefs.current[field] &&
           !fieldRefs.current[field].contains(event.target)
         ) {
+
+          const restoredValue = previousValues[field] ?? editValues[legKey][field];
+
+
           setEditValues((prev) => ({
             ...prev,
             [legKey]: {
@@ -1316,6 +1341,22 @@ if (datetimeStrRight) {
               [field]: previousValues[field] ?? prev[legKey][field],
             },
           }));
+
+          // 👇 Add this to sync UI time/date
+          if (field === "surgery_date" && restoredValue) {
+            const dt = new Date(restoredValue);
+            setSelectedDate(
+              String(dt.getDate()).padStart(2, "0") +
+                "-" +
+                String(dt.getMonth() + 1).padStart(2, "0") +
+                "-" +
+                dt.getFullYear()
+            );
+ 
+            setSelectedTime(dt.toTimeString().slice(0, 5));
+
+            
+          }
 
           setEditMode((prev) => ({
             ...prev,
@@ -1375,27 +1416,48 @@ if (datetimeStrRight) {
     }));
   };
 
+  function toLocalISOString(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+
+    return (
+      date.getFullYear() +
+      "-" +
+      pad(date.getMonth() + 1) +
+      "-" +
+      pad(date.getDate()) +
+      "T" +
+      pad(date.getHours()) +
+      ":" +
+      pad(date.getMinutes()) +
+      ":" +
+      pad(date.getSeconds())
+    );
+  }
+
   const handleSaveClick = async (field) => {
     const legKey =
       selectedLeg === "left"
         ? "post_surgery_details_left"
         : "post_surgery_details_right";
-        let combinedDateTime = null;
+    let combinedDateTime = null;
 
     if (field === "surgery_date" && selectedDate) {
       // const isoDate = formatForStorage(selectedDate);
 
       // console.log("ISO Date", selectedDate);
       const [day, month, year] = selectedDate.split("-");
-const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
- combinedDateTime = new Date(`${formattedDate}T${selectedTime}:00`);
+      const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(
+        2,
+        "0"
+      )}`;
+      combinedDateTime = new Date(`${formattedDate}T${selectedTime}:00`);
 
-      console.log("Combined Date Time",combinedDateTime);
+      // console.log("Combined Date Time", combinedDateTime.toISOString());
       setEditValues((prev) => ({
         ...prev,
         [legKey]: {
           ...prev[legKey],
-          [field]: combinedDateTime.toISOString(),
+          [field]: toLocalISOString(combinedDateTime),
         },
       }));
     }
@@ -1418,20 +1480,26 @@ const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}
 
     if (editValues.uhid === "") return setWarning("UHID not found");
 
+    const originalDetails = editValues[legKey];
+
     const payload = {
       uhid: editValues.uhid,
       [legKey]: {
-        ...editValues[legKey],
         date_of_surgery:
           field === "surgery_date"
-            ? combinedDateTime
-                .toISOString()
-                .split("T")[0]
-            : editValues[legKey].surgery_date,
+            ? toLocalISOString(combinedDateTime)
+            : originalDetails.surgery_date,
+        surgeon: originalDetails.surgeon,
+        surgery_name: originalDetails.surgery_name,
+        sub_doctor: originalDetails.sub_doctor,
+        procedure: originalDetails.procedure,
+        implant: originalDetails.implant,
+        technology: originalDetails.technology,
       },
     };
 
     // console.log("Payload surgery", payload);
+    // return;
 
     try {
       const response = await fetch(
@@ -1450,9 +1518,10 @@ const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}
 
       if (!response.ok) {
         setWarning(
-          result.detail ||
-            `Failed to update surgery details for ${selectedLeg} leg`
+          extractErrorMessage(result.detail) ||
+            "Failed to update surgery details for left leg"
         );
+        console.log(extractErrorMessage(result.detail));
         return;
       }
 
@@ -1467,6 +1536,13 @@ const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}
       console.error(`Error ${selectedLeg} leg:`, error);
       setWarning(`Something went wrong while updating ${selectedLeg} leg.`);
     }
+  };
+
+  const extractErrorMessage = (detail) => {
+    if (typeof detail === "string") return detail;
+    if (Array.isArray(detail)) return detail.map((d) => d.msg).join(", ");
+    if (typeof detail === "object" && detail.msg) return detail.msg;
+    return "Unknown error occurred";
   };
 
   const isPostSurgeryDetailsFilled = (details) => {
@@ -2075,7 +2151,8 @@ const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}
                     ) : (
                       <div className="flex items-center gap-2">
                         <p className="font-medium italic text-[#475467] text-sm">
-                          {selectedDate || "Not Available"} {selectedTime || "Not Available"}
+                          {selectedDate || "Not Available"}{" "}
+                          {selectedTime || "Not Available"}
                         </p>
                         <button
                           onClick={() => handleEditClick("surgery_date")}

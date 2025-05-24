@@ -358,9 +358,8 @@ function convertToISO(dateStr, timeStr) {
         const result = await response.json();
 
         if (!response.ok) {
-          setWarning(
-            result.detail || "Failed to update surgery details for Right Leg"
-          );
+          setWarning(extractErrorMessage(result.detail) || "Failed to update surgery details for left leg");
+          console.log(extractErrorMessage(result.detail));
           return;
         }
         console.log("Successfully updated right leg");
