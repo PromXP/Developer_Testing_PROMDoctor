@@ -12,6 +12,7 @@ import {
   Cell,
   ResponsiveContainer,
   CartesianGrid,
+  Legend,
 } from "recharts";
 import { Poppins } from "next/font/google";
 
@@ -24,7 +25,11 @@ import Maledoc from "@/app/assets/maledoc.png";
 import Femaledoc from "@/app/assets/femaledoc.png";
 
 import { UserIcon } from "@heroicons/react/24/outline";
-import { ChevronRightIcon, ArrowUpRightIcon } from "@heroicons/react/16/solid";
+import {
+  ChevronRightIcon,
+  ChevronLeftIcon,
+  ArrowUpRightIcon,
+} from "@heroicons/react/16/solid";
 import Patientimg from "@/app/assets/patimg.png";
 import Ascending from "@/app/assets/ascending.png";
 import Descending from "@/app/assets/descending.png";
@@ -594,13 +599,24 @@ const page = ({ goToReport }) => {
     };
 
     const generatePeriodVariants = (period) => {
-      const basePeriod = normalizeString(period); // Normalize the base period (e.g., "pre", "post")
+      const basePeriod = normalizeString(period); // Normalize input (e.g., "post", "postoperative")
 
-      // Create a list of variations for "pre" and "post"
-      if (basePeriod === "pre" || basePeriod.includes("pre")) {
+      if (basePeriod.includes("pre")) {
         return ["pre", "preop", "preoperative", "pre-op", "pre op"];
-      } else if (basePeriod === "post" || basePeriod.includes("post")) {
-        return ["post", "postop", "postoperative", "post-op", "post op"];
+      } else if (basePeriod.includes("post")) {
+        return [
+          "post",
+          "postop",
+          "postoperative",
+          "post-op",
+          "post op",
+          "6w",
+          "3m",
+          "6m",
+          "1y",
+          "2y",
+          "all",
+        ];
       } else {
         return [basePeriod];
       }
@@ -610,16 +626,11 @@ const page = ({ goToReport }) => {
       ? filteredPatients
       : filteredPatients.filter((patient) => {
           const currentPeriod = getCurrentPeriod(patient, selectedLeg);
-          console.log("Current Period:", currentPeriod); // Log the current period
-          console.log("Selected Filter:", selectedFilter); // Log the selected filter
-
           const normalizedCurrentPeriod = normalizeString(currentPeriod);
           const normalizedSelectedFilter = normalizeString(selectedFilter);
+          const normalizedSubFilter = postopfilter?.toLowerCase?.() || "ALL"; // normalize to "6W", "ALL", etc.
 
-          console.log("Normalized Current Period:", normalizedCurrentPeriod);
-          console.log("Normalized Selected Filter:", normalizedSelectedFilter);
-
-          // Generate variations for the current period and selected filter
+          // Generate variants
           const currentPeriodVariants = generatePeriodVariants(
             normalizedCurrentPeriod
           );
@@ -627,17 +638,48 @@ const page = ({ goToReport }) => {
             normalizedSelectedFilter
           );
 
-          console.log("Current Period Variants:", currentPeriodVariants);
-          console.log("Selected Filter Variants:", selectedFilterVariants);
-
-          // Check if any of the current period variants match the selected filter variants
-          const isMatch = currentPeriodVariants.some((variant) =>
+          // Check if patient matches the main period filter
+          const periodMatches = currentPeriodVariants.some((variant) =>
             selectedFilterVariants.some((filterVariant) =>
               variant.includes(filterVariant)
             )
           );
 
-          return isMatch;
+          // If no match at all, reject
+          if (!periodMatches) return false;
+
+          // ✅ At this point, it's a pre or post match
+          // If it’s post-op, and subfilter is set (not "All"), match the follow-up period
+          const isPostOp = selectedFilterVariants.some((v) =>
+            [
+              "post",
+              "postop",
+              "postoperative",
+              "post-op",
+              "post op",
+              "6w",
+              "3m",
+              "6m",
+              "1y",
+              "2y",
+              "all",
+            ].includes(v)
+          );
+
+          if (isPostOp && normalizedSubFilter !== "ALL") {
+            //   const followUp =
+            //     patient?.[selectedLeg]?.post_surgery_followup?.toUpperCase?.();
+            //     console.log(
+            //   "Period Match",
+            //   followUp +
+            //     " / " +
+            //     normalizedSubFilter
+            // );
+            return true;
+          }
+
+          // If pre-op or post-op with "All", accept
+          return true;
         });
 
     // Iterate over the selected patients and categorize their scores into buckets
@@ -666,7 +708,12 @@ const page = ({ goToReport }) => {
             bucketCounts[bucketLabel].post++;
           }
         } else {
-          bucketCounts[bucketLabel].pre++; // Just count selected patients under "pre"
+          const status = getCurrentPeriod(patient, selectedLeg).toLowerCase();
+          if (status.includes("pre")) {
+            bucketCounts[bucketLabel].pre++;
+          } else {
+            bucketCounts[bucketLabel].post++;
+          }
         }
       }
     });
@@ -684,7 +731,7 @@ const page = ({ goToReport }) => {
     setFilteredData(scoreData());
   }, [patfilter]); // Dependency array ensures this runs when filter changes
 
-  console.log("Bar chart", scoreData());
+  console.log("Bar chart", patfilter.toLowerCase());
 
   const containerRef = useRef(null);
   const cardRef = useRef(null);
@@ -714,6 +761,14 @@ const page = ({ goToReport }) => {
     window.addEventListener("resize", updateCardsPerPage);
     return () => window.removeEventListener("resize", updateCardsPerPage);
   }, []);
+
+  const scrollRef = useRef(null);
+
+  const scrollByAmount = (amount) => {
+    scrollRef.current?.scrollBy({ left: amount, behavior: "smooth" });
+  };
+
+  let patfil = "all patients";
 
   return (
     <>
@@ -962,7 +1017,49 @@ const page = ({ goToReport }) => {
             </div>
           </div>
 
+          <div className="w-full flex justify-center items-center mt-4">
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2 max-w-full">
+                {/* Left Arrow */}
+
+                <ChevronLeftIcon
+                  className="w-8 h-8 text-red-600 cursor-pointer"
+                  onClick={() => scrollByAmount(-150)}
+                />
+
+                {/* Scrollable Page Buttons */}
+                <div
+                  ref={scrollRef}
+                  className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth px-1"
+                  style={{ maxWidth: "70vw" }}
+                >
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1 border rounded cursor-pointer shrink-0 transition-all ${
+                        currentPage === i + 1
+                          ? "bg-blue-500 text-white"
+                          : "bg-white text-blue-500"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Right Arrow */}
+
+                <ChevronRightIcon
+                  className="w-8 h-8 text-red-600 cursor-pointer"
+                  onClick={() => scrollByAmount(150)}
+                />
+              </div>
+            )}
+          </div>
+
           <div
+            ref={containerRef}
             className={`overflow-y-scroll flex-grow pr-2 mt-3 ${
               width < 650 && width >= 450
                 ? patfilter.toLowerCase() === "post operative"
@@ -985,11 +1082,8 @@ const page = ({ goToReport }) => {
                 : "h-[82.8%]"
             }`}
           >
-            <div className="overflow-hidden flex-1">
-              <div
-                ref={containerRef}
-                className="grid grid-cols-1 transition-all duration-300"
-              >
+            <div className="overflow-y-auto flex-1">
+              <div className="grid grid-cols-1 transition-all duration-300">
                 {paginatedPatients.map((patient) => (
                   <div
                     ref={patient.uhid ? cardRef : null}
@@ -1208,41 +1302,6 @@ const page = ({ goToReport }) => {
                   </div>
                 ))}
               </div>
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 my-2">
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 text-black disabled:opacity-50 cursor-pointer"
-                  >
-                    Prev
-                  </button>
-
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 border rounded cursor-pointer ${
-                        currentPage === i + 1
-                          ? "bg-blue-500 text-white"
-                          : "bg-white text-blue-500"
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-
-                  <button
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(p + 1, totalPages))
-                    }
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1 text-black disabled:opacity-50 cursor-pointer"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -1337,7 +1396,7 @@ const page = ({ goToReport }) => {
               width < 1000 ? "h-fit" : "h-[60%]"
             }`}
           >
-            <div className="w-full h-full bg-white shadow-md rounded-xl flex flex-col gap-4 items-center justify-start p-3">
+            <div className="w-full h-full bg-white shadow-md rounded-xl flex flex-col items-center justify-start p-3">
               <div className="w-full flex flex-row justify-between items-center mb-4">
                 {" "}
                 {/* Added margin bottom for space */}
@@ -1354,89 +1413,69 @@ const page = ({ goToReport }) => {
               <div className="w-full" style={{ height: "60vh" }}>
                 {" "}
                 {/* Height as a percentage of the viewport height */}
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={scoreData()} // Use the scoreData function to generate dynamic data
-                    margin={{ top: 10, right: 20, left: -10, bottom: 10 }}
-                  >
-                    <CartesianGrid strokeDasharray="8 10" vertical={false} />
+                {patfilter && scoreData().length > 0 && (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={scoreData()} // Use the scoreData function to generate dynamic data
+                      margin={{ top: 0, right: 20, left: -10, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="8 10" vertical={false} />
 
-                    <XAxis
-                      dataKey="name" // Use 'name' as the range (e.g., "0-20", "20-40")
-                      label={{
-                        position: "insideBottom",
-                        fontSize: 14,
-                        fontWeight: "bold",
-                      }}
-                      tick={{ fontSize: 12, fontWeight: 600 }}
-                    />
+                      <XAxis
+                        dataKey="name" // Use 'name' as the range (e.g., "0-20", "20-40")
+                        label={{
+                          position: "insideBottom",
+                          fontSize: 14,
+                          fontWeight: "bold",
+                        }}
+                        tick={{ fontSize: 12, fontWeight: 600 }}
+                      />
 
-                    <YAxis
-                      allowDecimals={false}
-                      label={{
-                        value: "Number of Patients",
-                        angle: -90,
-                        position: "insideLeft",
-                        offset: -5,
-                        fontSize: 14,
-                        fontWeight: "bold",
-                      }}
-                      tick={{ fontSize: 12, fontWeight: 600 }}
-                      domain={[
-                        0,
-                        Math.max(...scoreData().map((data) => data.uv)),
-                      ]} // Adjust domain based on maximum value of uv
-                    />
+                      <YAxis />
 
-                    <Tooltip
-                      content={({ payload, label }) => {
-                        if (!payload || payload.length === 0) return null; // No tooltip content if no data
+                      <Tooltip
+                        content={({ payload, label }) => {
+                          if (!payload || payload.length === 0) return null; // No tooltip content if no data
 
-                        const data = payload[0].payload; // Access the data of the hovered bar
-                        const isPreOp = data.pv > 0; // Check if Pre-Operative data exists
-                        const isPostOp = data.amt > 0; // Check if Post-Operative data exists
+                          const data = payload[0].payload; // Access the data of the hovered bar
+                          const isPreOp = data.pv > 0; // Check if Pre-Operative data exists
+                          const isPostOp = data.amt > 0; // Check if Post-Operative data exists
 
-                        return (
-                          <div className="custom-tooltip text-black">
-                            <p>{label}</p>
-                            {isPreOp && <p>Pre-Operative: {data.pv}</p>}
-                            {isPostOp && <p>Post-Operative: {data.amt}</p>}
-                          </div>
-                        );
-                      }}
-                    />
+                          return (
+                            <div className="custom-tooltip text-black">
+                              <p>{label}</p>
+                              {isPreOp && <p>Pre-Operative: {data.pv}</p>}
+                              {isPostOp && <p>Post-Operative: {data.amt}</p>}
+                            </div>
+                          );
+                        }}
+                      />
+                      <Legend
+                        wrapperStyle={{ fontSize: 12, fontWeight: 600, top:-30 }}
+                        iconType="square"
+                        verticalAlign="top"
+                        align="right"
+                      />
 
-                    {scoreData()[0]?.isAllPatients ? (
-                      <>
-                        <Bar
-                          dataKey="pv" // Pre-operative count
-                          stackId="a"
-                          fill="#4F46E5"
-                          name="Pre-Operative"
-                          isAnimationActive={true} // optional, for better visibility
-                        />
-                        <Bar
-                          dataKey="amt" // Post-operative count
-                          stackId="a"
-                          fill="#22C55E"
-                          name="Post-Operative"
-                          isAnimationActive={true}
-                        />
-                      </>
-                    ) : (
-                      <Bar dataKey="uv" isAnimationActive={false}>
-                        {" "}
-                        {/* Using 'uv' to represent total count */}
-                        {scoreData().map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={bucketColors[entry.name] || "#8884d8"} // Use 'name' (bucket range) for color
-                          />
-                        ))}
-                      </Bar>
-                    )}
-                  </BarChart>
-                </ResponsiveContainer>
+                      {patfilter?.toLowerCase().trim() === "all patients" && (
+                        <Bar dataKey="pv" stackId="a" fill="#4F46E5"name="Pre Op"/>
+                      )}
+                      {patfilter?.toLowerCase().trim() === "all patients" && (
+                        <Bar dataKey="amt" stackId="a" fill="#22C55E" name="Post Op" />
+                      )}
+                      {patfilter?.toLowerCase().trim() !== "all patients" && (
+                        <Bar dataKey="uv" isAnimationActive={false}>
+                          {scoreData().map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={bucketColors[entry.name] || "#8884d8"}
+                            />
+                          ))}
+                        </Bar>
+                      )}
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </div>
           </div>
