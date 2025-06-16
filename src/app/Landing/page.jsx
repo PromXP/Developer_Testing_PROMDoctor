@@ -8,6 +8,7 @@ import { Poppins } from "next/font/google";
 
 import HomeDashboard from "@/app/Homedashboard/page";
 import Patientreport from "@/app/Patientreport/page";
+import DaytodayLife from "@/app/Daytodaylife/page";
 
 import "@/app/globals.css";
 
@@ -45,7 +46,7 @@ const page = () => {
 
   const [selected, setSelected] = useState(() => {
     if (typeof window !== "undefined") {
-      return sessionStorage.getItem("selectedTab") || "home";
+      return sessionStorage.getItem("selectedTab") || "daytodaylife";
     }
     return "home"; // fallback for SSR
   });
@@ -92,6 +93,8 @@ const page = () => {
     switch (selected) {
       case "home":
         return <HomeDashboard goToReport={handleGoToReport} />;
+      case "daytodaylife":
+        return <DaytodayLife goToReport={handleGoToReport} />;
       case "report":
         return (
           <Patientreport
@@ -119,7 +122,7 @@ const page = () => {
                 ? "bg-white/40 backdrop-blur-md shadow-lg border border-white/30"
                 : "opacity-100"
             }`}
-            onClick={() => handleSelect("home")}
+            onClick={() => handleSelect("daytodaylife")}
           >
             <svg
               width="31"
@@ -149,11 +152,12 @@ const page = () => {
 
           {/* Button 2 */}
           <button
-            className={`cursor-pointer p-2 rounded-lg transition-all invisible ${
+            className={`cursor-pointer p-2 rounded-lg transition-all visible ${
               selected === 1
                 ? "bg-white/40 backdrop-blur-md shadow-lg border border-white/30"
                 : "opacity-100"
             }`}
+             onClick={() => handleSelect("home")}
           >
             <svg
               width="31"
