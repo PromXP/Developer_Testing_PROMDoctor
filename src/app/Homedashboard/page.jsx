@@ -809,8 +809,54 @@ const page = ({ goToReport }) => {
     return age;
   };
 
-
   let patfil = "all patients";
+
+  const [profileImages, setProfileImages] = useState("");
+
+  useEffect(() => {
+    const fetchPatientImage = async () => {
+      try {
+        const uhid = userData?.user?.uhid;
+        console.log("Doctor Profile Image", uhid);
+        const res = await fetch(
+          `${API_URL}get-profile-photo/${encodeURIComponent(uhid)}`
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch profile photos");
+        const data = await res.json();
+
+        setProfileImages(data.profile_image_url);
+      } catch (err) {
+        console.error("Error fetching profile images:", err);
+      }
+    };
+
+    fetchPatientImage();
+  }, [userData]); // empty dependency: fetch once on mount
+
+  const [profileImages1, setProfileImages1] = useState({});
+
+  useEffect(() => {
+    const fetchAllImages = async () => {
+      try {
+        const res = await fetch(`${API_URL}get-all-profile-photos`);
+        if (!res.ok) throw new Error("Failed to fetch profile photos");
+        const data = await res.json();
+
+        // Convert array to object { uhid: profile_image_url }
+        const imagesMap = {};
+        data.patients.forEach((p) => {
+          imagesMap[p.uhid] = p.profile_image_url;
+        });
+
+        setProfileImages1(imagesMap);
+      } catch (err) {
+        console.error("Error fetching profile images:", err);
+      }
+    };
+
+    fetchAllImages();
+  }, []); // empty dependency: fetch once on mount
 
   return (
     <>
@@ -894,8 +940,13 @@ const page = ({ goToReport }) => {
           <div className="h-12 w-36 md:w-40 bg-white border-[#D9D9D9] border-[1.5px] rounded-2xl px-3">
             <div className="h-full flex flex-row gap-3 items-center justify-center">
               <Image
-                src={userData?.user?.gender === "male" ? Maledoc : Femaledoc}
-                alt="Profile"
+                src={
+                  profileImages ||
+                  (userData?.user?.gender === "male" ? Maledoc : Femaledoc)
+                }
+                alt="Doc Image"
+                width={40} // or your desired width
+                height={40} // or your desired height
                 className="w-8 h-8 rounded-full object-cover"
               />
               <p className="text-sm font-medium text-[#0D0D0D] whitespace-nowrap">
@@ -1175,7 +1226,12 @@ const page = ({ goToReport }) => {
                               ? "cursor-pointer"
                               : "cursor-not-allowed"
                           }`}
-                          src={patient.gender === "male" ? Malepat : Femalepat}
+                          src={
+                            profileImages1[patient.uhid] ||
+                            (patient.gender === "male" ? Malepat : Femalepat)
+                          }
+                          width={40} // or your desired width
+                          height={40} // or your desired height
                           alt={patient.uhid}
                           onDoubleClick={() => {
                             if (patient.vip !== 1) {
@@ -1493,17 +1549,31 @@ const page = ({ goToReport }) => {
                         }}
                       />
                       <Legend
-                        wrapperStyle={{ fontSize: 12, fontWeight: 600, top:-30 }}
+                        wrapperStyle={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          top: -30,
+                        }}
                         iconType="square"
                         verticalAlign="top"
                         align="right"
                       />
 
                       {patfilter?.toLowerCase().trim() === "all patients" && (
-                        <Bar dataKey="pv" stackId="a" fill="#4F46E5"name="Pre Op"/>
+                        <Bar
+                          dataKey="pv"
+                          stackId="a"
+                          fill="#4F46E5"
+                          name="Pre Op"
+                        />
                       )}
                       {patfilter?.toLowerCase().trim() === "all patients" && (
-                        <Bar dataKey="amt" stackId="a" fill="#22C55E" name="Post Op" />
+                        <Bar
+                          dataKey="amt"
+                          stackId="a"
+                          fill="#22C55E"
+                          name="Post Op"
+                        />
                       )}
                       {patfilter?.toLowerCase().trim() !== "all patients" && (
                         <Bar dataKey="uv" isAnimationActive={false}>

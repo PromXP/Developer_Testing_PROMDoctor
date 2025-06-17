@@ -9,6 +9,8 @@ import { Poppins } from "next/font/google";
 import HomeDashboard from "@/app/Homedashboard/page";
 import Patientreport from "@/app/Patientreport/page";
 import DaytodayLife from "@/app/Daytodaylife/page";
+import IJR from "@/app/IJRpage/page";
+import IJRView from "@/app/IJRView/page";
 
 import "@/app/globals.css";
 
@@ -73,10 +75,37 @@ const page = () => {
     // console.log("SF - 12 Box plot", groupedScores);
   };
 
+  const handleGoToIJR = (userData) => {
+    setUserData(userData);
+    setSelected("ijr");
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedTab", "ijr");
+    }
+    // console.log("SF - 12 Box plot", groupedScores);
+  };
+
+  const handleGoToIJRview = (userData) => {
+    setUserData(userData);
+    setSelected("ijrview");
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedTab", "ijrview");
+    }
+    // console.log("SF - 12 Box plot", groupedScores);
+  };
+
   const handleSelect = (index) => {
     setSelected(index);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("selectedTab", index);
+    }
+  };
+
+  const handleclosijr = () => {
+    setSelected("daytodaylife");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedTab", "daytodaylife");
     }
   };
 
@@ -94,7 +123,9 @@ const page = () => {
       case "home":
         return <HomeDashboard goToReport={handleGoToReport} />;
       case "daytodaylife":
-        return <DaytodayLife goToReport={handleGoToReport} />;
+        return (
+          <DaytodayLife goToReport={handleGoToReport} gotoIJR={handleGoToIJR} />
+        );
       case "report":
         return (
           <Patientreport
@@ -102,8 +133,18 @@ const page = () => {
             leftscoreGroups={leftgroupedScores}
             rightscoreGroups={rightgroupedScores}
             userData={userData} // Pass userData to Patientreport
+            gotoIJR={handleGoToIJRview}
           />
         );
+      case "ijr":
+        return (
+          <IJR
+            closeijr={handleclosijr}
+            // userData={userData} // Pass userData to Patientreport
+          />
+        );
+      case "ijrview":
+        return <IJRView goToReport={handleGoToReport} />;
       default:
         return null;
     }
@@ -157,7 +198,7 @@ const page = () => {
                 ? "bg-white/40 backdrop-blur-md shadow-lg border border-white/30"
                 : "opacity-100"
             }`}
-             onClick={() => handleSelect("home")}
+            onClick={() => handleSelect("home")}
           >
             <svg
               width="31"

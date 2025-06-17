@@ -23,6 +23,7 @@ import Malepat from "@/app/assets/man.png";
 import Femalepat from "@/app/assets/woman.png";
 import Maledoc from "@/app/assets/maledoc.png";
 import Femaledoc from "@/app/assets/femaledoc.png";
+import Closeicon from "@/app/assets/closeicon.png";
 
 import { UserIcon } from "@heroicons/react/24/outline";
 import {
@@ -46,7 +47,7 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
-const page = ({ goToReport }) => {
+const page = ({ goToReport, gotoIJR }) => {
   const useWindowSize = () => {
     const [size, setSize] = useState({
       width: 0,
@@ -130,6 +131,7 @@ const page = ({ goToReport }) => {
   }, []);
 
   const [patients, setPatients] = useState([]);
+  const [surgerypat, setSurgerypat] = useState([]);
   const lastTapRef = useRef({});
   const [preOpCount, setPreOpCount] = useState(0);
   const [postOpStages, setPostOpStages] = useState({});
@@ -234,6 +236,22 @@ const page = ({ goToReport }) => {
 
     fetchPatients();
   }, [userData?.user?.email]);
+
+  useEffect(() => {
+    const fetchsurgery = async () => {
+      try {
+        const res = await axios.get(API_URL + `getsurgeryallpatients`);
+        const data = res.data;
+
+        setSurgerypat(data.patients);
+        console.log("Surgery list", data);
+      } catch (err) {
+        console.error("Failed to fetch patients", err);
+      }
+    };
+
+    fetchsurgery();
+  }, [patients]);
 
   const makeVip = async (uhid) => {
     try {
@@ -340,8 +358,48 @@ const page = ({ goToReport }) => {
 
   const [searchTerm, setSearchTerm] = useState("");
 
+  const utcToISTDateOnly = (utcString) => {
+    const date = new Date(utcString);
+    const ist = new Date(date.getTime() + 5.5 * 60 * 60 * 1000); // IST offset
+    return ist.toISOString().split("T")[0];
+  };
+
+  const today = utcToISTDateOnly(new Date().toISOString());
+
+  // Step 1: Create a Set of UHIDs to exclude
+  const uhidToExclude = new Set(
+    surgerypat
+      .filter((record) => {
+        if (!record.patient_records || record.patient_records.length === 0)
+          return false;
+
+        if (patfilter.toLowerCase() === "pre operative") {
+          // Exclude if any posting_timestamp matches today
+          return record.patient_records.some(
+            (r) => utcToISTDateOnly(r.posting_timestamp) === today
+          );
+        }
+
+        if (patfilter.toLowerCase() === "post operative") {
+          // Exclude if any rom_update_timestamp matches today
+          return record.patient_records.some((r) =>
+            r.rom?.some((romEntry) => {
+              if (!romEntry.rom_update_timestamp) return false;
+              return utcToISTDateOnly(romEntry.rom_update_timestamp) === today;
+            })
+          );
+        }
+
+        return false;
+      })
+      .map((record) => record.uhid)
+  );
+
   const filteredPatients = patients
     .filter((patient) => {
+      if (uhidToExclude.has(patient.uhid)) {
+        return false;
+      }
       const status = getCurrentPeriod(patient, selectedLeg).toLowerCase() || "";
       const selectedFilter = patfilter.toLowerCase();
       const subFilter = postopfilter.toLowerCase();
@@ -359,11 +417,11 @@ const page = ({ goToReport }) => {
       const today = new Date().toISOString().split("T")[0];
 
       const relevantQuestionnaires =
-      selectedLegSide === "left"
-        ? patient.questionnaire_assigned_left || []
-        : patient.questionnaire_assigned_right || [];
+        selectedLegSide === "left"
+          ? patient.questionnaire_assigned_left || []
+          : patient.questionnaire_assigned_right || [];
 
-    let matchByQuestionnaire = relevantQuestionnaires.length > 0;
+      let matchByQuestionnaire = relevantQuestionnaires.length > 0;
 
       // Always check questionnaire assigned
       if (selectedLegSide === "left" && hasLeft) {
@@ -404,24 +462,24 @@ const page = ({ goToReport }) => {
       // Anything not "pre" is treated as post-operative
       if (selectedFilter === "post operative") {
         if (!period.includes("pre")) {
-        if (subFilter === "all") {
-          // ✅ Only show post-operative patients with today's due questionnaire
-          return relevantQuestionnaires?.some((q) => {
-            const deadline = q.deadline?.split("T")[0];
-            return deadline === today;
-          });
-        }
+          if (subFilter === "all") {
+            // ✅ Only show post-operative patients with today's due questionnaire
+            return relevantQuestionnaires?.some((q) => {
+              const deadline = q.deadline?.split("T")[0];
+              return deadline === today;
+            });
+          }
 
-        // ✅ Subfilter exists (e.g., week 1, month 3, etc.)
-        return (
-          period.includes(subFilter) &&
-          relevantQuestionnaires?.some((q) => {
-            const deadline = q.deadline?.split("T")[0];
-            return deadline === today;
-          })
-        );
-      }
-      return false;
+          // ✅ Subfilter exists (e.g., week 1, month 3, etc.)
+          return (
+            period.includes(subFilter) &&
+            relevantQuestionnaires?.some((q) => {
+              const deadline = q.deadline?.split("T")[0];
+              return deadline === today;
+            })
+          );
+        }
+        return false;
       }
 
       return false;
@@ -834,6 +892,113 @@ const page = ({ goToReport }) => {
 
   let patfil = "all patients";
 
+  const [openpostop, setopenpostop] = useState(false);
+  const [selectedRomPeriod, setSelectedRomPeriod] = useState("");
+  const [flexion, setFlexion] = useState("");
+  const [extension, setExtension] = useState("");
+  const romPeriods = [
+    "1 Month",
+    "3 Months",
+    "6 Months",
+    "1 Year",
+    "2 Years",
+    "3 Years",
+    "4 Years",
+    "5 Years",
+    "6 Years",
+    "7 Years",
+    "8 Years",
+    "9 Years",
+    "10 Years",
+  ];
+
+  const [uhid, setuhid] = useState("");
+  const clearAllFields = () => {};
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const handleSendremainder = async () => {
+    const payload = {
+      period: selectedRomPeriod,
+      flexion: flexion,
+      extension: extension,
+      rom_update_timestamp: new Date().toISOString(),
+    };
+    console.log("Rom Data", payload);
+
+    setIsSubmitting(true); // 🔒 Lock submission
+
+    try {
+      const response = await fetch(`${API_URL}appendrom?uhid=${uhid}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("Submission successful:", payload);
+      if (!response.ok) {
+        throw new Error("Failed to send data.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      //   window.location.reload();
+      // Optionally, show success message here
+    } catch (error) {
+      console.error("Error submitting data:", error);
+    } finally {
+      setIsSubmitting(false); // 🔓 Unlock submission
+    }
+    window.location.reload();
+    setopenpostop(false);
+  };
+
+  const [profileImages, setProfileImages] = useState("");
+
+  useEffect(() => {
+    const fetchPatientImage = async () => {
+      try {
+        const uhid = userData?.user?.uhid;
+        console.log("Doctor Profile Image",uhid);
+        const res = await fetch(
+          `${API_URL}get-profile-photo/${encodeURIComponent(uhid)}`
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch profile photos");
+        const data = await res.json();
+
+        setProfileImages(data.profile_image_url);
+      } catch (err) {
+        console.error("Error fetching profile images:", err);
+      }
+    };
+
+    fetchPatientImage();
+  }, [userData]); // empty dependency: fetch once on mount
+
+  const [profileImages1, setProfileImages1] = useState({});
+
+  useEffect(() => {
+    const fetchAllImages = async () => {
+      try {
+        const res = await fetch(`${API_URL}get-all-profile-photos`);
+        if (!res.ok) throw new Error("Failed to fetch profile photos");
+        const data = await res.json();
+
+        // Convert array to object { uhid: profile_image_url }
+        const imagesMap = {};
+        data.patients.forEach((p) => {
+          imagesMap[p.uhid] = p.profile_image_url;
+        });
+
+        setProfileImages1(imagesMap);
+      } catch (err) {
+        console.error("Error fetching profile images:", err);
+      }
+    };
+
+    fetchAllImages();
+  }, []); // empty dependency: fetch once on mount
+
   return (
     <>
       <div className="flex flex-col lg:flex-row w-[95%] mx-auto mt-4 items-center gap-4 justify-between">
@@ -915,9 +1080,15 @@ const page = ({ goToReport }) => {
           {/* Profile Box */}
           <div className="h-12 w-36 md:w-40 bg-white border-[#D9D9D9] border-[1.5px] rounded-2xl px-3">
             <div className="h-full flex flex-row gap-3 items-center justify-center">
+            
               <Image
-                src={userData?.user?.gender === "male" ? Maledoc : Femaledoc}
-                alt="Profile"
+                src={
+                  profileImages ||
+                  (userData?.user?.gender === "male" ?  Maledoc: Femaledoc)
+                }
+                alt="Doc Image"
+                width={40} // or your desired width
+                height={40} // or your desired height
                 className="w-8 h-8 rounded-full object-cover"
               />
               <p className="text-sm font-medium text-[#0D0D0D] whitespace-nowrap">
@@ -1293,8 +1464,13 @@ const page = ({ goToReport }) => {
                                 : "cursor-not-allowed"
                             }`}
                             src={
-                              patient.gender === "male" ? Malepat : Femalepat
-                            }
+                                profileImages1[patient.uhid] ||
+                                (patient.gender === "male"
+                                  ? Malepat
+                                  : Femalepat)
+                              }
+                              width={40} // or your desired width
+                              height={40} // or your desired height
                             alt={patient.uhid}
                             onDoubleClick={() => {
                               if (patient.vip !== 1) {
@@ -1405,6 +1581,24 @@ const page = ({ goToReport }) => {
                                 ? "w-full mx-auto"
                                 : "mr-0 mx-auto"
                             }`}
+                            onClick={() => {
+                              if (patfilter.toLowerCase() === "pre operative") {
+                                gotoIJR(userData);
+                                if (typeof window !== "undefined") {
+                                  sessionStorage.setItem(
+                                    "patientUHID",
+                                    patient?.uhid
+                                  );
+                                  sessionStorage.setItem(
+                                    "patientPASSWORD",
+                                    patient?.password
+                                  );
+                                }
+                              } else {
+                                setopenpostop(true);
+                                setuhid(patient.uhid);
+                              }
+                            }}
                           >
                             <div className="text-sm font-medium border-b-2 text-[#476367] border-blue-gray-500 cursor-pointer">
                               Surgery
@@ -1485,6 +1679,117 @@ const page = ({ goToReport }) => {
         passopen={passopen}
         onClose={() => setpassopen(false)}
       />
+
+      {openpostop && (
+        <div
+          className="fixed inset-0 z-40 "
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.7)", // white with 50% opacity
+          }}
+        >
+          <div
+            className={`
+          min-h-screen w-1/3 flex flex-col items-center justify-center mx-auto 
+          ${width < 950 ? "p-4 gap-4 " : "p-8 "}
+        `}
+          >
+            <div
+              className={`w-full bg-white rounded-2xl p-8  overflow-y-auto overflow-x-hidden max-h-[90vh] ${
+                width < 1095 ? "flex flex-col gap-4" : ""
+              }`}
+            >
+              <div
+                className={`w-full bg-white  ${
+                  width < 760 ? "h-fit" : "h-[80%]"
+                } `}
+              >
+                <div className="flex flex-col gap-16 text-black w-full">
+                  <div className="flex flex-row justify-between items-center">
+                    <p className="font-semibold text-3xl">
+                      RANGE OF MOTION DETAILS
+                    </p>
+                    <Image
+                      src={Closeicon}
+                      className="w-6 h-6 cursor-pointer"
+                      alt="Close icon"
+                      onClick={() => {
+                        setopenpostop(false);
+                      }}
+                    />
+                  </div>
+                  {/* Period Select */}
+                  <div className="flex flex-wrap items-center gap-4 text-xl w-full">
+                    <label className="text-xl font-bold">ROM PERIOD:</label>
+                    <select
+                      value={selectedRomPeriod}
+                      onChange={(e) => setSelectedRomPeriod(e.target.value)}
+                      className="px-4 py-2 border text-xl font-medium border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Period</option>
+                      {romPeriods.map((period, idx) => (
+                        <option key={idx} value={period}>
+                          {period}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Flexion & Extension */}
+                  <div className="flex flex-wrap items-center gap-12 text-xl">
+                    <div className="flex items-center gap-4">
+                      <label className=" font-semibold text-xl">FLEXION:</label>
+                      <input
+                        type="text"
+                        value={flexion}
+                        onChange={(e) => setFlexion(e.target.value)}
+                        className="w-24 px-2 text-xl py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <label className="text-xl font-semibold">
+                        EXTENSION:
+                      </label>
+                      <input
+                        type="text"
+                        value={extension}
+                        onChange={(e) => setExtension(e.target.value)}
+                        className="w-24 px-2 text-xl py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <p className="text-black font-semibold italic text-xl">
+                    * WITH SPECIAL CHARACTERS
+                  </p>
+
+                  <div className="w-full flex flex-row justify-center items-center">
+                    <div className="w-1/2 flex flex-row justify-start items-center">
+                      <p
+                        className="font-semibold italic text-[#475467] text-lg cursor-pointer"
+                        onClick={clearAllFields}
+                      >
+                        CLEAR ALL
+                      </p>
+                    </div>
+                    <div className="w-1/2 flex flex-row justify-end items-center">
+                      <p
+                        className=" rounded-full px-3 py-[1px] cursor-pointer text-center text-white text-lg font-semibold border-[#005585] border-2"
+                        style={{ backgroundColor: "rgba(0, 85, 133, 0.9)" }}
+                        onClick={
+                          !isSubmitting ? handleSendremainder : undefined
+                        }
+                      >
+                        {isSubmitting ? "On Progress..." : "SUBMIT"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

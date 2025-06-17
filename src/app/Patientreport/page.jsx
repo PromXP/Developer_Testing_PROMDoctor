@@ -156,7 +156,7 @@ const useBoxPlot = (boxPlots) => {
   );
 };
 
-const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
+const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR}) => {
   const useWindowSize = () => {
     const [size, setSize] = useState({
       width: 0,
@@ -235,10 +235,10 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
         console.log("Paitent list", data);
 
         // Count PRE OP patients for current selected leg
-        const preOp = data.filter(
-          (patient) =>
-            getCurrentPeriod(patient, selectedLeg).toLowerCase() === "pre op"
-        ).length;
+        // const preOp = data.filter(
+        //   (patient) =>
+        //     getCurrentPeriod(patient, selectedLeg).toLowerCase() === "pre op"
+        // ).length;
         // Count POST OP stages
         const stageCounts = {
           "6W": 0,
@@ -1226,87 +1226,87 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
   });
 
   // Update when `patient` is loaded
- useEffect(() => {
-  if (!patient) return;
+  useEffect(() => {
+    if (!patient) return;
 
-  const processDateTime = (surgeryDetails, scheduledDetails) => {
-    const rawDateTime = surgeryDetails?.date_of_surgery || "";
-    const isDefaultDate = rawDateTime.startsWith("0001") || rawDateTime === "";
+    const processDateTime = (surgeryDetails, scheduledDetails) => {
+      const rawDateTime = surgeryDetails?.date_of_surgery || "";
+      const isDefaultDate =
+        rawDateTime.startsWith("0001") || rawDateTime === "";
 
-    let dateStr = "";
-    let timeStr = "";
+      let dateStr = "";
+      let timeStr = "";
 
-    if (!isDefaultDate) {
-      const dt = new Date(rawDateTime);
-      if (!isNaN(dt.getTime())) {
-        dateStr =
-          String(dt.getDate()).padStart(2, "0") +
-          "-" +
-          String(dt.getMonth() + 1).padStart(2, "0") +
-          "-" +
-          dt.getFullYear();
-        timeStr =
-          String(dt.getHours()).padStart(2, "0") +
-          ":" +
-          String(dt.getMinutes()).padStart(2, "0");
+      if (!isDefaultDate) {
+        const dt = new Date(rawDateTime);
+        if (!isNaN(dt.getTime())) {
+          dateStr =
+            String(dt.getDate()).padStart(2, "0") +
+            "-" +
+            String(dt.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            dt.getFullYear();
+          timeStr =
+            String(dt.getHours()).padStart(2, "0") +
+            ":" +
+            String(dt.getMinutes()).padStart(2, "0");
+        }
+      } else if (scheduledDetails?.date && scheduledDetails?.time) {
+        // Fallback to scheduled values if date_of_surgery is invalid
+        const [year, month, day] = scheduledDetails.date.split("-");
+        dateStr = `${day}-${month}-${year}`;
+        timeStr = scheduledDetails.time;
       }
-    } else if (scheduledDetails?.date && scheduledDetails?.time) {
-      // Fallback to scheduled values if date_of_surgery is invalid
-      const [year, month, day] = scheduledDetails.date.split("-");
-      dateStr = `${day}-${month}-${year}`;
-      timeStr = scheduledDetails.time;
+
+      return { dateStr, timeStr, rawDateTime };
+    };
+
+    const left = processDateTime(
+      patient.post_surgery_details_left,
+      patient.surgery_scheduled_left
+    );
+    const right = processDateTime(
+      patient.post_surgery_details_right,
+      patient.surgery_scheduled_right
+    );
+
+    setEditValues({
+      uhid: patient.uhid || "",
+      post_surgery_details_left: {
+        ...patient.post_surgery_details_left,
+        surgery_date: left.rawDateTime,
+        date_only: left.dateStr,
+        time_only: left.timeStr,
+        surgeon: patient.post_surgery_details_left?.surgeon || "",
+        surgery_name: patient.post_surgery_details_left?.surgery_name || "",
+        sub_doctor: patient.post_surgery_details_left?.sub_doctor || "",
+        procedure: patient.post_surgery_details_left?.procedure || "",
+        implant: patient.post_surgery_details_left?.implant || "",
+        technology: patient.post_surgery_details_left?.technology || "",
+      },
+      post_surgery_details_right: {
+        ...patient.post_surgery_details_right,
+        surgery_date: right.rawDateTime,
+        date_only: right.dateStr,
+        time_only: right.timeStr,
+        surgeon: patient.post_surgery_details_right?.surgeon || "",
+        surgery_name: patient.post_surgery_details_right?.surgery_name || "",
+        sub_doctor: patient.post_surgery_details_right?.sub_doctor || "",
+        procedure: patient.post_surgery_details_right?.procedure || "",
+        implant: patient.post_surgery_details_right?.implant || "",
+        technology: patient.post_surgery_details_right?.technology || "",
+      },
+    });
+
+    // Also update UI date/time
+    if (selectedLeg === "left") {
+      setSelectedDate(left.dateStr);
+      setSelectedTime(left.timeStr);
+    } else {
+      setSelectedDate(right.dateStr);
+      setSelectedTime(right.timeStr);
     }
-
-    return { dateStr, timeStr, rawDateTime };
-  };
-
-  const left = processDateTime(
-    patient.post_surgery_details_left,
-    patient.surgery_scheduled_left
-  );
-  const right = processDateTime(
-    patient.post_surgery_details_right,
-    patient.surgery_scheduled_right
-  );
-
-  setEditValues({
-    uhid: patient.uhid || "",
-    post_surgery_details_left: {
-      ...patient.post_surgery_details_left,
-      surgery_date: left.rawDateTime,
-      date_only: left.dateStr,
-      time_only: left.timeStr,
-      surgeon: patient.post_surgery_details_left?.surgeon || "",
-      surgery_name: patient.post_surgery_details_left?.surgery_name || "",
-      sub_doctor: patient.post_surgery_details_left?.sub_doctor || "",
-      procedure: patient.post_surgery_details_left?.procedure || "",
-      implant: patient.post_surgery_details_left?.implant || "",
-      technology: patient.post_surgery_details_left?.technology || "",
-    },
-    post_surgery_details_right: {
-      ...patient.post_surgery_details_right,
-      surgery_date: right.rawDateTime,
-      date_only: right.dateStr,
-      time_only: right.timeStr,
-      surgeon: patient.post_surgery_details_right?.surgeon || "",
-      surgery_name: patient.post_surgery_details_right?.surgery_name || "",
-      sub_doctor: patient.post_surgery_details_right?.sub_doctor || "",
-      procedure: patient.post_surgery_details_right?.procedure || "",
-      implant: patient.post_surgery_details_right?.implant || "",
-      technology: patient.post_surgery_details_right?.technology || "",
-    },
-  });
-
-  // Also update UI date/time
-  if (selectedLeg === "left") {
-    setSelectedDate(left.dateStr);
-    setSelectedTime(left.timeStr);
-  } else {
-    setSelectedDate(right.dateStr);
-    setSelectedTime(right.timeStr);
-  }
-}, [patient, selectedLeg]);
-
+  }, [patient, selectedLeg]);
 
   const [previousValues, setPreviousValues] = useState({});
   const isLeft = selectedLeg === "left";
@@ -1330,9 +1330,8 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
           fieldRefs.current[field] &&
           !fieldRefs.current[field].contains(event.target)
         ) {
-
-          const restoredValue = previousValues[field] ?? editValues[legKey][field];
-
+          const restoredValue =
+            previousValues[field] ?? editValues[legKey][field];
 
           setEditValues((prev) => ({
             ...prev,
@@ -1352,10 +1351,8 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
                 "-" +
                 dt.getFullYear()
             );
- 
-            setSelectedTime(dt.toTimeString().slice(0, 5));
 
-            
+            setSelectedTime(dt.toTimeString().slice(0, 5));
           }
 
           setEditMode((prev) => ({
@@ -1724,6 +1721,29 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
     return age;
   };
 
+    const [profileImages, setProfileImages] = useState("");
+  
+    useEffect(() => {
+      const fetchPatientImage = async () => {
+        try {
+          const uhid = patient?.uhid;
+          console.log("Doctor Profile Image", uhid);
+          const res = await fetch(
+            `${API_URL}get-profile-photo/${encodeURIComponent(uhid)}`
+          );
+  
+          if (!res.ok) throw new Error("Failed to fetch profile photos");
+          const data = await res.json();
+  
+          setProfileImages(data.profile_image_url);
+        } catch (err) {
+          console.error("Error fetching profile images:", err);
+        }
+      };
+  
+      fetchPatientImage();
+    }, [patient]); // empty dependency: fetch once on mount
+
   return (
     <>
       <div className="flex flex-col md:flex-row w-[95%] mx-auto mt-4 items-center justify-between">
@@ -1743,11 +1763,22 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
                     : "flex-row"
                 }`}
               >
+                
+
                 <Image
-                  className={`rounded-full w-14 h-14`}
-                  src={patient?.gender === "male" ? Malepat : Femalepat}
-                  alt="alex hales"
-                />
+                        src={
+                          profileImages ||
+                          (patient?.gender === "male" ? Malepat : Femalepat)
+                        }
+                        alt={patient?.uhid}
+                        width={40} // or your desired width
+                        height={40} // or your desired height
+                        className={`rounded-full ${
+                          width < 530
+                            ? "w-11 h-11 flex justify-center items-center"
+                            : "w-14 h-14"
+                        }`}
+                      />
 
                 <div
                   className={`w-full flex items-center ${
@@ -1854,41 +1885,14 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData }) => {
                         </>
                       </p>
                     </div>
-                    <div
-                      className={` flex flex-col gap-3 ${
-                        width < 530
-                          ? "justify-center items-center w-full"
-                          : "w-[30%]"
-                      }`}
-                    >
-                      <p className="text-[#475467] font-semibold text-5">
-                        SURGERY REPORT
-                      </p>
-                      <div
-                        className={`w-full flex flex-row items-center gap-2 ${
-                          width < 530 ? "justify-center" : "justify-start"
-                        }`}
+                    <div className="w-1/2 flex flex-row justify-start items-center">
+                      <p
+                        className=" rounded-full px-3 py-[1px] cursor-pointer text-center text-white text-lg font-semibold border-[#005585] border-2"
+                        style={{ backgroundColor: "rgba(0, 85, 133, 0.9)" }}
+                        onClick={()=>{gotoIJR(patient);}}
                       >
-                        {isreporteditcheckleft(
-                          surgeryPatient?.post_surgery_details_left ||
-                            patient?.post_surgery_details_left,
-                          surgeryPatient?.post_surgery_details_right ||
-                            patient?.post_surgery_details_right
-                        ) ? (
-                          <div className="flex justify-center items-center gap-2 text-green-600 font-bold text-sm">
-                            <p>COMPLETED</p>
-                          </div>
-                        ) : (
-                          <div className="flex justify-center items-center gap-2 text-[#F86060] font-bold text-sm">
-                            <p>PENDING</p>
-
-                            <PencilSquareIcon
-                              className="w-5 h-5 text-black cursor-pointer"
-                              onClick={() => setIsOpen(true)}
-                            />
-                          </div>
-                        )}
-                      </div>
+                        VIEW SURGERY REPORT
+                      </p>
                     </div>
                   </div>
                 </div>
