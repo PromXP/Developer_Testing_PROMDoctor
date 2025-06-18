@@ -1744,6 +1744,9 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
       fetchPatientImage();
     }, [patient]); // empty dependency: fetch once on mount
 
+
+
+
   return (
     <>
       <div className="flex flex-col md:flex-row w-[95%] mx-auto mt-4 items-center justify-between">
@@ -1940,7 +1943,7 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
         >
           <div
             className={` flex flex-col bg-white px-4 py-2 rounded-2xl shadow-lg ${
-              width < 1415 ? "w-full h-1/2" : "w-1/2"
+              width < 1415 ? "w-full h-1/2" : "w-full"
             }`}
           >
             <p className="font-bold text-sm text-black">PROM ANALYSIS</p>
@@ -2136,7 +2139,7 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
             </ResponsiveContainer>
           </div>
 
-          <div
+          {/* <div
             className={`bg-white rounded-2xl px-4 pt-4 pb-8 flex flex-col shadow-lg justify-between 
     ${width < 1415 ? "w-full h-1/2" : "w-1/2"} 
     ${
@@ -2151,7 +2154,6 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
             </p>
 
             <div className="w-full flex flex-col justify-between h-[90%]">
-              {/* First Block */}
               <div
                 className={`w-full flex ${
                   width < 530 ? "flex-col gap-4" : "flex-row gap-4"
@@ -2210,7 +2212,6 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
                   </div>
                 </div>
 
-                {/* Surgery Name */}
                 <div
                   ref={(el) => (fieldRefs.current.surgery_name = el)}
                   className={`flex flex-col ${
@@ -2252,13 +2253,11 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
                 </div>
               </div>
 
-              {/* Second Block */}
               <div
                 className={`w-full flex ${
                   width < 530 ? "flex-col gap-4" : "flex-row"
                 }`}
               >
-                {/* Surgeon */}
                 <div
                   ref={(el) => (fieldRefs.current.surgeon = el)}
                   className={`flex flex-col ${
@@ -2299,7 +2298,6 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
                   )}
                 </div>
 
-                {/* Sub Doctor */}
                 <div
                   ref={(el) => (fieldRefs.current.sub_doctor = el)}
                   className={`flex flex-col ${
@@ -2340,7 +2338,6 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
                   )}
                 </div>
 
-                {/* Procedure */}
                 <div
                   ref={(el) => (fieldRefs.current.procedure = el)}
                   className={`flex flex-col ${
@@ -2385,13 +2382,11 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
                 </div>
               </div>
 
-              {/* Third Block */}
               <div
                 className={`w-full flex ${
                   width < 570 ? "flex-col gap-4" : "flex-row"
                 }`}
               >
-                {/* Implant */}
                 <div
                   ref={(el) => (fieldRefs.current.implant = el)}
                   className={`flex flex-col ${
@@ -2432,7 +2427,6 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
                   )}
                 </div>
 
-                {/* Technology */}
                 <div
                   ref={(el) => (fieldRefs.current.technology = el)}
                   className={`flex flex-col ${
@@ -2474,7 +2468,10 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
+
+
+
         </div>
 
         <div
