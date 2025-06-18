@@ -456,7 +456,13 @@ const page = ({ goToReport, gotoIJR }) => {
       }
 
       if (selectedFilter === "pre operative") {
-        return period.includes("pre");
+        const surgeryDateLeft = patient?.post_surgery_details_left?.date_of_surgery;
+    const surgeryDateRight = patient?.post_surgery_details_right?.date_of_surgery;
+    const hasSurgeryToday =
+      (surgeryDateLeft && surgeryDateLeft.split("T")[0] === today) ||
+      (surgeryDateRight && surgeryDateRight.split("T")[0] === today);
+
+    return period.includes("pre") && hasSurgeryToday;
       }
 
       // Anything not "pre" is treated as post-operative
@@ -958,7 +964,7 @@ const page = ({ goToReport, gotoIJR }) => {
     const fetchPatientImage = async () => {
       try {
         const uhid = userData?.user?.uhid;
-        console.log("Doctor Profile Image",uhid);
+        console.log("Doctor Profile Image", uhid);
         const res = await fetch(
           `${API_URL}get-profile-photo/${encodeURIComponent(uhid)}`
         );
@@ -1080,11 +1086,10 @@ const page = ({ goToReport, gotoIJR }) => {
           {/* Profile Box */}
           <div className="h-12 w-36 md:w-40 bg-white border-[#D9D9D9] border-[1.5px] rounded-2xl px-3">
             <div className="h-full flex flex-row gap-3 items-center justify-center">
-            
               <Image
                 src={
                   profileImages ||
-                  (userData?.user?.gender === "male" ?  Maledoc: Femaledoc)
+                  (userData?.user?.gender === "male" ? Maledoc : Femaledoc)
                 }
                 alt="Doc Image"
                 width={40} // or your desired width
@@ -1464,13 +1469,11 @@ const page = ({ goToReport, gotoIJR }) => {
                                 : "cursor-not-allowed"
                             }`}
                             src={
-                                profileImages1[patient.uhid] ||
-                                (patient.gender === "male"
-                                  ? Malepat
-                                  : Femalepat)
-                              }
-                              width={40} // or your desired width
-                              height={40} // or your desired height
+                              profileImages1[patient.uhid] ||
+                              (patient.gender === "male" ? Malepat : Femalepat)
+                            }
+                            width={40} // or your desired width
+                            height={40} // or your desired height
                             alt={patient.uhid}
                             onDoubleClick={() => {
                               if (patient.vip !== 1) {
