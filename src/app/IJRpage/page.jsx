@@ -562,8 +562,10 @@ const page = ({ closeijr }) => {
       showWarning(errors[firstErrorKey]); // Show specific field error
       return; // Stop submission
     }
-    handleSendremainder();
+    else{
+    // handleSendremainder();
     setsubmitconfirmpop(true);
+    }
   };
 
   return (
