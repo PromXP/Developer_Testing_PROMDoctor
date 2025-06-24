@@ -255,39 +255,39 @@ const page = ({ closeijr }) => {
 
   const optionsData = {
     FEMUR: {
-      MANUFACTURER: ["BIORD'S MEDISYS"],
+      MANUFACTURER: ["MICROPORT"],
       MODEL: {
-        "BIORD'S MEDISYS": ["EXCEL MPK"],
+        "MICROPORT": ["EVOLUTION"],
       },
       SIZE: {
-        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
+        "EVOLUTION": ["1", "2", "3", "4", "5", "6", "7"],
       },
     },
     TIBIA: {
-      MANUFACTURER: ["BIORD'S MEDISYS"],
+      MANUFACTURER: ["MICROPORT"],
       MODEL: {
-        "BIORD'S MEDISYS": ["EXCEL MPK"],
+        "MICROPORT": ["EVOLUTION"],
       },
       SIZE: {
-        "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
+        "EVOLUTION": ["1", "2", "3", "4", "5", "6", "7"],
       },
     },
     INSERT: {
-      MANUFACTURER: ["BIORD'S MEDISYS"],
+      MANUFACTURER: ["MICROPORT"],
       MODEL: {
-        "BIORD'S MEDISYS": ["EXCEL MPK"],
+        "MICROPORT": ["EVOLUTION"],
       },
       SIZE: {
-        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
+        "EVOLUTION": ["10 mm", "12 mm", "14 mm", "16 mm"],
       },
     },
     PATELLA: {
-      MANUFACTURER: ["BIORD'S MEDISYS"],
+      MANUFACTURER: ["MICROPORT"],
       MODEL: {
-        "BIORD'S MEDISYS": ["EXCEL MPK"],
+        "MICROPORT": ["EVOLUTION"],
       },
       SIZE: {
-        "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
+        "EVOLUTION": ["1", "2", "3", "4","5","6","7"],
       },
     },
   };
