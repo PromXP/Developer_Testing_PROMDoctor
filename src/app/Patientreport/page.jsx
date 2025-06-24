@@ -249,10 +249,14 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
         };
 
         data.forEach((patient) => {
-          const status = getCurrentPeriod(patient, selectedLeg).toUpperCase();
+          const st = getCurrentPeriod(patient, selectedLeg);
+          if(st){
+          const status = st.toUpperCase();
+       
           if (stageCounts.hasOwnProperty(status)) {
             stageCounts[status]++;
           }
+           }
         });
 
         // === Separate Score Grouping Logic ===
