@@ -446,6 +446,7 @@ const page = ({ closeijr }) => {
   const optionsData = {
     FEMUR: {
       MANUFACTURER: ["MICROPORT"],
+      MANUFACTURER: ["MICROPORT"],
       MODEL: {
         MICROPORT: ["EVOLUTION"],
       },
@@ -454,6 +455,7 @@ const page = ({ closeijr }) => {
       },
     },
     TIBIA: {
+      MANUFACTURER: ["MICROPORT"],
       MANUFACTURER: ["MICROPORT"],
       MODEL: {
         MICROPORT: ["EVOLUTION"],
@@ -464,6 +466,7 @@ const page = ({ closeijr }) => {
     },
     INSERT: {
       MANUFACTURER: ["MICROPORT"],
+      MANUFACTURER: ["MICROPORT"],
       MODEL: {
         MICROPORT: ["EVOLUTION"],
       },
@@ -472,6 +475,7 @@ const page = ({ closeijr }) => {
       },
     },
     PATELLA: {
+      MANUFACTURER: ["MICROPORT"],
       MANUFACTURER: ["MICROPORT"],
       MODEL: {
         MICROPORT: ["EVOLUTION"],
