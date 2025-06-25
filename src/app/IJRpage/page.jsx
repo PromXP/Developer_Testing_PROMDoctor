@@ -13,7 +13,7 @@ import Femalepat from "@/app/assets/woman.png";
 import Medialcondyle from "@/app/assets/medialcondyle.png";
 import Lateralcondyle from "@/app/assets/lateralcondyle.png";
 import Medialcondylepost from "@/app/assets/medialcondylepost.png";
-import Lateralcondylepost from "@/app/assets/Lateralcondylepost.png";
+import Lateralcondylepost from "@/app/assets/lateralcondylepost.png";
 import Tibial from "@/app/assets/tibial.png";
 
 const page = ({ closeijr }) => {
