@@ -736,7 +736,7 @@ const page = ({ goToReport }) => {
   const containerRef = useRef(null);
   const cardRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [cardsPerPage, setCardsPerPage] = useState(6);
+  const [cardsPerPage, setCardsPerPage] = useState(50);
 
   // Calculate total pages and current visible patients
   const totalPages = Math.ceil(filteredPatients.length / cardsPerPage);
@@ -860,6 +860,7 @@ const page = ({ goToReport }) => {
 
   return (
     <>
+    
       <div className="flex flex-col lg:flex-row w-[95%] mx-auto mt-4 items-center gap-4 justify-between">
         {/* Greeting Section */}
         <div className="flex flex-col lg:flex-row md:items-center md:justify-between gap-4 w-full">
@@ -958,6 +959,7 @@ const page = ({ goToReport }) => {
           </div>
         </div>
       </div>
+
       <div
         className={` h-[85%] mx-auto flex  mt-5 ${
           width >= 1000 && width / height > 1

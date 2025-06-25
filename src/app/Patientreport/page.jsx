@@ -249,11 +249,16 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
         };
 
         data.forEach((patient) => {
-          const status = getCurrentPeriod(patient, selectedLeg).toUpperCase();
+          const st = getCurrentPeriod(patient, selectedLeg);
+          if(st){
+          const status = st.toUpperCase();
+       
           if (stageCounts.hasOwnProperty(status)) {
             stageCounts[status]++;
           }
+           }
         });
+      
 
         // === Separate Score Grouping Logic ===
 
@@ -612,6 +617,7 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
         .filter((q) => q.period === period)
         .map((q) => q.name);
       acc[period] = assigned;
+      
       return acc;
     }, {});
 
@@ -627,7 +633,7 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
 
       return anyAssigned && !nextAnyAssigned;
     });
-
+console.log("Sttus",currentPeriod);
     return currentPeriod;
   };
 
@@ -649,6 +655,9 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
   const boxPlotData = useMemo(() => {
     const scoreGroups =
       selectedLeg === "left" ? leftscoreGroups : rightscoreGroups;
+
+          console.log("OKS Box Plot", scoreGroups);
+
 
     if (!scoreGroups) return [];
 
@@ -1773,7 +1782,7 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
                           profileImages ||
                           (patient?.gender === "male" ? Malepat : Femalepat)
                         }
-                        alt={patient?.uhid}
+                        alt="UHID"
                         width={40} // or your desired width
                         height={40} // or your desired height
                         className={`rounded-full ${
