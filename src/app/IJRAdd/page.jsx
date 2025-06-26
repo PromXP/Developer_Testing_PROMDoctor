@@ -271,7 +271,6 @@ const page = ({ closeijr }) => {
   const tourusedoptions = ["Yes", "No"];
 
   const [optime, setoptime] = useState("");
-
   const handleOptimeChange = (e) => {
     let value = e.target.value.replace(/\D/g, ""); // Remove non-digits
 
