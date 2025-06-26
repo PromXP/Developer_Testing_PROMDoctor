@@ -11,6 +11,7 @@ import Patientreport from "@/app/Patientreport/page";
 import DaytodayLife from "@/app/Daytodaylife/page";
 import IJR from "@/app/IJRpage/page";
 import IJRView from "@/app/IJRView/page";
+import IJRAdd from "@/app/IJRAdd/page";
 
 import "@/app/globals.css";
 
@@ -85,6 +86,16 @@ const page = () => {
     // console.log("SF - 12 Box plot", groupedScores);
   };
 
+  const handleGoToIJRAdd = (userData) => {
+    setUserData(userData);
+    setSelected("ijradd");
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedTab", "ijradd");
+    }
+    // console.log("SF - 12 Box plot", groupedScores);
+  };
+
   const handleGoToIJRview = (userData) => {
     setUserData(userData);
     setSelected("ijrview");
@@ -106,6 +117,13 @@ const page = () => {
     setSelected("daytodaylife");
     if (typeof window !== "undefined") {
       sessionStorage.setItem("selectedTab", "daytodaylife");
+    }
+  };
+
+  const handleclosijradd = () => {
+    setSelected("ijrview");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedTab", "ijrview");
     }
   };
 
@@ -144,7 +162,15 @@ const page = () => {
           />
         );
       case "ijrview":
-        return <IJRView goToReport={handleGoToReport} />;
+        return (
+          <IJRView
+            goToReport={handleGoToReport}
+            goToIJRAdd={handleGoToIJRAdd}
+          />
+        );
+
+      case "ijradd":
+        return <IJRAdd closeijr={handleclosijradd} />;
       default:
         return null;
     }

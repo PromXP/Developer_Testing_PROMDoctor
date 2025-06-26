@@ -181,6 +181,47 @@ const page = ({ closeijr }) => {
   const asagradeoptions = ["1", "2", "3", "4", "5"];
   const [asagrade, setasagrade] = useState("");
 
+  const periodOptions = [
+    "Preop",
+    "1 Month",
+    "3 Month",
+    "6 Month",
+    "1 Year",
+    "2 Year",
+    "3 Year",
+    "4 Year",
+    "5 Year",
+    "10 Year",
+  ];
+
+  const [selectedPeriods, setSelectedPeriods] = useState([]);
+  const [romData, setRomData] = useState([]);
+
+  const handlePeriodToggle = (period) => {
+    setSelectedPeriods((prev) => {
+      if (prev.includes(period)) {
+        setRomData((r) => r.filter((entry) => entry.period !== period));
+        return prev.filter((p) => p !== period);
+      } else {
+        setRomData((r) => {
+          const exists = r.some((entry) => entry.period === period);
+          return exists ? r : [...r, { period, flexion: "", extension: "" }];
+        });
+        return [...prev, period];
+      }
+    });
+  };
+
+  const handleROMChange = (period, field, value) => {
+    setRomData((r) => {
+      const exists = r.some((entry) => entry.period === period);
+      if (!exists) {
+        return [...r, { period, flexion: "", extension: "" }];
+      }
+      return r;
+    });
+  };
+
   const [preopflexion, setpreopflexion] = useState("");
   const [preopextension, setpreopextension] = useState("");
 
@@ -208,6 +249,14 @@ const page = ({ closeijr }) => {
     "REVISION UKA TO TKA",
     "TKA TO REVISION TKA",
   ];
+
+  const [selectedKnees, setSelectedKnees] = useState([]); // e.g., ["left", "right"]
+
+  const toggleKnee = (knee) => {
+    setSelectedKnees((prev) =>
+      prev.includes(knee) ? prev.filter((k) => k !== knee) : [...prev, knee]
+    );
+  };
 
   const [surgindi, setsurgindi] = useState("");
   const surgindioptions = ["DEFORMITY", "VARUS", "VALGUS", "PF"];
@@ -253,6 +302,77 @@ const page = ({ closeijr }) => {
 
     // Until valid 4 digits, show raw input
     setoptime(value);
+  };
+
+  const [opname, setopname] = useState("");
+  const handleChangeopname = (event) => {
+    setopname(event.target.value);
+  };
+
+  const [surgerydate, setsurgeryDate] = useState("");
+  const handleManualsurgeryDateChange = (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove all non-digits
+
+    if (value.length >= 3 && value.length <= 4) {
+      value = value.slice(0, 2) + "-" + value.slice(2);
+    } else if (value.length > 4 && value.length <= 8) {
+      value =
+        value.slice(0, 2) + "-" + value.slice(2, 4) + "-" + value.slice(4);
+    } else if (value.length > 8) {
+      value = value.slice(0, 8);
+      value =
+        value.slice(0, 2) + "-" + value.slice(2, 4) + "-" + value.slice(4);
+    }
+
+    // Until full date entered, show raw value
+    setsurgeryDate(value);
+
+    if (value.length === 10) {
+      const [dayStr, monthStr, yearStr] = value.split("-");
+      const day = parseInt(dayStr, 10);
+      const month = parseInt(monthStr, 10);
+      const year = parseInt(yearStr, 10);
+
+      const today = new Date();
+      const currentYear = today.getFullYear();
+
+      // Basic validations
+      if (day < 1 || day > 31 || month < 1 || month > 12) {
+        showWarning("Please enter a valid surgery date");
+        setS("");
+        return;
+      }
+
+      // Check valid real date
+      const manualDate = new Date(`${year}-${month}-${day}`);
+      if (
+        manualDate.getDate() !== day ||
+        manualDate.getMonth() + 1 !== month ||
+        manualDate.getFullYear() !== year
+      ) {
+        showWarning("Invalid date combination. Please enter a correct date.");
+        setsurgeryDate("");
+        return;
+      }
+
+      // Check if future or today
+      today.setHours(0, 0, 0, 0);
+      manualDate.setHours(0, 0, 0, 0);
+
+      // If all valid, format as "dd Mmm yyyy"
+      const formattedDate = manualDate.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "numeric",
+        year: "numeric",
+      });
+
+      // Final validated date components
+      const isoDate = `${year.toString().padStart(4, "0")}-${month
+        .toString()
+        .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+
+      setsurgeryDate(isoDate); // This avoids time zone issues
+    }
   };
 
   const [aclcondition, setaclcondition] = useState("");
@@ -540,6 +660,8 @@ const page = ({ closeijr }) => {
     setalignphil("");
     settourused("");
     setoptime("");
+    setSelectedKnees([]);
+    setopname("");
     setSelectedValues(
       colHeaders.reduce((acc, col) => {
         acc[col] = rowHeaders.reduce((rowAcc, row) => {
@@ -574,13 +696,23 @@ const page = ({ closeijr }) => {
     if (!isNonEmpty(payload.asa_grade))
       errors.asa_grade = "ASA grade is required.";
 
-    // ROM section
-    const rom = payload.rom?.[0] || {};
-    if (!isNonEmpty(rom.period)) errors.rom_period = "ROM period is required.";
-    if (!isNonEmpty(rom.flexion))
-      errors.rom_flexion = "ROM flexion is required.";
-    if (!isNonEmpty(rom.extension))
-      errors.rom_extension = "ROM extension is required.";
+    // ROM section - multiple period support
+    if (!Array.isArray(payload.rom) || payload.rom.length === 0) {
+      errors.rom = "At least one ROM entry is required.";
+    } else {
+      payload.rom.forEach((romEntry, index) => {
+        const label = romEntry.period || `Entry ${index + 1}`;
+        if (!isNonEmpty(romEntry.period)) {
+          errors[`rom_${index}_period`] = `${label}: Period is required.`;
+        }
+        if (!isNonEmpty(romEntry.flexion)) {
+          errors[`rom_${index}_flexion`] = `${label}: Flexion is required.`;
+        }
+        if (!isNonEmpty(romEntry.extension)) {
+          errors[`rom_${index}_extension`] = `${label}: Extension is required.`;
+        }
+      });
+    }
 
     // Surgery team
     if (!isNonEmpty(payload.consultant_incharge))
@@ -725,25 +857,23 @@ const page = ({ closeijr }) => {
       hospital_name: selectedHospital,
       anaesthetic_type: selected,
       asa_grade: asagrade,
-      rom: [
-        {
-          period: "preop",
-          flexion: preopflexion,
-          extension: preopextension,
-        },
-      ],
+      rom: romData.map((entry) => ({
+        period: entry.period.toLowerCase().replace(/ /g, ""), // to match "preop", "1month", etc.
+        flexion: entry.flexion,
+        extension: entry.extension,
+      })),
       consultant_incharge: consultant,
       operating_surgeon: operatingsurgeon,
       first_assistant: firstassisstant,
       second_assistant: secondassisstant,
       mag_proc: manageproc,
-      side: patient?.current_status,
+      side: selectedKnees.join(", "),
       surgery_indication: surgindi,
       tech_assist: techassist,
       align_phil: alignphil,
       torq_used: toruused,
-      op_name: patient?.post_surgery_details_left?.surgery_name,
-      op_date: dateOnlyIST,
+      op_name: opname,
+      op_date: surgerydate,
       op_time: optime,
       components_details: selectedValues,
       bone_resection: {
@@ -873,25 +1003,23 @@ const page = ({ closeijr }) => {
       hospital_name: selectedHospital,
       anaesthetic_type: selected,
       asa_grade: asagrade,
-      rom: [
-        {
-          period: "preop",
-          flexion: preopflexion,
-          extension: preopextension,
-        },
-      ],
+      rom: romData.map((entry) => ({
+        period: entry.period.toLowerCase().replace(/ /g, ""), // to match "preop", "1month", etc.
+        flexion: entry.flexion,
+        extension: entry.extension,
+      })),
       consultant_incharge: consultant,
       operating_surgeon: operatingsurgeon,
       first_assistant: firstassisstant,
       second_assistant: secondassisstant,
       mag_proc: manageproc,
-      side: patient?.current_status,
+      side: selectedKnees.join(", "),
       surgery_indication: surgindi,
       tech_assist: techassist,
       align_phil: alignphil,
       torq_used: toruused,
-      op_name: patient?.post_surgery_details_left?.surgery_name,
-      op_date: dateOnlyIST,
+      op_name: opname,
+      op_date: surgerydate,
       op_time: optime,
       components_details: selectedValues,
       bone_resection: {
@@ -1136,7 +1264,7 @@ const page = ({ closeijr }) => {
               {/* Hospital Dropdown */}
               <tr>
                 <td className="w-1/3 align-middle font-bold text-lg items-center">
-                  SELECT HOSPITAL *
+                  SELECT HOSPITAL
                 </td>
                 <td className="w-fit">
                   <select
@@ -1156,9 +1284,7 @@ const page = ({ closeijr }) => {
 
               {/* Anaesthetic Types */}
               <tr>
-                <td className="w-1/4 align-top font-bold">
-                  ANAESTHETIC TYPES *
-                </td>
+                <td className="w-1/4 align-top font-bold">ANAESTHETIC TYPES</td>
                 <td>
                   <div className="flex flex-wrap gap-6">
                     {options.map((option, index) => (
@@ -1183,7 +1309,7 @@ const page = ({ closeijr }) => {
 
               {/* ASA Grade */}
               <tr>
-                <td className="w-1/4 align-top font-bold">ASA GRADE *</td>
+                <td className="w-1/4 align-top font-bold">ASA GRADE</td>
                 <td>
                   <div className="flex flex-wrap gap-6">
                     {asagradeoptions.map((option, index) => (
@@ -1208,30 +1334,64 @@ const page = ({ closeijr }) => {
 
               {/* PRE OP ROM */}
               <tr>
-                <td className="w-1/4 align-middle font-bold">PRE OP - ROM *</td>
+                <td className="w-1/4 align-middle font-bold">ROM DETAILS</td>
                 <td>
-                  <div className="flex flex-row flex-wrap gap-8 text-black">
-                    <div className="flex items-center gap-4">
-                      <label className="text-lg font-semibold">FLEXION</label>
-                      <input
-                        id="firstInput"
-                        type="text"
-                        value={preopflexion}
-                        onChange={(e) => setpreopflexion(e.target.value)}
-                        className="w-28 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-                      />
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <label className="text-lg font-semibold">EXTENSION</label>
-                      <input
-                        id="secondInput"
-                        type="text"
-                        value={preopextension}
-                        onChange={(e) => setpreopextension(e.target.value)}
-                        className="w-28 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-                      />
-                    </div>
+                  <div className="flex flex-wrap gap-4 mb-4">
+                    {periodOptions.map((period) => (
+                      <label key={period} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedPeriods.includes(period)}
+                          onChange={() => handlePeriodToggle(period)}
+                        />
+                        <span>{period}</span>
+                      </label>
+                    ))}
                   </div>
+
+                  {romData.length > 0 && (
+                    <div className="flex flex-col gap-4">
+                      {romData.map((entry, index) => (
+                        <div
+                          key={index}
+                          className="flex flex-wrap gap-4 items-center"
+                        >
+                          <p className="font-semibold text-lg w-32">
+                            {entry.period}
+                          </p>
+
+                          <div className="flex items-center gap-2">
+                            <label>Flexion:</label>
+                            <input
+                              type="text"
+                              className="border px-2 py-1 w-24"
+                              value={entry.flexion}
+                              onChange={(e) => {
+                                const updated = [...romData];
+                                updated[index].flexion = e.target.value;
+                                setRomData(updated);
+                              }}
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <label>Extension:</label>
+                            <input
+                              type="text"
+                              className="border px-2 py-1 w-24"
+                              value={entry.extension}
+                              onChange={(e) => {
+                                const updated = [...romData];
+                                updated[index].extension = e.target.value;
+                                setRomData(updated);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <p className="text-lg font-medium italic mt-2">
                     *WITH SPECIAL CHARACTERS
                   </p>
@@ -1249,7 +1409,7 @@ const page = ({ closeijr }) => {
             <tbody>
               {/* CONSULTANT IN-CHARGE row */}
               <tr className="items-center">
-                <td className="w-1/3 align-middle">CONSULTANT IN-CHARGE *</td>
+                <td className="w-1/3 align-middle">CONSULTANT IN-CHARGE</td>
                 <td className="">
                   <div className="flex flex-col gap-4">
                     <select
@@ -1303,7 +1463,7 @@ const page = ({ closeijr }) => {
 
               {/* OPERATING SURGEON row */}
               <tr className="items-center">
-                <td className="w-1/4 align-middle">OPERATING SURGEON *</td>
+                <td className="w-1/4 align-middle">OPERATING SURGEON</td>
                 <td className="" colSpan={2}>
                   <select
                     id="operatingsurgeon"
@@ -1322,7 +1482,7 @@ const page = ({ closeijr }) => {
 
               {/* FIRST ASSISTANT row */}
               <tr className="items-center">
-                <td className="w-1/4 align-middle">FIRST ASSISTANT *</td>
+                <td className="w-1/4 align-middle">FIRST ASSISTANT</td>
                 <td className="" colSpan={2}>
                   <select
                     id="firstassisstant"
@@ -1341,7 +1501,7 @@ const page = ({ closeijr }) => {
 
               {/* SECOND ASSISTANT row */}
               <tr className="items-center">
-                <td className="w-1/4 align-middle">SECOND ASSISTANT *</td>
+                <td className="w-1/4 align-middle">SECOND ASSISTANT</td>
                 <td className="" colSpan={2}>
                   <select
                     id="secondassisstant"
@@ -1400,34 +1560,48 @@ const page = ({ closeijr }) => {
               <tr className="align-middle">
                 <td className="font-bold text-lg text-black w-1/3">SIDE</td>
                 <td>
-                  <div className="flex flex-row gap-10">
+                  <div
+                    className={`flex flex-row justify-between items-between gap-6  ${
+                      width < 700 ? "w-full" : "w-1/2"
+                    }`}
+                  >
                     {/* Left Knee */}
-                    {patient?.current_status?.includes("Left Knee") && (
-                      <div className="w-fit h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer">
-                        <Image
-                          src={LeftKnee}
-                          alt="Left Knee"
-                          className="w-12 h-12"
-                        />
-                        <p className="font-semibold text-lg text-black">
-                          Left Knee
-                        </p>
-                      </div>
-                    )}
+                    <div
+                      onClick={() => toggleKnee("Left Knee")}
+                      className={`w-1/2 h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer ${
+                        selectedKnees.includes("Left Knee")
+                          ? "border-2 border-black"
+                          : ""
+                      }`}
+                    >
+                      <Image
+                        src={LeftKnee}
+                        alt="Left Knee"
+                        className="w-12 h-12"
+                      />
+                      <p className="font-semibold text-lg text-black">
+                        Left Knee
+                      </p>
+                    </div>
 
                     {/* Right Knee */}
-                    {patient?.current_status?.includes("Right Knee") && (
-                      <div className="w-fit h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer">
-                        <Image
-                          src={RightKnee}
-                          alt="Right Knee"
-                          className="w-12 h-12"
-                        />
-                        <p className="font-semibold text-lg text-black">
-                          Right Knee
-                        </p>
-                      </div>
-                    )}
+                    <div
+                      onClick={() => toggleKnee("Right Knee")}
+                      className={`w-1/2 h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer ${
+                        selectedKnees.includes("Right Knee")
+                          ? "border-2 border-black"
+                          : ""
+                      }`}
+                    >
+                      <Image
+                        src={RightKnee}
+                        alt="Right Knee"
+                        className="w-12 h-12"
+                      />
+                      <p className="font-semibold text-lg text-black">
+                        Right Knee
+                      </p>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -1568,9 +1742,14 @@ const page = ({ closeijr }) => {
                 </td>
                 <td>
                   <div className="flex flex-row items-center gap-4">
-                    <p className="text-black text-lg font-semibold">
-                      {patient?.post_surgery_details_left?.surgery_name}
-                    </p>
+                    <input
+                      id="opname"
+                      type="text"
+                      placeholder=""
+                      value={opname}
+                      onChange={handleChangeopname}
+                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black font-semibold text-lg"
+                    />
                   </div>
                 </td>
               </tr>
@@ -1581,9 +1760,14 @@ const page = ({ closeijr }) => {
                 </td>
                 <td>
                   <div className="flex flex-row items-center gap-4">
-                    <p className="text-black text-lg font-semibold">
-                      {dateOnlyIST}
-                    </p>
+                    <input
+                      type="text"
+                      placeholder="dd-mm-yyyy"
+                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black font-semibold text-lg"
+                      value={surgerydate || ""}
+                      onChange={handleManualsurgeryDateChange}
+                      maxLength={10} // Very important: dd-mm-yyyy is 10 characters
+                    />
                   </div>
                 </td>
               </tr>
@@ -1600,6 +1784,7 @@ const page = ({ closeijr }) => {
                       type="text"
                       placeholder="HH:MM (24 HRS)"
                       value={optime}
+                      maxLength={5}
                       onChange={handleOptimeChange}
                       className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black font-semibold text-lg"
                     />
@@ -2519,7 +2704,10 @@ const page = ({ closeijr }) => {
                 name="finalCheck"
                 value="2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"
                 className="mr-1 cursor-pointer"
-                checked={finalCheck === "2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"}
+                checked={
+                  finalCheck ===
+                  "2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"
+                }
                 onChange={handleFinalCheckChange}
               />
               2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION
