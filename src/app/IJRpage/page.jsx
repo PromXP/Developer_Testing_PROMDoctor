@@ -167,8 +167,8 @@ const page = ({ closeijr }) => {
     return currentPeriod;
   };
 
-  const [selectedHospital, setselectedHospital] = useState("Parvathy Hopital");
-  const hospitaloptions = ["Parvathy Hopital"];
+  const [selectedHospital, setselectedHospital] = useState("Parvathy Hospital");
+  const hospitaloptions = ["Parvathy Hospital"];
 
   const options = [
     "GENERAL",
@@ -568,7 +568,7 @@ const page = ({ closeijr }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const clearAllFields = () => {
-    setselectedHospital("Parvathy Hopital");
+    setselectedHospital("Parvathy Hospital");
     setSelected("");
     setasagrade("");
     setpreopflexion("");

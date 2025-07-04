@@ -216,8 +216,8 @@ const page = ({ goToReport, goToIJRAdd }) => {
   };
 
   const [isEdithospital, setisEdithospital] = useState(false);
-  const [selectedHospital, setselectedHospital] = useState("Parvathy Hopital");
-  const hospitaloptions = ["Parvathy Hopital"];
+  const [selectedHospital, setselectedHospital] = useState("Parvathy Hospital");
+  const hospitaloptions = ["Parvathy Hospital"];
   const handlehospitalchange = () => {
     if (!selectedHospital) {
       showWarning("Hospital Required");
@@ -1522,7 +1522,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
       //   MODEL_A: ["2", "3", "4"],
       // },
       "BIORAD MEDISYS": {
-        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G","H"],
+        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
       },
     },
     TIBIA: {
@@ -1540,7 +1540,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
       //   MODEL_A: ["12 mm", "14 mm"],
       // },
       "BIORAD MEDISYS": {
-        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm","13 mm"],
+        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
       },
     },
     PATELLA: {
@@ -1884,7 +1884,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                             <button
                               onClick={() => {
                                 setisEdithospital(false);
-                                setselectedHospital("Parvathy Hopital");
+                                setselectedHospital("Parvathy Hospital");
                               }}
                               className="text-red-600 text-xs cursor-pointer"
                             >
@@ -2984,7 +2984,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
               </table>
             </div>
 
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col gap-8">
               <div>
                 <p className="text-black text-3xl font-semibold">
                   BONE RESECTION
@@ -3076,884 +3076,890 @@ const page = ({ goToReport, goToIJRAdd }) => {
                 </tbody>
               </table>
 
-              <div className="w-full h-96 flex flex-row text-black text-sm ">
-                {/* Left image */}
-                <div className="w-1/3 flex justify-center">
-                  <Image
-                    src={Medialcondyle}
-                    alt="Medial Condyle"
-                    className="w-2/3 h-full"
-                  />
+              <div className="w-full flex flex-row">
+                <div className="w-full h-fit flex flex-row text-black text-sm gap-2 pr-2">
+                  {/* Left image */}
+                  <div className="w-1/4 flex justify-center">
+                    <Image
+                      src={Medialcondyle}
+                      alt="Medial Condyle"
+                      className="w-full h-full"
+                    />
+                  </div>
+
+                  {/* Right content */}
+                  <table className="w-3/4 text-black text-base border-separate border-spacing-y-3 h-fit shadow-lg py-2 px-4 rounded-2xl">
+                    <tbody>
+                      {/* Heading */}
+                      <tr>
+                        <td colSpan="3" className="text-lg font-bold">
+                          MEDIAL CONDYLE
+                        </td>
+                      </tr>
+
+                      {/* Wear Selection */}
+                      <tr>
+                        <td colSpan="3">
+                          {isEditWearStatus ? (
+                            <div className="flex flex-row gap-4 text-black text-base font-medium w-full">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="wear"
+                                    value="unworn"
+                                    className="mr-1"
+                                    checked={wearStatus === "unworn"}
+                                    onChange={handleWearStatusChange}
+                                  />
+                                  UNWORN
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="wear"
+                                    value="worn"
+                                    className="mr-1"
+                                    checked={wearStatus === "worn"}
+                                    onChange={handleWearStatusChange}
+                                  />
+                                  WORN
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleWearStatusSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditWearStatus(false);
+                                    setWearStatus("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-semibold">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.wear
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditWearStatus(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* INITIAL THICKNESS */}
+                      <tr>
+                        <td className="font-semibold w-1/2 text-base">
+                          INITIAL THICKNESS
+                        </td>
+                        <td className="w-1/4 text-black text-base">
+                          {isEditInitThick ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                                <input
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={distalmedialinithick}
+                                  onChange={handleInitThickChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleWearStatusSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditInitThick(false);
+                                    setDistalMedialInitThick("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.initial_thickness
+                                }{" "}
+                                mm
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditInitThick(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* RECUT */}
+                      <tr>
+                        <td className="font-semibold">RECUT</td>
+                        <td>
+                          {isEditRecutYN ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="mr-4 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recut"
+                                    value="no"
+                                    className="mr-1"
+                                    checked={distalmedialrecutyn === "no"}
+                                    onChange={handleRecutYNChange}
+                                  />{" "}
+                                  N
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recut"
+                                    value="yes"
+                                    className="mr-1"
+                                    checked={distalmedialrecutyn === "yes"}
+                                    onChange={handleRecutYNChange}
+                                  />{" "}
+                                  Y
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleRecutYNSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditRecutYN(false);
+                                    setDistalMedialRecutYN("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.recut
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditRecutYN(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          {isEditRecutValue ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                                <input
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={distalmedialinithick}
+                                  onChange={handleRecutValueChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleRecutValueSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditRecutValue(false);
+                                    setDistalMedialRecutValue("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.recutvalue
+                                }
+                                mm
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditRecutValue(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* WASHER */}
+                      <tr>
+                        <td className="font-semibold">WASHER</td>
+                        <td>
+                          {isEditWasherYN ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="mr-4 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="washer"
+                                    value="no"
+                                    className="mr-1"
+                                    checked={distalmedialwasheryn === "no"}
+                                    onChange={handleWasherYNChange}
+                                  />{" "}
+                                  N
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="washer"
+                                    value="yes"
+                                    className="mr-1"
+                                    checked={distalmedialwasheryn === "yes"}
+                                    onChange={handleWasherYNChange}
+                                  />{" "}
+                                  Y
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleWasherYNSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditWasherYN(false);
+                                    setDistalMedialWasherYN("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.washer
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditWasherYN(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          {isEditWasherValue ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                                <input
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={distalmedialwashervalue}
+                                  onChange={handleWasherValueChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleWasherValueSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditWasherValue(false);
+                                    setDistalMedialWasherValue("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.washervalue
+                                }
+                                mm
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditWasherValue(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* FINAL THICKNESS */}
+                      <tr>
+                        <td className="font-semibold">FINAL THICKNESS</td>
+                        <td>
+                          {isEditFinalThick ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                                <input
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={distalmedialfinalthick}
+                                  onChange={handleFinalThickChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleFinalThickSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditFinalThick(false);
+                                    setDistalMedialFinalThick("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.final_thickness
+                                }
+                                mm
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditFinalThick(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
-                {/* Right content */}
-                <table className="w-2/3 text-black text-lg border-separate border-spacing-y-2">
-                  <tbody>
-                    {/* Heading */}
-                    <tr>
-                      <td colSpan="3" className="text-lg font-bold pb-2">
-                        MEDIAL CONDYLE
-                      </td>
-                    </tr>
+                <div className="w-full h-fit flex flex-row text-black text-sm gap-2 pl-2">
+                  {/* Right content */}
+                  <table className="w-3/4 text-black text-base border-separate border-spacing-y-3 h-fit shadow-lg py-2 px-4 rounded-2xl">
+                    <tbody>
+                      {/* Heading */}
+                      <tr>
+                        <td colSpan="3" className="text-lg font-bold">
+                          LATERAL CONDYLE
+                        </td>
+                      </tr>
 
-                    {/* Wear Selection */}
-                    <tr>
-                      <td colSpan="1">
-                        {isEditWearStatus ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-6 cursor-pointer">
+                      {/* LATERAL SECTION */}
+
+                      {/* Wear Selection */}
+                      <tr>
+                        <td colSpan="3">
+                          {isEditWearStatusLat ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="mr-6 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="wearLat"
+                                    value="unworn"
+                                    className="mr-1"
+                                    checked={wearStatusLat === "unworn"}
+                                    onChange={handleChangeWearStatusLat}
+                                  />
+                                  UNWORN
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="wearLat"
+                                    value="worn"
+                                    className="mr-1"
+                                    checked={wearStatusLat === "worn"}
+                                    onChange={handleChangeWearStatusLat}
+                                  />
+                                  WORN
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleWearStatusLatSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditWearStatusLat(false);
+                                    setWearStatusLat("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-semibold">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.wear
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditWearStatusLat(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* INITIAL THICKNESS */}
+                      <tr>
+                        <td className="font-semibold w-1/2">
+                          INITIAL THICKNESS
+                        </td>
+                        <td>
+                          {isEditDistalLateralInitThick ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
                                 <input
-                                  type="radio"
-                                  name="wear"
-                                  value="unworn"
-                                  className="mr-1"
-                                  checked={wearStatus === "unworn"}
-                                  onChange={handleWearStatusChange}
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={distalLateralInitThick}
+                                  onChange={handleInputDistalLateralInitThick}
                                 />
-                                UNWORN
-                              </label>
-                              <label className="cursor-pointer">
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleDistalLateralInitThickSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditDistalLateralInitThick(false);
+                                    setDistalLateralInitThick("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.initial_thickness
+                                }
+                                mm
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditDistalLateralInitThick(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* RECUT */}
+                      <tr>
+                        <td className="font-semibold ">RECUT</td>
+                        <td className="w-1/4">
+                          {isEditDistalLateralRecutYN ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="mr-4 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recutlat"
+                                    value="no"
+                                    className="mr-1"
+                                    checked={distalLateralRecutYN === "no"}
+                                    onChange={handleInputDistalLateralRecutYN}
+                                  />{" "}
+                                  N
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recutlat"
+                                    value="yes"
+                                    className="mr-1"
+                                    checked={distalLateralRecutYN === "yes"}
+                                    onChange={handleInputDistalLateralRecutYN}
+                                  />{" "}
+                                  Y
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleDistalLateralRecutYNSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditDistalLateralRecutYN(false);
+                                    setDistalLateralRecutYN("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.recut
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditDistalLateralRecutYN(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          {isEditDistalLateralRecutValue ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
                                 <input
-                                  type="radio"
-                                  name="wear"
-                                  value="worn"
-                                  className="mr-1"
-                                  checked={wearStatus === "worn"}
-                                  onChange={handleWearStatusChange}
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={distalLateralRecutValue}
+                                  onChange={handleInputDistalLateralRecutValue}
                                 />
-                                WORN
-                              </label>
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleDistalLateralRecutValueSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditDistalLateralRecutValue(false);
+                                    setDistalLateralRecutValue("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleWearStatusSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditWearStatus(false);
-                                  setWearStatus("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-semibold">
-                              {
-                                patientsurgery?.[0].bone_resection.distal_medial
-                                  .wear
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditWearStatus(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* INITIAL THICKNESS */}
-                    <tr>
-                      <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
-                      <td className="w-1/4 text-black text-lg">
-                        {isEditInitThick ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={distalmedialinithick}
-                                onChange={handleInitThickChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleWearStatusSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.recutvalue
+                                }
+                                mm
+                              </p>
                               <button
                                 onClick={() => {
-                                  setIsEditInitThick(false);
-                                  setDistalMedialInitThick("");
+                                  setIsEditDistalLateralRecutValue(true);
                                 }}
-                                className="text-red-600 text-xs cursor-pointer"
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
                               >
-                                <XMarkIcon className="w-5 h-5" />
+                                <PencilIcon className="w-4 h-4" />
                               </button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection.distal_medial
-                                  .initial_thickness
-                              }{" "}
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditInitThick(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+                          )}
+                        </td>
+                      </tr>
 
-                    {/* RECUT */}
-                    <tr>
-                      <td className="font-semibold">RECUT</td>
-                      <td>
-                        {isEditRecutYN ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-4 cursor-pointer">
+                      {/* WASHER */}
+                      <tr>
+                        <td className="font-semibold">WASHER</td>
+                        <td>
+                          {isEditDistalLateralWasherYN ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="mr-4 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="washerlat"
+                                    value="no"
+                                    className="mr-1"
+                                    checked={distalLateralWasherYN === "no"}
+                                    onChange={handleInputDistalLateralWasherYN}
+                                  />{" "}
+                                  N
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="washerlat"
+                                    value="yes"
+                                    className="mr-1"
+                                    checked={distalLateralWasherYN === "yes"}
+                                    onChange={handleInputDistalLateralWasherYN}
+                                  />{" "}
+                                  Y
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleDistalLateralWasherYNSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditDistalLateralWasherYN(false);
+                                    setDistalLateralWasherYN("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.washer
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditDistalLateralWasherYN(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          {isEditDistalLateralWasherValue ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
                                 <input
-                                  type="radio"
-                                  name="recut"
-                                  value="no"
-                                  className="mr-1"
-                                  checked={distalmedialrecutyn === "no"}
-                                  onChange={handleRecutYNChange}
-                                />{" "}
-                                N
-                              </label>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="recut"
-                                  value="yes"
-                                  className="mr-1"
-                                  checked={distalmedialrecutyn === "yes"}
-                                  onChange={handleRecutYNChange}
-                                />{" "}
-                                Y
-                              </label>
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={distalLateralWasherValue}
+                                  onChange={handleInputDistalLateralWasherValue}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleDistalLateralWasherValueSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditDistalLateralWasherValue(false);
+                                    setDistalLateralWasherValue("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleRecutYNSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditRecutYN(false);
-                                  setDistalMedialRecutYN("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection.distal_medial
-                                  .recut
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditRecutYN(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        {isEditRecutValue ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={distalmedialinithick}
-                                onChange={handleRecutValueChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleRecutValueSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.washervalue
+                                }
+                                mm
+                              </p>
                               <button
                                 onClick={() => {
-                                  setIsEditRecutValue(false);
-                                  setDistalMedialRecutValue("");
+                                  setIsEditDistalLateralWasherValue(true);
                                 }}
-                                className="text-red-600 text-xs cursor-pointer"
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
                               >
-                                <XMarkIcon className="w-5 h-5" />
+                                <PencilIcon className="w-4 h-4" />
                               </button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection.distal_medial
-                                  .recutvalue
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditRecutValue(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+                          )}
+                        </td>
+                      </tr>
 
-                    {/* WASHER */}
-                    <tr>
-                      <td className="font-semibold">WASHER</td>
-                      <td>
-                        {isEditWasherYN ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-4 cursor-pointer">
+                      {/* FINAL THICKNESS */}
+                      <tr>
+                        <td className="font-semibold">FINAL THICKNESS</td>
+                        <td>
+                          {isEditDistalLateralFinalThick ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
                                 <input
-                                  type="radio"
-                                  name="washer"
-                                  value="no"
-                                  className="mr-1"
-                                  checked={distalmedialwasheryn === "no"}
-                                  onChange={handleWasherYNChange}
-                                />{" "}
-                                N
-                              </label>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="washer"
-                                  value="yes"
-                                  className="mr-1"
-                                  checked={distalmedialwasheryn === "yes"}
-                                  onChange={handleWasherYNChange}
-                                />{" "}
-                                Y
-                              </label>
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={distalLateralFinalThick}
+                                  onChange={handleInputDistalLateralFinalThick}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleDistalLateralFinalThickSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditDistalLateralFinalThick(false);
+                                    setDistalLateralFinalThick("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleWasherYNSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditWasherYN(false);
-                                  setDistalMedialWasherYN("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection.distal_medial
-                                  .washer
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditWasherYN(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        {isEditWasherValue ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={distalmedialwashervalue}
-                                onChange={handleWasherValueChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleWasherValueSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.final_thickness
+                                }
+                                mm
+                              </p>
                               <button
                                 onClick={() => {
-                                  setIsEditWasherValue(false);
-                                  setDistalMedialWasherValue("");
+                                  setIsEditDistalLateralFinalThick(true);
                                 }}
-                                className="text-red-600 text-xs cursor-pointer"
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
                               >
-                                <XMarkIcon className="w-5 h-5" />
+                                <PencilIcon className="w-4 h-4" />
                               </button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection.distal_medial
-                                  .washervalue
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditWasherValue(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
 
-                    {/* FINAL THICKNESS */}
-                    <tr>
-                      <td className="font-semibold">FINAL THICKNESS</td>
-                      <td>
-                        {isEditFinalThick ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={distalmedialfinalthick}
-                                onChange={handleFinalThickChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleFinalThickSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditFinalThick(false);
-                                  setDistalMedialFinalThick("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection.distal_medial
-                                  .final_thickness
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditFinalThick(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="w-full h-96 flex flex-row text-black text-sm ">
-                {/* Left image */}
-                <div className="w-1/3 flex justify-center">
-                  <Image
-                    src={Lateralcondyle}
-                    alt="Medial Condyle"
-                    className="w-2/3 h-full"
-                  />
+                  {/* Left image */}
+                  <div className="w-1/4 flex justify-center">
+                    <Image
+                      src={Lateralcondyle}
+                      alt="Medial Condyle"
+                      className="w-full h-full"
+                    />
+                  </div>
                 </div>
-
-                {/* Right content */}
-                <table className="w-2/3 text-black text-lg border-separate border-spacing-y-2">
-                  <tbody>
-                    {/* Heading */}
-                    <tr>
-                      <td colSpan="3" className="text-lg font-bold pb-2">
-                        LATERAL CONDYLE
-                      </td>
-                    </tr>
-
-                    {/* LATERAL SECTION */}
-
-                    {/* Wear Selection */}
-                    <tr>
-                      <td colSpan="1">
-                        {isEditWearStatusLat ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-6 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="wearLat"
-                                  value="unworn"
-                                  className="mr-1"
-                                  checked={wearStatusLat === "unworn"}
-                                  onChange={handleChangeWearStatusLat}
-                                />
-                                UNWORN
-                              </label>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="wearLat"
-                                  value="worn"
-                                  className="mr-1"
-                                  checked={wearStatusLat === "worn"}
-                                  onChange={handleChangeWearStatusLat}
-                                />
-                                WORN
-                              </label>
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleWearStatusLatSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditWearStatusLat(false);
-                                  setWearStatusLat("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-semibold">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .distal_lateral.wear
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditWearStatusLat(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* INITIAL THICKNESS */}
-                    <tr>
-                      <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
-                      <td>
-                        {isEditDistalLateralInitThick ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={distalLateralInitThick}
-                                onChange={handleInputDistalLateralInitThick}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleDistalLateralInitThickSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditDistalLateralInitThick(false);
-                                  setDistalLateralInitThick("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .distal_lateral.initial_thickness
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditDistalLateralInitThick(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* RECUT */}
-                    <tr>
-                      <td className="font-semibold">RECUT</td>
-                      <td className="w-1/4">
-                        {isEditDistalLateralRecutYN ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-4 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="recutlat"
-                                  value="no"
-                                  className="mr-1"
-                                  checked={distalLateralRecutYN === "no"}
-                                  onChange={handleInputDistalLateralRecutYN}
-                                />{" "}
-                                N
-                              </label>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="recutlat"
-                                  value="yes"
-                                  className="mr-1"
-                                  checked={distalLateralRecutYN === "yes"}
-                                  onChange={handleInputDistalLateralRecutYN}
-                                />{" "}
-                                Y
-                              </label>
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleDistalLateralRecutYNSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditDistalLateralRecutYN(false);
-                                  setDistalLateralRecutYN("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .distal_lateral.recut
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditDistalLateralRecutYN(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        {isEditDistalLateralRecutValue ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={distalLateralRecutValue}
-                                onChange={handleInputDistalLateralRecutValue}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleDistalLateralRecutValueSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditDistalLateralRecutValue(false);
-                                  setDistalLateralRecutValue("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .distal_lateral.recutvalue
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditDistalLateralRecutValue(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* WASHER */}
-                    <tr>
-                      <td className="font-semibold">WASHER</td>
-                      <td>
-                        {isEditDistalLateralWasherYN ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-4 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="washerlat"
-                                  value="no"
-                                  className="mr-1"
-                                  checked={distalLateralWasherYN === "no"}
-                                  onChange={handleInputDistalLateralWasherYN}
-                                />{" "}
-                                N
-                              </label>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="washerlat"
-                                  value="yes"
-                                  className="mr-1"
-                                  checked={distalLateralWasherYN === "yes"}
-                                  onChange={handleInputDistalLateralWasherYN}
-                                />{" "}
-                                Y
-                              </label>
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleDistalLateralWasherYNSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditDistalLateralWasherYN(false);
-                                  setDistalLateralWasherYN("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .distal_lateral.washer
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditDistalLateralWasherYN(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        {isEditDistalLateralWasherValue ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={distalLateralWasherValue}
-                                onChange={handleInputDistalLateralWasherValue}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleDistalLateralWasherValueSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditDistalLateralWasherValue(false);
-                                  setDistalLateralWasherValue("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .distal_lateral.washervalue
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditDistalLateralWasherValue(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* FINAL THICKNESS */}
-                    <tr>
-                      <td className="font-semibold">FINAL THICKNESS</td>
-                      <td>
-                        {isEditDistalLateralFinalThick ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={distalLateralFinalThick}
-                                onChange={handleInputDistalLateralFinalThick}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleDistalLateralFinalThickSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditDistalLateralFinalThick(false);
-                                  setDistalLateralFinalThick("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .distal_lateral.final_thickness
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditDistalLateralFinalThick(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
 
               <table className="w-full border-separate border-spacing-y-8">
@@ -3976,647 +3982,653 @@ const page = ({ goToReport, goToIJRAdd }) => {
                 </tbody>
               </table>
 
-              <div className="w-full h-96 flex flex-row  text-black text-sm ">
-                {/* Left image */}
-                <div className="w-1/3 flex justify-center">
-                  <Image
-                    src={Medialcondylepost}
-                    alt="Medial Condyle"
-                    className="w-2/3 h-full"
-                  />
+              <div className="w-full flex flex-row">
+                <div className="w-full h-fit flex flex-row  text-black text-sm gap-2 pr-2">
+                  {/* Left image */}
+                  <div className="w-1/4 flex justify-center">
+                    <Image
+                      src={Medialcondylepost}
+                      alt="Medial Condyle"
+                      className="w-full h-full"
+                    />
+                  </div>
+
+                  {/* Right content */}
+                  <table className="w-3/4 text-black text-base border-separate border-spacing-y-3 h-fit shadow-lg py-2 px-4 rounded-2xl">
+                    <tbody>
+                      {/* Heading */}
+                      <tr>
+                        <td colSpan="3" className="text-lg font-bold pb-2">
+                          MEDIAL CONDYLE
+                        </td>
+                      </tr>
+
+                      {/* Wear Selection */}
+                      <tr>
+                        <td colSpan="3">
+                          {isEditPostMedialWear ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="mr-6 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="wearpostmed"
+                                    value="unworn"
+                                    className="mr-1"
+                                    checked={postMedialWear === "unworn"}
+                                    onChange={handlePostMedialWearChange}
+                                  />
+                                  UNWORN
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="wearpostmed"
+                                    value="worn"
+                                    className="mr-1"
+                                    checked={postMedialWear === "worn"}
+                                    onChange={handlePostMedialWearChange}
+                                  />
+                                  WORN
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostMedialWearSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostMedialWear(false);
+                                    setPostMedialWear("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-semibold">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_medial.wear
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditPostMedialWear(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* INITIAL THICKNESS */}
+                      <tr>
+                        <td className="font-semibold w-1/2">
+                          INITIAL THICKNESS
+                        </td>
+                        <td>
+                          {isEditPostMedialInitThick ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                                <input
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={postMedialInitThick}
+                                  onChange={handlePostMedialInitThickChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostMedialInitThickSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostMedialInitThick(false);
+                                    setPostMedialInitThick("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_medial.initial_thickness
+                                }
+                                mm
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditPostMedialInitThick(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* RECUT */}
+                      <tr>
+                        <td className="font-semibold">RECUT</td>
+                        <td className="w-1/4">
+                          {isEditPostMedialRecutYN ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="mr-4 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recutpostmed"
+                                    value="no"
+                                    className="mr-1"
+                                    checked={postMedialRecutYN === "no"}
+                                    onChange={handlePostMedialRecutYNChange}
+                                  />{" "}
+                                  N
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recutpostmed"
+                                    value="yes"
+                                    className="mr-1"
+                                    checked={postMedialRecutYN === "yes"}
+                                    onChange={handlePostMedialRecutYNChange}
+                                  />{" "}
+                                  Y
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostMedialRecutYNSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostMedialRecutYN(false);
+                                    setPostMedialRecutYN("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_medial.recut
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditPostMedialRecutYN(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          {isEditPostMedialRecutValue ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                                <input
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={postMedialRecutValue}
+                                  onChange={handlePostMedialRecutValueChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostMedialRecutValueSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostMedialRecutValue(false);
+                                    setPostMedialRecutValue("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_medial.recutvalue
+                                }
+                                mm
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditPostMedialRecutValue(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* FINAL THICKNESS */}
+                      <tr>
+                        <td className="font-semibold">FINAL THICKNESS</td>
+                        <td>
+                          {isEditPostMedialFinalThick ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                                <input
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={postMedialFinalThick}
+                                  onChange={handlePostMedialFinalThickChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostMedialFinalThickSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostMedialFinalThick(false);
+                                    setPostMedialFinalThick("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_medial.final_thickness
+                                }
+                                mm
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditPostMedialFinalThick(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
-                {/* Right content */}
-                <table className="w-2/3 text-black text-lg border-separate border-spacing-y-2">
-                  <tbody>
-                    {/* Heading */}
-                    <tr>
-                      <td colSpan="3" className="text-lg font-bold pb-2">
-                        MEDIAL CONDYLE
-                      </td>
-                    </tr>
+                <div className="w-full h-fit flex flex-row  text-black text-sm gap-2 pl-2">
+                  {/* Right content */}
+                  <table className="w-3/4 text-black text-base border-separate border-spacing-y-3 h-fit shadow-lg py-2 px-4 rounded-2xl">
+                    <tbody>
+                      {/* Heading */}
+                      <tr>
+                        <td colSpan="3" className="text-lg font-bold pb-2">
+                          LATERAL CONDYLE
+                        </td>
+                      </tr>
 
-                    {/* Wear Selection */}
-                    <tr>
-                      <td colSpan="1">
-                        {isEditPostMedialWear ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-6 cursor-pointer">
+                      {/* Wear Selection */}
+                      <tr>
+                        <td colSpan="3">
+                          {isEditPostLateralWear ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="mr-6 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="wearpostlat"
+                                    value="unworn"
+                                    className="mr-1"
+                                    checked={postLateralWear === "unworn"}
+                                    onChange={handlePostLateralWearChange}
+                                  />
+                                  UNWORN
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="wearpostlat"
+                                    value="worn"
+                                    className="mr-1"
+                                    checked={postLateralWear === "worn"}
+                                    onChange={handlePostLateralWearChange}
+                                  />
+                                  WORN
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostLateralWearSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostLateralWear(false);
+                                    setPostLateralWear("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-semibold">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_lateral.wear
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditPostLateralWear(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* INITIAL THICKNESS */}
+                      <tr>
+                        <td className="font-semibold w-1/2">
+                          INITIAL THICKNESS
+                        </td>
+                        <td className="w-1/4">
+                          {isEditPostLateralInitThick ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
                                 <input
-                                  type="radio"
-                                  name="wearpostmed"
-                                  value="unworn"
-                                  className="mr-1"
-                                  checked={postMedialWear === "unworn"}
-                                  onChange={handlePostMedialWearChange}
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={postLateralInitThick}
+                                  onChange={handlePostLateralInitThickChange}
                                 />
-                                UNWORN
-                              </label>
-                              <label className="cursor-pointer">
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostLateralInitThickSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostLateralInitThick(false);
+                                    setPostLateralInitThick("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_lateral.initial_thickness
+                                }
+                                mm
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditPostLateralInitThick(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* RECUT */}
+                      <tr>
+                        <td className="font-semibold">RECUT</td>
+                        <td>
+                          {isEditPostLateralRecutYN ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row text-black text-base font-medium gap-8">
+                                <label className="mr-4 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recutpostlat"
+                                    value="no"
+                                    className="mr-1"
+                                    checked={postLateralRecutYN === "no"}
+                                    onChange={setPostLateralRecutYN}
+                                  />{" "}
+                                  N
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="recutpostlat"
+                                    value="yes"
+                                    className="mr-1"
+                                    checked={postLateralRecutYN === "yes"}
+                                    onChange={setPostLateralRecutYN}
+                                  />{" "}
+                                  Y
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostLateralRecutYNSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostLateralRecutYN(false);
+                                    setPostLateralRecutYN("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_lateral.recut
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditPostLateralRecutYN(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          {isEditPostLateralRecutValue ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
                                 <input
-                                  type="radio"
-                                  name="wearpostmed"
-                                  value="worn"
-                                  className="mr-1"
-                                  checked={postMedialWear === "worn"}
-                                  onChange={handlePostMedialWearChange}
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={postLateralRecutValue}
+                                  onChange={handlePostLateralRecutValueChange}
                                 />
-                                WORN
-                              </label>
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostLateralRecutValueSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostLateralRecutValue(false);
+                                    setPostLateralRecutValue("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostMedialWearSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditPostMedialWear(false);
-                                  setPostMedialWear("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-semibold">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_medial.wear
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostMedialWear(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* INITIAL THICKNESS */}
-                    <tr>
-                      <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
-                      <td>
-                        {isEditPostMedialInitThick ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={postMedialInitThick}
-                                onChange={handlePostMedialInitThickChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostMedialInitThickSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_lateral.recutvalue
+                                }
+                                mm
+                              </p>
                               <button
                                 onClick={() => {
-                                  setIsEditPostMedialInitThick(false);
-                                  setPostMedialInitThick("");
+                                  setIsEditPostLateralRecutValue(true);
                                 }}
-                                className="text-red-600 text-xs cursor-pointer"
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
                               >
-                                <XMarkIcon className="w-5 h-5" />
+                                <PencilIcon className="w-4 h-4" />
                               </button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_medial.initial_thickness
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostMedialInitThick(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+                          )}
+                        </td>
+                      </tr>
 
-                    {/* RECUT */}
-                    <tr>
-                      <td className="font-semibold">RECUT</td>
-                      <td className="w-1/4">
-                        {isEditPostMedialRecutYN ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-4 cursor-pointer">
+                      {/* FINAL THICKNESS */}
+                      <tr>
+                        <td className="font-semibold">FINAL THICKNESS</td>
+                        <td>
+                          {isEditPostLateralFinalThick ? (
+                            <div className="flex flex-row gap-2 text-black text-base font-medium">
+                              <div className="flex flex-row items-center text-black text-base font-medium gap-2">
                                 <input
-                                  type="radio"
-                                  name="recutpostmed"
-                                  value="no"
-                                  className="mr-1"
-                                  checked={postMedialRecutYN === "no"}
-                                  onChange={handlePostMedialRecutYNChange}
-                                />{" "}
-                                N
-                              </label>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="recutpostmed"
-                                  value="yes"
-                                  className="mr-1"
-                                  checked={postMedialRecutYN === "yes"}
-                                  onChange={handlePostMedialRecutYNChange}
-                                />{" "}
-                                Y
-                              </label>
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={postLateralFinalThick}
+                                  onChange={handlePostLateralFinalThickChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handlePostLateralFinalThickSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditPostLateralFinalThick(false);
+                                    setPostLateralFinalThick("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostMedialRecutYNSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditPostMedialRecutYN(false);
-                                  setPostMedialRecutYN("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_medial.recut
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostMedialRecutYN(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        {isEditPostMedialRecutValue ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={postMedialRecutValue}
-                                onChange={handlePostMedialRecutValueChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostMedialRecutValueSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_lateral.final_thickness
+                                }
+                                mm
+                              </p>
                               <button
                                 onClick={() => {
-                                  setIsEditPostMedialRecutValue(false);
-                                  setPostMedialRecutValue("");
+                                  setIsEditPostLateralFinalThick(true);
                                 }}
-                                className="text-red-600 text-xs cursor-pointer"
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
                               >
-                                <XMarkIcon className="w-5 h-5" />
+                                <PencilIcon className="w-4 h-4" />
                               </button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_medial.recutvalue
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostMedialRecutValue(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
 
-                    {/* FINAL THICKNESS */}
-                    <tr>
-                      <td className="font-semibold">FINAL THICKNESS</td>
-                      <td>
-                        {isEditPostMedialFinalThick ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={postMedialFinalThick}
-                                onChange={handlePostMedialFinalThickChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostMedialFinalThickSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditPostMedialFinalThick(false);
-                                  setPostMedialFinalThick("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_medial.final_thickness
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostMedialFinalThick(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="w-full h-96 flex flex-row  text-black text-sm ">
-                {/* Left image */}
-                <div className="w-1/3 flex justify-center">
-                  <Image
-                    src={Lateralcondylepost}
-                    alt="Medial Condyle"
-                    className="w-2/3 h-full"
-                  />
+                  {/* Left image */}
+                  <div className="w-1/4 flex justify-center">
+                    <Image
+                      src={Lateralcondylepost}
+                      alt="Medial Condyle"
+                      className="w-full h-full"
+                    />
+                  </div>
                 </div>
-
-                {/* Right content */}
-                <table className="w-2/3 text-black text-lg border-separate border-spacing-y-2">
-                  <tbody>
-                    {/* Heading */}
-                    <tr>
-                      <td colSpan="3" className="text-lg font-bold pb-2">
-                        LATERAL CONDYLE
-                      </td>
-                    </tr>
-
-                    {/* Wear Selection */}
-                    <tr>
-                      <td colSpan="1">
-                        {isEditPostLateralWear ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-6 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="wearpostlat"
-                                  value="unworn"
-                                  className="mr-1"
-                                  checked={postLateralWear === "unworn"}
-                                  onChange={handlePostLateralWearChange}
-                                />
-                                UNWORN
-                              </label>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="wearpostlat"
-                                  value="worn"
-                                  className="mr-1"
-                                  checked={postLateralWear === "worn"}
-                                  onChange={handlePostLateralWearChange}
-                                />
-                                WORN
-                              </label>
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostLateralWearSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditPostLateralWear(false);
-                                  setPostLateralWear("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-semibold">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_lateral.wear
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostLateralWear(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* INITIAL THICKNESS */}
-                    <tr>
-                      <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
-                      <td className="w-1/4">
-                        {isEditPostLateralInitThick ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={postLateralInitThick}
-                                onChange={handlePostLateralInitThickChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostLateralInitThickSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditPostLateralInitThick(false);
-                                  setPostLateralInitThick("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_lateral.initial_thickness
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostLateralInitThick(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* RECUT */}
-                    <tr>
-                      <td className="font-semibold">RECUT</td>
-                      <td>
-                        {isEditPostLateralRecutYN ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              <label className="mr-4 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="recutpostlat"
-                                  value="no"
-                                  className="mr-1"
-                                  checked={postLateralRecutYN === "no"}
-                                  onChange={setPostLateralRecutYN}
-                                />{" "}
-                                N
-                              </label>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="recutpostlat"
-                                  value="yes"
-                                  className="mr-1"
-                                  checked={postLateralRecutYN === "yes"}
-                                  onChange={setPostLateralRecutYN}
-                                />{" "}
-                                Y
-                              </label>
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostLateralRecutYNSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditPostLateralRecutYN(false);
-                                  setPostLateralRecutYN("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_lateral.recut
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostLateralRecutYN(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        {isEditPostLateralRecutValue ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={postLateralRecutValue}
-                                onChange={handlePostLateralRecutValueChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostLateralRecutValueSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditPostLateralRecutValue(false);
-                                  setPostLateralRecutValue("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_lateral.recutvalue
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostLateralRecutValue(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* FINAL THICKNESS */}
-                    <tr>
-                      <td className="font-semibold">FINAL THICKNESS</td>
-                      <td>
-                        {isEditPostLateralFinalThick ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                              <input
-                                type="text"
-                                className="border px-2 py-1 w-24 mr-1 rounded"
-                                value={postLateralFinalThick}
-                                onChange={handlePostLateralFinalThickChange}
-                              />
-                              mm
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePostLateralFinalThickSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditPostLateralFinalThick(false);
-                                  setPostLateralFinalThick("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection
-                                  .posterial_lateral.final_thickness
-                              }
-                              mm
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPostLateralFinalThick(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
 
-              <table className="w-full border-separate border-spacing-y-8">
+              <table className="w-full border-separate border-spacing-y-0">
                 <tbody>
                   <tr className="align-middle">
                     <td className="font-bold text-2xl text-black w-1/3">
@@ -4634,680 +4646,686 @@ const page = ({ goToReport, goToIJRAdd }) => {
                 </tbody>
               </table>
 
-              <div className="w-3/4 flex justify-center items-center">
-                <div className="w-2/3 flex flex-row justify-center">
-                  <table className="w-1/5 text-black text-lg border-separate border-spacing-y-0">
-                    <tbody>
-                      {/* TIBIAL LEFT WEAR: UNWORN */}
-                      <tr>
-                        <td colSpan="1" className="text-lg font-bold pb-2">
-                          {isEditTibialLeftWear ? (
-                            <div className="flex flex-col gap-8 text-black text-lg font-medium">
-                              <div className="flex flex-col text-black text-lg font-medium gap-8">
-                                <label className="cursor-pointer flex flex-row">
-                                  <input
-                                    type="radio"
-                                    name="tibialLeftWear"
-                                    value="unworn"
-                                    className="mr-1"
-                                    checked={tibialLeftWear === "unworn"}
-                                    onChange={handleTibialLeftWearChange}
-                                  />
-                                  UNWORN
-                                </label>
-                                <label className="cursor-pointer flex flex-row">
-                                  <input
-                                    type="radio"
-                                    name="tibialLeftWear"
-                                    value="worn"
-                                    className="mr-1"
-                                    checked={tibialLeftWear === "worn"}
-                                    onChange={handleTibialLeftWearChange}
-                                  />
-                                  WORN
-                                </label>
-                              </div>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={handleTibialLeftWearSave}
-                                  className="text-green-600 text-xs cursor-pointer"
-                                >
-                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setIsEditTibialLeftWear(false);
-                                    setTibialLeftWear("");
-                                  }}
-                                  className="text-red-600 text-xs cursor-pointer"
-                                >
-                                  <XMarkIcon className="w-5 h-5" />
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex flex-row gap-2">
-                              <p className="text-black text-xl font-semibold">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .tibial_resection_left.wear
-                                }
-                              </p>
-                              <button
-                                onClick={() => {
-                                  setIsEditTibialLeftWear(true);
-                                }}
-                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                              >
-                                <PencilIcon className="w-4 h-4" />
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
+              <div className="w-full flex flex-row gap-4">
+                <div className="w-1/2 flex flex-col gap-8 justify-center items-center">
+                  <div className="w-full flex justify-center items-center shadow-lg p-2 rounded-xl">
+                    <div className="w-full flex flex-row justify-center">
+                      <table className="w-1/5 text-black text-lg border-separate border-spacing-y-0">
+                        <tbody>
+                          {/* TIBIAL LEFT WEAR: UNWORN */}
+                          <tr>
+                            <td colSpan="1" className="text-lg font-bold pb-2">
+                              {isEditTibialLeftWear ? (
+                                <div className="flex flex-col gap-8 text-black text-lg font-medium">
+                                  <div className="flex flex-col text-black text-lg font-medium gap-8">
+                                    <label className="cursor-pointer flex flex-row">
+                                      <input
+                                        type="radio"
+                                        name="tibialLeftWear"
+                                        value="unworn"
+                                        className="mr-1"
+                                        checked={tibialLeftWear === "unworn"}
+                                        onChange={handleTibialLeftWearChange}
+                                      />
+                                      UNWORN
+                                    </label>
+                                    <label className="cursor-pointer flex flex-row">
+                                      <input
+                                        type="radio"
+                                        name="tibialLeftWear"
+                                        value="worn"
+                                        className="mr-1"
+                                        checked={tibialLeftWear === "worn"}
+                                        onChange={handleTibialLeftWearChange}
+                                      />
+                                      WORN
+                                    </label>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={handleTibialLeftWearSave}
+                                      className="text-green-600 text-xs cursor-pointer"
+                                    >
+                                      <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setIsEditTibialLeftWear(false);
+                                        setTibialLeftWear("");
+                                      }}
+                                      className="text-red-600 text-xs cursor-pointer"
+                                    >
+                                      <XMarkIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex flex-row gap-2">
+                                  <p className="text-black text-base font-semibold">
+                                    {
+                                      patientsurgery?.[0].bone_resection
+                                        .tibial_resection_left.wear
+                                    }
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      setIsEditTibialLeftWear(true);
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                  >
+                                    <PencilIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
 
-                      <tr>
-                        <td className="h-4"></td>
-                      </tr>
+                          <tr>
+                            <td className="h-4"></td>
+                          </tr>
 
-                      <tr>
-                        <td className="h-4"></td>
-                      </tr>
-                      <tr>
-                        <td className="h-4"></td>
-                      </tr>
-                      <tr>
-                        <td className="h-4"></td>
-                      </tr>
+                          <tr>
+                            <td className="h-4"></td>
+                          </tr>
+                          <tr>
+                            <td className="h-4"></td>
+                          </tr>
+                          <tr>
+                            <td className="h-4"></td>
+                          </tr>
 
-                      {/* TIBIAL LEFT MEASUREMENT */}
-                      <tr>
-                        <td>
-                          {isEditTibialLeftValue ? (
-                            <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                              <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
-                                  value={tibialLeftValue}
-                                  onChange={handleTibialLeftValueChange}
-                                />
-                                mm
-                              </div>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={handleTibialLeftValueSave}
-                                  className="text-green-600 text-xs cursor-pointer"
-                                >
-                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setIsEditTibialLeftValue(false);
-                                    setTibialLeftValue("");
-                                  }}
-                                  className="text-red-600 text-xs cursor-pointer"
-                                >
-                                  <XMarkIcon className="w-5 h-5" />
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex flex-row gap-2">
-                              <p className="text-black text-xl font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .tibial_resection_left.value
-                                }
-                                mm
-                              </p>
-                              <button
-                                onClick={() => {
-                                  setIsEditTibialLeftValue(true);
-                                }}
-                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                              >
-                                <PencilIcon className="w-4 h-4" />
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                          {/* TIBIAL LEFT MEASUREMENT */}
+                          <tr>
+                            <td>
+                              {isEditTibialLeftValue ? (
+                                <div className="flex flex-row gap-2 text-black text-lg font-medium">
+                                  <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
+                                    <input
+                                      type="text"
+                                      className="border px-2 py-1 w-24 mr-1 rounded"
+                                      value={tibialLeftValue}
+                                      onChange={handleTibialLeftValueChange}
+                                    />
+                                    mm
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={handleTibialLeftValueSave}
+                                      className="text-green-600 text-xs cursor-pointer"
+                                    >
+                                      <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setIsEditTibialLeftValue(false);
+                                        setTibialLeftValue("");
+                                      }}
+                                      className="text-red-600 text-xs cursor-pointer"
+                                    >
+                                      <XMarkIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex flex-row gap-2">
+                                  <p className="text-black text-base font-medium">
+                                    {
+                                      patientsurgery?.[0].bone_resection
+                                        .tibial_resection_left.value
+                                    }
+                                    mm
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      setIsEditTibialLeftValue(true);
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                  >
+                                    <PencilIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
 
-                  <div className="w-3/5">
-                    <Image
-                      src={Tibial}
-                      alt="Medial Condyle"
-                      className="w-full h-full"
-                    />
+                      <div className="w-3/5">
+                        <Image
+                          src={Tibial}
+                          alt="Medial Condyle"
+                          className="w-full h-full"
+                        />
+                      </div>
+
+                      <table className="w-1/5 text-black text-lg border-separate border-spacing-y-0">
+                        <tbody>
+                          {/* TIBIAL RIGHT - WEAR: UNWORN */}
+                          <tr>
+                            <td colSpan="1" className="text-lg font-bold pb-2">
+                              {isEditTibialRightWear ? (
+                                <div className="flex flex-col gap-8 text-black text-lg font-medium">
+                                  <div className="flex flex-col text-black text-lg font-medium gap-8">
+                                    <label className="cursor-pointer flex flex-row">
+                                      <input
+                                        type="radio"
+                                        name="tibialRightWear"
+                                        value="unworn"
+                                        className="mr-1"
+                                        checked={tibialRightWear === "unworn"}
+                                        onChange={handleTibialRightWearChange}
+                                      />
+                                      UNWORN
+                                    </label>
+                                    <label className="cursor-pointer flex flex-row">
+                                      <input
+                                        type="radio"
+                                        name="tibialRightWear"
+                                        value="worn"
+                                        className="mr-1"
+                                        checked={tibialRightWear === "worn"}
+                                        onChange={handleTibialRightWearChange}
+                                      />
+                                      WORN
+                                    </label>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={handleTibialRightWearSave}
+                                      className="text-green-600 text-xs cursor-pointer"
+                                    >
+                                      <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setIsEditTibialRightWear(false);
+                                        setTibialRightWear("");
+                                      }}
+                                      className="text-red-600 text-xs cursor-pointer"
+                                    >
+                                      <XMarkIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex flex-row gap-2">
+                                  <p className="text-black text-base font-semibold">
+                                    {
+                                      patientsurgery?.[0].bone_resection
+                                        .tibial_resection_right.wear
+                                    }
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      setIsEditTibialRightWear(true);
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                  >
+                                    <PencilIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td className="h-4"></td>
+                          </tr>
+
+                          <tr>
+                            <td className="h-4"></td>
+                          </tr>
+                          <tr>
+                            <td className="h-4"></td>
+                          </tr>
+                          <tr>
+                            <td className="h-4"></td>
+                          </tr>
+
+                          {/* TIBIAL RIGHT - MEASUREMENT */}
+                          <tr>
+                            <td>
+                              {isEditTibialRightValue ? (
+                                <div className="flex flex-row gap-2 text-black text-lg font-medium">
+                                  <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
+                                    <input
+                                      type="text"
+                                      className="border px-2 py-1 w-24 mr-1 rounded"
+                                      value={tibialRightValue}
+                                      onChange={handleTibialRightValueChange}
+                                    />
+                                    mm
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={handleTibialRightValueSave}
+                                      className="text-green-600 text-xs cursor-pointer"
+                                    >
+                                      <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setIsEditTibialRightValue(false);
+                                        setTibialRightValue("");
+                                      }}
+                                      className="text-red-600 text-xs cursor-pointer"
+                                    >
+                                      <XMarkIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex flex-row gap-2">
+                                  <p className="text-black text-base font-medium">
+                                    {
+                                      patientsurgery?.[0].bone_resection
+                                        .tibial_resection_right.value
+                                    }
+                                    mm
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      setIsEditTibialRightValue(true);
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                  >
+                                    <PencilIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-
-                  <table className="w-1/5 text-black text-lg border-separate border-spacing-y-0">
+                  <table className="w-full border-separate border-spacing-x-2 text-black shadow-lg p-2 rounded-xl">
                     <tbody>
-                      {/* TIBIAL RIGHT - WEAR: UNWORN */}
-                      <tr>
-                        <td colSpan="1" className="text-lg font-bold pb-2">
-                          {isEditTibialRightWear ? (
-                            <div className="flex flex-col gap-8 text-black text-lg font-medium">
-                              <div className="flex flex-col text-black text-lg font-medium gap-8">
-                                <label className="cursor-pointer flex flex-row">
-                                  <input
-                                    type="radio"
-                                    name="tibialRightWear"
-                                    value="unworn"
-                                    className="mr-1"
-                                    checked={tibialRightWear === "unworn"}
-                                    onChange={handleTibialRightWearChange}
-                                  />
-                                  UNWORN
-                                </label>
-                                <label className="cursor-pointer flex flex-row">
-                                  <input
-                                    type="radio"
-                                    name="tibialRightWear"
-                                    value="worn"
-                                    className="mr-1"
-                                    checked={tibialRightWear === "worn"}
-                                    onChange={handleTibialRightWearChange}
-                                  />
-                                  WORN
-                                </label>
-                              </div>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={handleTibialRightWearSave}
-                                  className="text-green-600 text-xs cursor-pointer"
-                                >
-                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setIsEditTibialRightWear(false);
-                                    setTibialRightWear("");
-                                  }}
-                                  className="text-red-600 text-xs cursor-pointer"
-                                >
-                                  <XMarkIcon className="w-5 h-5" />
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex flex-row gap-2">
-                              <p className="text-black text-xl font-semibold">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .tibial_resection_right.wear
-                                }
-                              </p>
-                              <button
-                                onClick={() => {
-                                  setIsEditTibialRightWear(true);
-                                }}
-                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                              >
-                                <PencilIcon className="w-4 h-4" />
-                              </button>
-                            </div>
-                          )}
+                      {/* ACL CONDTION Row */}
+                      <tr className="align-middle">
+                        <td className="font-bold text-lg text-black w-1/3">
+                          PCL CONDITION
                         </td>
-                      </tr>
-
-                      <tr>
-                        <td className="h-4"></td>
-                      </tr>
-
-                      <tr>
-                        <td className="h-4"></td>
-                      </tr>
-                      <tr>
-                        <td className="h-4"></td>
-                      </tr>
-                      <tr>
-                        <td className="h-4"></td>
-                      </tr>
-
-                      {/* TIBIAL RIGHT - MEASUREMENT */}
-                      <tr>
                         <td>
-                          {isEditTibialRightValue ? (
-                            <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                              <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
-                                  value={tibialRightValue}
-                                  onChange={handleTibialRightValueChange}
-                                />
-                                mm
+                          <div className="flex flex-row text-black text-lg font-medium gap-8">
+                            {isEditPCL ? (
+                              <div className="flex flex-row gap-4 text-black text-lg font-medium">
+                                <div className="flex flex-row text-black text-lg font-medium gap-6">
+                                  {pclconditionoptions.map((option, index) => (
+                                    <label
+                                      key={index}
+                                      className="flex items-center gap-2 cursor-pointer"
+                                    >
+                                      <input
+                                        type="radio"
+                                        name="dynamicRadio9"
+                                        value={option}
+                                        checked={pclcondition === option}
+                                        onChange={() => setPCLCondition(option)}
+                                        className="form-radio text-blue-600"
+                                      />
+                                      <span>{option}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={handlePCLSave}
+                                    className="text-green-600 text-xs cursor-pointer"
+                                  >
+                                    <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setIsEditPCL(false);
+                                      setPCLCondition("");
+                                    }}
+                                    className="text-red-600 text-xs cursor-pointer"
+                                  >
+                                    <XMarkIcon className="w-5 h-5" />
+                                  </button>
+                                </div>
                               </div>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={handleTibialRightValueSave}
-                                  className="text-green-600 text-xs cursor-pointer"
-                                >
-                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                                </button>
+                            ) : (
+                              <div className="flex flex-row gap-2">
+                                <p className="text-black text-base font-semibold">
+                                  {patientsurgery?.[0].bone_resection.pcl}
+                                </p>
                                 <button
                                   onClick={() => {
-                                    setIsEditTibialRightValue(false);
-                                    setTibialRightValue("");
+                                    setIsEditPCL(true);
                                   }}
-                                  className="text-red-600 text-xs cursor-pointer"
+                                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
                                 >
-                                  <XMarkIcon className="w-5 h-5" />
+                                  <PencilIcon className="w-4 h-4" />
                                 </button>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="flex flex-row gap-2">
-                              <p className="text-black text-xl font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .tibial_resection_right.value
-                                }
-                                mm
-                              </p>
-                              <button
-                                onClick={() => {
-                                  setIsEditTibialRightValue(true);
-                                }}
-                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                              >
-                                <PencilIcon className="w-4 h-4" />
-                              </button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-              </div>
 
-              <table className="w-full border-separate border-spacing-y-0 text-black">
-                <tbody>
-                  {/* ACL CONDTION Row */}
-                  <tr className="align-middle">
-                    <td className="font-bold text-lg text-black w-1/3">
-                      PCL CONDITION
-                    </td>
-                    <td>
-                      <div className="flex flex-row text-black text-lg font-medium gap-8">
-                        {isEditPCL ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row text-black text-lg font-medium gap-8">
-                              {pclconditionoptions.map((option, index) => (
-                                <label
-                                  key={index}
-                                  className="flex items-center gap-2 cursor-pointer"
-                                >
+                <div className="w-1/2 h-full flex flex-col gap-4 shadow-lg p-4 rounded-xl">
+                  <table className="w-full border-separate border-spacing-y-2 text-black">
+                    <tbody>
+                      <tr className="align-middle">
+                        <td className="font-bold text-lg text-black w-1/3">
+                          TIBIAL V-V RECUT
+                        </td>
+                        <td className="w-1/6 text-lg">
+                          {isEditTibialVVRecutYN ? (
+                            <div className="flex flex-row gap-2 text-black text-lg font-medium">
+                              <div className="flex flex-row text-black text-lg font-medium gap-8">
+                                <label className="mr-4 cursor-pointer">
                                   <input
                                     type="radio"
-                                    name="dynamicRadio9"
-                                    value={option}
-                                    checked={pclcondition === option}
-                                    onChange={() => setPCLCondition(option)}
-                                    className="form-radio text-blue-600"
+                                    name="tibialVVRecut"
+                                    value="no"
+                                    className="mr-1"
+                                    checked={tibialVVRecutYN === "no"}
+                                    onChange={handleTibialVVRecutYNChange}
                                   />
-                                  <span>{option}</span>
+                                  N
                                 </label>
-                              ))}
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="tibialVVRecut"
+                                    value="yes"
+                                    className="mr-1"
+                                    checked={tibialVVRecutYN === "yes"}
+                                    onChange={handleTibialVVRecutYNChange}
+                                  />
+                                  Y
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleTibialVVRecutYNSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditTibialVVRecutYN(false);
+                                    setTibialVVRecutYN("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handlePCLSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-semibold">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .tibialvvrecut.vvrecut
+                                }
+                              </p>
                               <button
                                 onClick={() => {
-                                  setIsEditPCL(false);
-                                  setPCLCondition("");
+                                  setIsEditTibialVVRecutYN(true);
                                 }}
-                                className="text-red-600 text-xs cursor-pointer"
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
                               >
-                                <XMarkIcon className="w-5 h-5" />
+                                <PencilIcon className="w-4 h-4" />
                               </button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-semibold">
-                              {patientsurgery?.[0].bone_resection.pcl}
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditPCL(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td colSpan="2" className="h-8"></td>
-                  </tr>
-                  <tr className="align-middle">
-                    <td className="font-bold text-lg text-black w-1/3">
-                      TIBIAL V-V RECUT
-                    </td>
-                    <td className="w-1/6 text-lg">
-                      {isEditTibialVVRecutYN ? (
-                        <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                          <div className="flex flex-row text-black text-lg font-medium gap-8">
-                            <label className="mr-4 cursor-pointer">
-                              <input
-                                type="radio"
-                                name="tibialVVRecut"
-                                value="no"
-                                className="mr-1"
-                                checked={tibialVVRecutYN === "no"}
-                                onChange={handleTibialVVRecutYNChange}
-                              />
-                              N
-                            </label>
-                            <label className="cursor-pointer">
-                              <input
-                                type="radio"
-                                name="tibialVVRecut"
-                                value="yes"
-                                className="mr-1"
-                                checked={tibialVVRecutYN === "yes"}
-                                onChange={handleTibialVVRecutYNChange}
-                              />
-                              Y
-                            </label>
-                          </div>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={handleTibialVVRecutYNSave}
-                              className="text-green-600 text-xs cursor-pointer"
-                            >
-                              <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setIsEditTibialVVRecutYN(false);
-                                setTibialVVRecutYN("");
-                              }}
-                              className="text-red-600 text-xs cursor-pointer"
-                            >
-                              <XMarkIcon className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-row gap-2">
-                          <p className="text-black text-xl font-semibold">
-                            {
-                              patientsurgery?.[0].bone_resection.tibialvvrecut
-                                .vvrecut
-                            }
-                          </p>
-                          <button
-                            onClick={() => {
-                              setIsEditTibialVVRecutYN(true);
-                            }}
-                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                    <td className="text-lg">
-                      {isEditTibialVVRecutValue ? (
-                        <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                          <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                            <input
-                              type="text"
-                              className="border px-2 py-1 w-24 mr-1 rounded"
-                              value={tibialVVRecutValue}
-                              onChange={handleTibialVVRecutValueChange}
-                            />
-                            mm
-                          </div>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={handleTibialVVRecutValueSave}
-                              className="text-green-600 text-xs cursor-pointer"
-                            >
-                              <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setIsEditTibialVVRecutValue(false);
-                                setIsEditTibialVVRecutValue("");
-                              }}
-                              className="text-red-600 text-xs cursor-pointer"
-                            >
-                              <XMarkIcon className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-row gap-2">
-                          <p className="text-black text-xl font-medium">
-                            {
-                              patientsurgery?.[0].bone_resection.tibialvvrecut
-                                .vvrecutvalue
-                            }
-                            deg
-                          </p>
-                          <button
-                            onClick={() => {
-                              setIsEditTibialVVRecutValue(true);
-                            }}
-                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td colSpan="2" className="h-8"></td>
-                  </tr>
-                  <tr className="align-middle">
-                    <td className="font-bold text-lg text-black w-1/3">
-                      TIBIAL SLOPE RECUT
-                    </td>
-                    <td className="w-1/6 text-lg">
-                      {isEditTibialSlopeRecutYN ? (
-                        <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                          <div className="flex flex-row text-black text-lg font-medium gap-8">
-                            <label className="mr-4 cursor-pointer">
-                              <input
-                                type="radio"
-                                name="tibialslopeRecut"
-                                value="no"
-                                className="mr-1"
-                                checked={tibialSlopeRecutYN === "no"}
-                                onChange={handleTibialSlopeRecutYNChange}
-                              />
-                              N
-                            </label>
-                            <label className="cursor-pointer">
-                              <input
-                                type="radio"
-                                name="tibialslopeRecut"
-                                value="yes"
-                                className="mr-1"
-                                checked={tibialSlopeRecutYN === "yes"}
-                                onChange={handleTibialSlopeRecutYNChange}
-                              />
-                              Y
-                            </label>
-                          </div>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={handleTibialVVRecutYNSave}
-                              className="text-green-600 text-xs cursor-pointer"
-                            >
-                              <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setIsEditTibialSlopeRecutYN(false);
-                                setTibialSlopeRecutYN("");
-                              }}
-                              className="text-red-600 text-xs cursor-pointer"
-                            >
-                              <XMarkIcon className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-row gap-2">
-                          <p className="text-black text-xl font-semibold">
-                            {
-                              patientsurgery?.[0].bone_resection
-                                .tibialsloperecut.sloperecut
-                            }
-                          </p>
-                          <button
-                            onClick={() => {
-                              setIsEditTibialSlopeRecutYN(true);
-                            }}
-                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                    <td className="text-lg">
-                      {isEditTibialSlopeRecutValue ? (
-                        <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                          <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                            <input
-                              type="text"
-                              className="border px-2 py-1 w-24 mr-1 rounded"
-                              value={tibialSlopeRecutValue}
-                              onChange={handleTibialSlopeRecutValueChange}
-                            />
-                            mm
-                          </div>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={handleTibialSlopeRecutValueSave}
-                              className="text-green-600 text-xs cursor-pointer"
-                            >
-                              <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setIsEditTibialSlopeRecutValue(false);
-                                setTibialSlopeRecutValue("");
-                              }}
-                              className="text-red-600 text-xs cursor-pointer"
-                            >
-                              <XMarkIcon className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-row gap-2">
-                          <p className="text-black text-xl font-medium">
-                            {
-                              patientsurgery?.[0].bone_resection
-                                .tibialsloperecut.sloperecutvalue
-                            }
-                            deg
-                          </p>
-                          <button
-                            onClick={() => {
-                              setIsEditTibialSlopeRecutValue(true);
-                            }}
-                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                          )}
+                        </td>
+                        <td className="text-lg">
+                          {isEditTibialVVRecutValue ? (
+                            <div className="flex flex-row gap-2 text-black text-lg font-medium">
+                              <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
+                                <input
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={tibialVVRecutValue}
+                                  onChange={handleTibialVVRecutValueChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleTibialVVRecutValueSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditTibialVVRecutValue(false);
+                                    setIsEditTibialVVRecutValue("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .tibialvvrecut.vvrecutvalue
+                                }
+                                deg
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditTibialVVRecutValue(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
 
-              <div className="w-1/2 flex text-lg flex-col text-black gap-4">
-                <p className="font-bold w-full">
-                  FINAL CHECK WITH SPACER BLOCK AND TRIAL COMPONENTS
-                </p>
-                {isEditFinalCheck ? (
-                  <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                    <div className="flex flex-col items-start text-black text-lg font-medium gap-2">
-                      <label className="cursor-pointer flex flex-row">
-                        <input
-                          type="radio"
-                          name="finalCheck"
-                          value="NEGLIGIBLE V-V LAXITY IN EXTENSION"
-                          className="mr-1 cursor-pointer"
-                          checked={
-                            finalCheck === "NEGLIGIBLE V-V LAXITY IN EXTENSION"
-                          }
-                          onChange={handleFinalCheckChange}
-                        />
-                        NEGLIGIBLE V-V LAXITY IN EXTENSION
-                      </label>
+                      <tr className="align-middle">
+                        <td className="font-bold text-lg text-black w-1/3">
+                          TIBIAL SLOPE RECUT
+                        </td>
+                        <td className="w-1/6 text-lg">
+                          {isEditTibialSlopeRecutYN ? (
+                            <div className="flex flex-row gap-2 text-black text-lg font-medium">
+                              <div className="flex flex-row text-black text-lg font-medium gap-8">
+                                <label className="mr-4 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="tibialslopeRecut"
+                                    value="no"
+                                    className="mr-1"
+                                    checked={tibialSlopeRecutYN === "no"}
+                                    onChange={handleTibialSlopeRecutYNChange}
+                                  />
+                                  N
+                                </label>
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="tibialslopeRecut"
+                                    value="yes"
+                                    className="mr-1"
+                                    checked={tibialSlopeRecutYN === "yes"}
+                                    onChange={handleTibialSlopeRecutYNChange}
+                                  />
+                                  Y
+                                </label>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleTibialVVRecutYNSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditTibialSlopeRecutYN(false);
+                                    setTibialSlopeRecutYN("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-semibold">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .tibialsloperecut.sloperecut
+                                }
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditTibialSlopeRecutYN(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                        <td className="text-lg">
+                          {isEditTibialSlopeRecutValue ? (
+                            <div className="flex flex-row gap-2 text-black text-lg font-medium">
+                              <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
+                                <input
+                                  type="text"
+                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                  value={tibialSlopeRecutValue}
+                                  onChange={handleTibialSlopeRecutValueChange}
+                                />
+                                mm
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleTibialSlopeRecutValueSave}
+                                  className="text-green-600 text-xs cursor-pointer"
+                                >
+                                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setIsEditTibialSlopeRecutValue(false);
+                                    setTibialSlopeRecutValue("");
+                                  }}
+                                  className="text-red-600 text-xs cursor-pointer"
+                                >
+                                  <XMarkIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-2">
+                              <p className="text-black text-base font-medium">
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .tibialsloperecut.sloperecutvalue
+                                }
+                                deg
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setIsEditTibialSlopeRecutValue(true);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
 
-                      <label className="cursor-pointer flex flex-row">
-                        <input
-                          type="radio"
-                          name="finalCheck"
-                          value="2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"
-                          className="mr-1 cursor-pointer"
-                          checked={
-                            finalCheck ===
-                            "2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"
-                          }
-                          onChange={handleFinalCheckChange}
-                        />
-                        2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF
-                        FLEXION
-                      </label>
-                    </div>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={handleFinalCheckSave}
-                        className="text-green-600 text-xs cursor-pointer"
-                      >
-                        <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsEditFinalCheck(false);
-                          setFinalCheck("");
-                        }}
-                        className="text-red-600 text-xs cursor-pointer"
-                      >
-                        <XMarkIcon className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-row gap-2">
-                    <p className="text-black text-xl font-medium">
-                      {patientsurgery?.[0].bone_resection.final_check}
+                  <div className="w-full flex text-lg flex-col text-black gap-4">
+                    <p className="font-bold w-full">
+                      FINAL CHECK WITH SPACER BLOCK AND TRIAL COMPONENTS
                     </p>
-                    <button
-                      onClick={() => {
-                        setIsEditFinalCheck(true);
-                      }}
-                      className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
+                    {isEditFinalCheck ? (
+                      <div className="flex flex-row gap-2 text-black text-lg font-medium">
+                        <div className="flex flex-col items-start text-black text-lg font-medium gap-2">
+                          <label className="cursor-pointer flex flex-row">
+                            <input
+                              type="radio"
+                              name="finalCheck"
+                              value="NEGLIGIBLE V-V LAXITY IN EXTENSION"
+                              className="mr-1 cursor-pointer"
+                              checked={
+                                finalCheck ===
+                                "NEGLIGIBLE V-V LAXITY IN EXTENSION"
+                              }
+                              onChange={handleFinalCheckChange}
+                            />
+                            NEGLIGIBLE V-V LAXITY IN EXTENSION
+                          </label>
+
+                          <label className="cursor-pointer flex flex-row">
+                            <input
+                              type="radio"
+                              name="finalCheck"
+                              value="2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"
+                              className="mr-1 cursor-pointer"
+                              checked={
+                                finalCheck ===
+                                "2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"
+                              }
+                              onChange={handleFinalCheckChange}
+                            />
+                            2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30°
+                            OF FLEXION
+                          </label>
+                        </div>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={handleFinalCheckSave}
+                            className="text-green-600 text-xs cursor-pointer"
+                          >
+                            <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsEditFinalCheck(false);
+                              setFinalCheck("");
+                            }}
+                            className="text-red-600 text-xs cursor-pointer"
+                          >
+                            <XMarkIcon className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-row gap-2">
+                        <p className="text-black text-base font-medium">
+                          {patientsurgery?.[0].bone_resection.final_check}
+                        </p>
+                        <button
+                          onClick={() => {
+                            setIsEditFinalCheck(true);
+                          }}
+                          className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
 
               <div className="overflow-x-auto">
@@ -5489,7 +5507,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                         </div>
                       ) : (
                         <div className="flex flex-row gap-2">
-                          <p className="text-black text-xl font-medium">
+                          <p className="text-black text-base font-medium">
                             {patientsurgery?.[0].bone_resection.femur_size.size}
                           </p>
                           <button
@@ -5545,7 +5563,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           </div>
                         ) : (
                           <div className="flex flex-row gap-2">
-                            <p className="text-black text-xl font-medium">
+                            <p className="text-black text-base font-medium">
                               {
                                 patientsurgery?.[0].bone_resection.femur_size
                                   .shape
@@ -5602,7 +5620,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                         </div>
                       ) : (
                         <div className="flex flex-row gap-2">
-                          <p className="text-black text-xl font-medium">
+                          <p className="text-black text-base font-medium">
                             {patientsurgery?.[0].bone_resection.tibial_size}
                           </p>
                           <button
