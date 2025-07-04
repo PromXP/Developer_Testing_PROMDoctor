@@ -562,49 +562,91 @@ const page = ({ closeijr }) => {
   const [patellaSize, setPatellaSize] = useState("");
   const handlePatellaSizeChange = (e) => setPatellaSize(e.target.value);
 
+  // const optionsData = {
+  //   FEMUR: {
+  //     MANUFACTURER: ["MICROPORT"],
+  //     MANUFACTURER: ["MICROPORT"],
+  //     MODEL: {
+  //       MICROPORT: ["EVOLUTION"],
+  //     },
+  //     SIZE: {
+  //       EVOLUTION: ["1", "2", "3", "4", "5", "6", "7"],
+  //     },
+  //   },
+  //   TIBIA: {
+  //     MANUFACTURER: ["MICROPORT"],
+  //     MANUFACTURER: ["MICROPORT"],
+  //     MODEL: {
+  //       MICROPORT: ["EVOLUTION"],
+  //     },
+  //     SIZE: {
+  //       EVOLUTION: ["1", "2", "3", "4", "5", "6", "7"],
+  //     },
+  //   },
+  //   INSERT: {
+  //     MANUFACTURER: ["MICROPORT"],
+  //     MANUFACTURER: ["MICROPORT"],
+  //     MODEL: {
+  //       MICROPORT: ["EVOLUTION"],
+  //     },
+  //     SIZE: {
+  //       EVOLUTION: ["10 mm", "12 mm", "14 mm", "16 mm"],
+  //     },
+  //   },
+  //   PATELLA: {
+  //     MANUFACTURER: ["MICROPORT"],
+  //     MANUFACTURER: ["MICROPORT"],
+  //     MODEL: {
+  //       MICROPORT: ["EVOLUTION"],
+  //     },
+  //     SIZE: {
+  //       EVOLUTION: ["1", "2", "3", "4", "5", "6", "7"],
+  //     },
+  //   },
+  // };
+
   const optionsData = {
     FEMUR: {
-      MANUFACTURER: ["MICROPORT"],
-      MANUFACTURER: ["MICROPORT"],
+      MANUFACTURER: ["BIORAD MEDISYS"],
+      MANUFACTURER: ["BIORAD MEDISYS"],
       MODEL: {
-        MICROPORT: ["EVOLUTION"],
+        "BIORAD MEDISYS": ["EXCEL MPK"],
       },
       SIZE: {
-        EVOLUTION: ["1", "2", "3", "4", "5", "6", "7"],
+        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G","H"],
       },
     },
     TIBIA: {
-      MANUFACTURER: ["MICROPORT"],
-      MANUFACTURER: ["MICROPORT"],
+      MANUFACTURER: ["BIORAD MEDISYS"],
+      MANUFACTURER: ["BIORAD MEDISYS"],
       MODEL: {
-        MICROPORT: ["EVOLUTION"],
+        "BIORAD MEDISYS": ["EXCEL MPK"],
       },
       SIZE: {
-        EVOLUTION: ["1", "2", "3", "4", "5", "6", "7"],
+        "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
       },
     },
     INSERT: {
-      MANUFACTURER: ["MICROPORT"],
-      MANUFACTURER: ["MICROPORT"],
+      MANUFACTURER: ["BIORAD MEDISYS"],
+      MANUFACTURER: ["BIORAD MEDISYS"],
       MODEL: {
-        MICROPORT: ["EVOLUTION"],
+        "BIORAD MEDISYS": ["EXCEL MPK"],
       },
       SIZE: {
-        EVOLUTION: ["10 mm", "12 mm", "14 mm", "16 mm"],
+        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm","13 mm"],
       },
     },
     PATELLA: {
-      MANUFACTURER: ["MICROPORT"],
-      MANUFACTURER: ["MICROPORT"],
+      MANUFACTURER: ["BIORAD MEDISYS"],
+      MANUFACTURER: ["BIORAD MEDISYS"],
       MODEL: {
-        MICROPORT: ["EVOLUTION"],
+        "BIORAD MEDISYS": ["EXCEL MPK"],
       },
       SIZE: {
-        EVOLUTION: ["1", "2", "3", "4", "5", "6", "7"],
+        "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
       },
     },
   };
-
   const [selectedValues, setSelectedValues] = useState(
     colHeaders.reduce((acc, col) => {
       acc[col] = rowHeaders.reduce((rowAcc, row) => {

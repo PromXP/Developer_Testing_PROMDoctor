@@ -1517,43 +1517,39 @@ const page = ({ goToReport, goToIJRAdd }) => {
 
   const options = {
     FEMUR: {
-      MICROPORT: {
-        EVOLUTION: ["1", "2", "3", "4", "5"],
-        MODEL_A: ["2", "3", "4"],
-      },
+      // MICROPORT: {
+      //   EVOLUTION: ["1", "2", "3", "4", "5"],
+      //   MODEL_A: ["2", "3", "4"],
+      // },
       "BIORAD MEDISYS": {
-        EVOLUTION: ["1", "2"],
-        MODEL_B: ["3", "4", "5"],
+        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G","H"],
       },
     },
     TIBIA: {
-      MICROPORT: {
-        EVOLUTION: ["1", "2", "3", "4", "5"],
-        MODEL_A: ["2", "3", "4"],
-      },
+      // MICROPORT: {
+      //   EVOLUTION: ["1", "2", "3", "4", "5"],
+      //   MODEL_A: ["2", "3", "4"],
+      // },
       "BIORAD MEDISYS": {
-        EVOLUTION: ["1", "2"],
-        MODEL_B: ["3", "4", "5"],
+        "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
       },
     },
     INSERT: {
-      MICROPORT: {
-        EVOLUTION: ["10 mm", "12 mm", "14 mm", "16 mm"],
-        MODEL_A: ["12 mm", "14 mm"],
-      },
+      // MICROPORT: {
+      //   EVOLUTION: ["10 mm", "12 mm", "14 mm", "16 mm"],
+      //   MODEL_A: ["12 mm", "14 mm"],
+      // },
       "BIORAD MEDISYS": {
-        EVOLUTION: ["10 mm", "12 mm"],
-        MODEL_B: ["14 mm", "16 mm"],
+        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm","13 mm"],
       },
     },
     PATELLA: {
-      MICROPORT: {
-        EVOLUTION: ["1", "2", "3", "4", "5"],
-        MODEL_A: ["2", "3", "4"],
-      },
+      // MICROPORT: {
+      //   EVOLUTION: ["1", "2", "3", "4", "5"],
+      //   MODEL_A: ["2", "3", "4"],
+      // },
       "BIORAD MEDISYS": {
-        EVOLUTION: ["1", "2"],
-        MODEL_B: ["3", "4", "5"],
+        "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
       },
     },
   };
