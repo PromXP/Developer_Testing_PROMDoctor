@@ -5360,7 +5360,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                         <td className="p-2 text-lg font-medium">
                           {editingIndex === idx ? (
                             <input
-                              type="number"
+                              type="text"
                               value={row.extensionExtOrient}
                               onChange={(e) =>
                                 handleFieldChange(
@@ -5383,7 +5383,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                         <td className="p-2 text-lg font-medium">
                           {editingIndex === idx ? (
                             <input
-                              type="number"
+                              type="text"
                               value={row.flexionIntOrient}
                               onChange={(e) =>
                                 handleFieldChange(

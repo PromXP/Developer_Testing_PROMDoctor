@@ -1940,7 +1940,7 @@ const page = ({ closeijr }) => {
                   </td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 rounded mr-1"
                       value={distalmedialrecutvalue}
                       onChange={handleInputdistalmedialrecutvalue}
@@ -1978,7 +1978,7 @@ const page = ({ closeijr }) => {
                   </td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 rounded mr-1"
                       checked={distalmedialwashervalue}
                       onChange={handleInputdistalmedialwashervalue}
@@ -1992,7 +1992,7 @@ const page = ({ closeijr }) => {
                   <td className="font-semibold">FINAL THICKNESS</td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       checked={distalmedialfinalthick}
                       onChange={handleInputdistalmedialfinalthick}
@@ -2059,7 +2059,7 @@ const page = ({ closeijr }) => {
                   <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={distallateralinithick}
                       onChange={handleInputdistallateralinithick}
@@ -2097,7 +2097,7 @@ const page = ({ closeijr }) => {
                   </td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 rounded mr-1"
                       value={distallateralrecutvalue}
                       onChange={handleInputdistallateralrecutvalue}
@@ -2135,7 +2135,7 @@ const page = ({ closeijr }) => {
                   </td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 rounded mr-1"
                       value={distallateralwashervalue}
                       onChange={handleInputdistallateralwashervalue}
@@ -2149,7 +2149,7 @@ const page = ({ closeijr }) => {
                   <td className="font-semibold">FINAL THICKNESS</td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={distallateralfinalthick}
                       onChange={handleInputdistallateralfinalthick}
@@ -2234,7 +2234,7 @@ const page = ({ closeijr }) => {
                   <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={postmedialInitialThickness}
                       onChange={handlePostmedialInitialThicknessChange}
@@ -2272,7 +2272,7 @@ const page = ({ closeijr }) => {
                   </td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 rounded mr-1"
                       value={postmedialRecutValue}
                       onChange={handlePostmedialRecutValueChange}
@@ -2286,7 +2286,7 @@ const page = ({ closeijr }) => {
                   <td className="font-semibold">FINAL THICKNESS</td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={postmedialFinalThickness}
                       onChange={handlePostmedialFinalThicknessChange}
@@ -2351,7 +2351,7 @@ const page = ({ closeijr }) => {
                   <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
                   <td className="w-1/4">
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={postlateralInitialThickness}
                       onChange={handlePostlateralInitialThicknessChange}
@@ -2389,7 +2389,7 @@ const page = ({ closeijr }) => {
                   </td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 rounded mr-1"
                       value={postlateralRecutValue}
                       onChange={handlePostlateralRecutValueChange}
@@ -2403,7 +2403,7 @@ const page = ({ closeijr }) => {
                   <td className="font-semibold">FINAL THICKNESS</td>
                   <td>
                     <input
-                      type="number"
+                      type="text"
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={postlateralFinalThickness}
                       onChange={handlePostlateralFinalThicknessChange}
@@ -2485,7 +2485,7 @@ const page = ({ closeijr }) => {
                   <tr>
                     <td>
                       <input
-                        type="number"
+                        type="text"
                         className="border px-2 py-1 w-24 mr-1 rounded"
                         value={tibialLeftValue}
                         onChange={handleTibialLeftValueChange}
@@ -2554,7 +2554,7 @@ const page = ({ closeijr }) => {
                   <tr>
                     <td>
                       <input
-                        type="number"
+                        type="text"
                         className="border px-2 py-1 w-24 mr-1 rounded"
                         value={tibialRightValue}
                         onChange={handleTibialRightValueChange}
@@ -2628,7 +2628,7 @@ const page = ({ closeijr }) => {
                 </td>
                 <td className="text-lg">
                   <input
-                    type="number"
+                    type="text"
                     className="border px-2 py-1 w-24 rounded mr-1"
                     value={tibialVVRecutValue}
                     onChange={handleTibialVVRecutValueChange}
@@ -2669,7 +2669,7 @@ const page = ({ closeijr }) => {
                 </td>
                 <td className="text-lg">
                   <input
-                    type="number"
+                    type="text"
                     className="border px-2 py-1 w-24 rounded mr-1"
                     value={tibialSlopeRecutValue}
                     onChange={handleTibialSlopeRecutValueChange}
