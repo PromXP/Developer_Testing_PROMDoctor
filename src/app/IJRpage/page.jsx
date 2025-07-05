@@ -953,7 +953,7 @@ const page = ({ closeijr }) => {
       tech_assist: techassist,
       align_phil: alignphil,
       torq_used: toruused,
-      op_name: patient?.post_surgery_details_left?.surgery_name,
+      op_name: patient?.post_surgery_details_left?.surgery_name || patient?.post_surgery_details_left?.surgery_name,
       op_date: dateOnlyIST,
       op_time: optime,
       components_details: selectedValues,
@@ -1636,7 +1636,8 @@ const page = ({ closeijr }) => {
                 <td>
                   <div className="flex flex-row items-center gap-4">
                     <p className="text-black text-lg font-semibold">
-                      {patient?.post_surgery_details_left?.surgery_name}
+                      {patient?.post_surgery_details_left?.surgery_name ||
+   patient?.post_surgery_details_right?.surgery_name}
                     </p>
                   </div>
                 </td>
