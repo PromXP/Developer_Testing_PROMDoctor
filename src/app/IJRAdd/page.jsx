@@ -613,7 +613,7 @@ const page = ({ closeijr }) => {
         "BIORAD MEDISYS": ["EXCEL MPK"],
       },
       SIZE: {
-        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G","H"],
+        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
       },
     },
     TIBIA: {
@@ -633,7 +633,7 @@ const page = ({ closeijr }) => {
         "BIORAD MEDISYS": ["EXCEL MPK"],
       },
       SIZE: {
-        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm","13 mm"],
+        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
       },
     },
     PATELLA: {
@@ -675,7 +675,14 @@ const page = ({ closeijr }) => {
     });
   };
 
-  const isoDate = patient?.post_surgery_details_left?.date_of_surgery;
+ const isoDate =
+  (patient?.post_surgery_details_left?.date_of_surgery?.startsWith("0001-01-01")
+    ? null
+    : patient?.post_surgery_details_left?.date_of_surgery) ||
+  (patient?.post_surgery_details_right?.date_of_surgery?.startsWith("0001-01-01")
+    ? null
+    : patient?.post_surgery_details_right?.date_of_surgery);
+
   const istDate = new Date(isoDate);
 
   // Convert to IST and extract date
@@ -892,6 +899,18 @@ const page = ({ closeijr }) => {
     return errors;
   };
 
+    const side = [
+  ...(patient?.post_surgery_details_left?.date_of_surgery &&
+    !patient.post_surgery_details_left.date_of_surgery.startsWith("0001-01-01")
+      ? ["Left Knee"]
+      : []),
+
+  ...(patient?.post_surgery_details_right?.date_of_surgery &&
+    !patient.post_surgery_details_right.date_of_surgery.startsWith("0001-01-01")
+      ? ["Right Knee"]
+      : []),
+];
+
   const handleSendremainder = async () => {
     const payload = {
       patuhid: patient?.uhid,
@@ -908,13 +927,13 @@ const page = ({ closeijr }) => {
       first_assistant: firstassisstant,
       second_assistant: secondassisstant,
       mag_proc: manageproc,
-      side: selectedKnees.join(", "),
+      side: side.join(", "),
       surgery_indication: surgindi,
       tech_assist: techassist,
       align_phil: alignphil,
       torq_used: toruused,
       op_name: opname,
-      op_date: surgerydate,
+      op_date: dateOnlyIST,
       op_time: optime,
       components_details: selectedValues,
       bone_resection: {
@@ -1601,48 +1620,40 @@ const page = ({ closeijr }) => {
               <tr className="align-middle">
                 <td className="font-bold text-lg text-black w-1/3">SIDE</td>
                 <td>
-                  <div
-                    className={`flex flex-row justify-between items-between gap-6  ${
-                      width < 700 ? "w-full" : "w-1/2"
-                    }`}
-                  >
+                  <div className="flex flex-row gap-10">
                     {/* Left Knee */}
-                    <div
-                      onClick={() => toggleKnee("Left Knee")}
-                      className={`w-1/2 h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer ${
-                        selectedKnees.includes("Left Knee")
-                          ? "border-2 border-black"
-                          : ""
-                      }`}
-                    >
-                      <Image
-                        src={LeftKnee}
-                        alt="Left Knee"
-                        className="w-12 h-12"
-                      />
-                      <p className="font-semibold text-lg text-black">
-                        Left Knee
-                      </p>
-                    </div>
+                    {patient?.post_surgery_details_left?.date_of_surgery &&
+                      !patient.post_surgery_details_left.date_of_surgery.startsWith(
+                        "0001-01-01"
+                      ) && (
+                        <div className="w-fit h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer">
+                          <Image
+                            src={LeftKnee}
+                            alt="Left Knee"
+                            className="w-12 h-12"
+                          />
+                          <p className="font-semibold text-lg text-black">
+                            Left Knee
+                          </p>
+                        </div>
+                      )}
 
                     {/* Right Knee */}
-                    <div
-                      onClick={() => toggleKnee("Right Knee")}
-                      className={`w-1/2 h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer ${
-                        selectedKnees.includes("Right Knee")
-                          ? "border-2 border-black"
-                          : ""
-                      }`}
-                    >
-                      <Image
-                        src={RightKnee}
-                        alt="Right Knee"
-                        className="w-12 h-12"
-                      />
-                      <p className="font-semibold text-lg text-black">
-                        Right Knee
-                      </p>
-                    </div>
+                    {patient?.post_surgery_details_right?.date_of_surgery &&
+                      !patient.post_surgery_details_right.date_of_surgery.startsWith(
+                        "0001-01-01"
+                      ) && (
+                        <div className="w-fit h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer">
+                          <Image
+                            src={RightKnee}
+                            alt="Right Knee"
+                            className="w-12 h-12"
+                          />
+                          <p className="font-semibold text-lg text-black">
+                            Right Knee
+                          </p>
+                        </div>
+                      )}
                   </div>
                 </td>
               </tr>
@@ -1801,14 +1812,9 @@ const page = ({ closeijr }) => {
                 </td>
                 <td>
                   <div className="flex flex-row items-center gap-4">
-                    <input
-                      type="text"
-                      placeholder="dd-mm-yyyy"
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black font-semibold text-lg"
-                      value={surgerydate || ""}
-                      onChange={handleManualsurgeryDateChange}
-                      maxLength={10} // Very important: dd-mm-yyyy is 10 characters
-                    />
+                    <p className="text-black text-lg font-semibold">
+                      {dateOnlyIST}
+                    </p>
                   </div>
                 </td>
               </tr>

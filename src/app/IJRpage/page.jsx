@@ -486,7 +486,7 @@ const page = ({ closeijr }) => {
   //   },
   // };
 
-   const optionsData = {
+  const optionsData = {
     FEMUR: {
       MANUFACTURER: ["BIORAD MEDISYS"],
       MANUFACTURER: ["BIORAD MEDISYS"],
@@ -494,7 +494,7 @@ const page = ({ closeijr }) => {
         "BIORAD MEDISYS": ["EXCEL MPK"],
       },
       SIZE: {
-        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G","H"],
+        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
       },
     },
     TIBIA: {
@@ -514,7 +514,7 @@ const page = ({ closeijr }) => {
         "BIORAD MEDISYS": ["EXCEL MPK"],
       },
       SIZE: {
-        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm","13 mm"],
+        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
       },
     },
     PATELLA: {
@@ -557,7 +557,14 @@ const page = ({ closeijr }) => {
     });
   };
 
-  const isoDate = patient?.post_surgery_details_left?.date_of_surgery;
+  const isoDate =
+  (patient?.post_surgery_details_left?.date_of_surgery?.startsWith("0001-01-01")
+    ? null
+    : patient?.post_surgery_details_left?.date_of_surgery) ||
+  (patient?.post_surgery_details_right?.date_of_surgery?.startsWith("0001-01-01")
+    ? null
+    : patient?.post_surgery_details_right?.date_of_surgery);
+
   const istDate = new Date(isoDate);
 
   // Convert to IST and extract date
@@ -601,6 +608,19 @@ const page = ({ closeijr }) => {
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 4000);
   };
+
+  const side = [
+  ...(patient?.post_surgery_details_left?.date_of_surgery &&
+    !patient.post_surgery_details_left.date_of_surgery.startsWith("0001-01-01")
+      ? ["Left Knee"]
+      : []),
+
+  ...(patient?.post_surgery_details_right?.date_of_surgery &&
+    !patient.post_surgery_details_right.date_of_surgery.startsWith("0001-01-01")
+      ? ["Right Knee"]
+      : []),
+];
+
 
   const validatePayloadAndWarn = (payload) => {
     const errors = {};
@@ -780,7 +800,7 @@ const page = ({ closeijr }) => {
       first_assistant: firstassisstant,
       second_assistant: secondassisstant,
       mag_proc: manageproc,
-      side: patient?.current_status,
+      side: side.join(", "),
       surgery_indication: surgindi,
       tech_assist: techassist,
       align_phil: alignphil,
@@ -1199,9 +1219,7 @@ const page = ({ closeijr }) => {
 
               {/* Anaesthetic Types */}
               <tr>
-                <td className="w-1/4 align-top font-bold">
-                  ANAESTHETIC TYPES
-                </td>
+                <td className="w-1/4 align-top font-bold">ANAESTHETIC TYPES</td>
                 <td>
                   <div className="flex flex-wrap gap-6">
                     {options.map((option, index) => (
@@ -1445,32 +1463,38 @@ const page = ({ closeijr }) => {
                 <td>
                   <div className="flex flex-row gap-10">
                     {/* Left Knee */}
-                    {patient?.current_status?.includes("Left Knee") && (
-                      <div className="w-fit h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer">
-                        <Image
-                          src={LeftKnee}
-                          alt="Left Knee"
-                          className="w-12 h-12"
-                        />
-                        <p className="font-semibold text-lg text-black">
-                          Left Knee
-                        </p>
-                      </div>
-                    )}
+                    {patient?.post_surgery_details_left?.date_of_surgery &&
+                      !patient.post_surgery_details_left.date_of_surgery.startsWith(
+                        "0001-01-01"
+                      ) && (
+                        <div className="w-fit h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer">
+                          <Image
+                            src={LeftKnee}
+                            alt="Left Knee"
+                            className="w-12 h-12"
+                          />
+                          <p className="font-semibold text-lg text-black">
+                            Left Knee
+                          </p>
+                        </div>
+                      )}
 
                     {/* Right Knee */}
-                    {patient?.current_status?.includes("Right Knee") && (
-                      <div className="w-fit h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer">
-                        <Image
-                          src={RightKnee}
-                          alt="Right Knee"
-                          className="w-12 h-12"
-                        />
-                        <p className="font-semibold text-lg text-black">
-                          Right Knee
-                        </p>
-                      </div>
-                    )}
+                    {patient?.post_surgery_details_right?.date_of_surgery &&
+                      !patient.post_surgery_details_right.date_of_surgery.startsWith(
+                        "0001-01-01"
+                      ) && (
+                        <div className="w-fit h-fit py-2 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer">
+                          <Image
+                            src={RightKnee}
+                            alt="Right Knee"
+                            className="w-12 h-12"
+                          />
+                          <p className="font-semibold text-lg text-black">
+                            Right Knee
+                          </p>
+                        </div>
+                      )}
                   </div>
                 </td>
               </tr>
@@ -2562,7 +2586,10 @@ const page = ({ closeijr }) => {
                 name="finalCheck"
                 value="2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"
                 className="mr-1 cursor-pointer"
-                checked={finalCheck === "2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"}
+                checked={
+                  finalCheck ===
+                  "2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION"
+                }
                 onChange={handleFinalCheckChange}
               />
               2-3 MM OF LATERAL OPENING WITH VARUS LOAD IN 15-30° OF FLEXION
