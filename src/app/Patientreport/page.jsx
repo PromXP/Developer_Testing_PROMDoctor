@@ -249,7 +249,11 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
         };
 
         data.forEach((patient) => {
-          const st = getCurrentPeriod(patient, selectedLeg);
+          const st = getPeriodFromSurgeryDate(
+                                selectedLeg === "left"
+                                  ? patient?.post_surgery_details_left?.date_of_surgery
+                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
+                              );
           if(st){
           const status = st.toUpperCase();
        
@@ -638,8 +642,8 @@ console.log("Sttus",currentPeriod);
   };
 
   useEffect(() => {
-    setLeftCurrentStatus(getCurrentPeriod("left"));
-    setRightCurrentStatus(getCurrentPeriod("right"));
+    setLeftCurrentStatus(getPeriodFromSurgeryDate(patient?.post_surgery_details_left?.date_of_surgery));
+    setRightCurrentStatus(getPeriodFromSurgeryDate(patient?.post_surgery_details_right?.date_of_surgery));
   }, [questionnaire_assigned_left, questionnaire_assigned_right]);
 
   const parseValues = (arr) => {
@@ -1574,8 +1578,8 @@ console.log("Sttus",currentPeriod);
     let a1 = true;
     let a2 = true;
 
-    const currentPeriodLeft = getCurrentPeriod("left");
-    const currentPeriodRight = getCurrentPeriod("right");
+    const currentPeriodLeft = getPeriodFromSurgeryDate(patient?.post_surgery_details_left?.date_of_surgery);
+    const currentPeriodRight = getPeriodFromSurgeryDate(patient?.post_surgery_details_right?.date_of_surgery);
 
     const isValidField = (field) =>
       typeof field === "string" &&
@@ -1754,6 +1758,43 @@ console.log("Sttus",currentPeriod);
     }, [patient]); // empty dependency: fetch once on mount
 
 
+    function getPeriodFromSurgeryDate(surgeryDateStr,patient) {
+    if (!surgeryDateStr) return "Not Found";
+
+  const surgeryDate = new Date(surgeryDateStr);
+
+  // Check for invalid or default placeholder date
+  if (
+    isNaN(surgeryDate) ||
+    surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
+  ) {
+    return "Not Found";
+  }
+
+    const today = new Date();
+    const diffInDays = Math.floor((today - surgeryDate) / (1000 * 60 * 60 * 24));
+
+    if (diffInDays < 0) {
+      return "Pre Op";
+    }
+
+    const periodOffsets = {
+      "6W": 42,
+      "3M": 90,
+      "6M": 180,
+      "1Y": 365,
+      "2Y": 730,
+    };
+
+    const periods = Object.entries(periodOffsets)
+      .map(([label, offset]) => ({
+        label,
+        diff: Math.abs(diffInDays - offset),
+      }))
+      .sort((a, b) => a.diff - b.diff);
+
+    return periods[0]?.label || "Unknown";
+  }
 
 
   return (

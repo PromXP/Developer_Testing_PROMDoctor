@@ -123,8 +123,8 @@ const page = ({ closeijr }) => {
   const questionnaire_assigned_right =
     patient?.questionnaire_assigned_right || [];
   useEffect(() => {
-    setLeftCurrentStatus(getCurrentPeriod("left"));
-    setRightCurrentStatus(getCurrentPeriod("right"));
+    setLeftCurrentStatus(getPeriodFromSurgeryDate(patient?.post_surgery_details_left?.date_of_surgery));
+    setRightCurrentStatus(getPeriodFromSurgeryDate(patient?.post_surgery_details_right?.date_of_surgery));
   }, [questionnaire_assigned_left, questionnaire_assigned_right]);
 
   const getCurrentPeriod = (side) => {
@@ -1035,6 +1035,44 @@ const page = ({ closeijr }) => {
       setsubmitconfirmpop(true);
     }
   };
+
+  function getPeriodFromSurgeryDate(surgeryDateStr,patient) {
+    if (!surgeryDateStr) return "Not Found";
+
+  const surgeryDate = new Date(surgeryDateStr);
+
+  // Check for invalid or default placeholder date
+  if (
+    isNaN(surgeryDate) ||
+    surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
+  ) {
+    return "Not Found";
+  }
+
+    const today = new Date();
+    const diffInDays = Math.floor((today - surgeryDate) / (1000 * 60 * 60 * 24));
+
+    if (diffInDays < 0) {
+      return "Pre Op";
+    }
+
+    const periodOffsets = {
+      "6W": 42,
+      "3M": 90,
+      "6M": 180,
+      "1Y": 365,
+      "2Y": 730,
+    };
+
+    const periods = Object.entries(periodOffsets)
+      .map(([label, offset]) => ({
+        label,
+        diff: Math.abs(diffInDays - offset),
+      }))
+      .sort((a, b) => a.diff - b.diff);
+
+    return periods[0]?.label || "Unknown";
+  }
 
   return (
     <>
