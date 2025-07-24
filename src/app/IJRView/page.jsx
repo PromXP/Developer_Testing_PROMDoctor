@@ -2103,79 +2103,64 @@ const options = {
                       <table className="w-5/6 border-separate border-spacing-y-4 text-xl">
                         <thead className="font-semibold">
                           <tr>
-                            <th className="text-left">Period</th>
-                            <th className="text-left">Flexion</th>
-                            <th className="text-left">Extension</th>
-                            <th className="text-left">Action</th>
+                            <th className="text-left px-4 py-2">Period</th>
+                            <th className="text-left px-4 py-2">Flexion</th>
+                            <th className="text-left px-4 py-2">Extension</th>
+                            <th className="text-left px-4 py-2">Action</th>
                           </tr>
                         </thead>
                         <tbody className="font-medium">
                           {editedRom.map((entry, index) => (
                             <tr key={index}>
+                              <td className="px-4 py-2">{entry.period}</td>
+
                               {editingRomIndex === index ? (
                                 <>
-                                  <td>
+                                  <td className="px-4 py-2">
                                     <input
-                                      value={entry.period}
-                                      onChange={(e) =>
-                                        updateRomField(
-                                          index,
-                                          "period",
-                                          e.target.value
-                                        )
-                                      }
-                                    />
-                                  </td>
-                                  <td>
-                                    <input
+                                      className="border px-2 py-1 rounded w-full"
                                       value={entry.flexion}
                                       onChange={(e) =>
-                                        updateRomField(
-                                          index,
-                                          "flexion",
-                                          e.target.value
-                                        )
+                                        updateRomField(index, "flexion", e.target.value)
                                       }
                                     />
                                   </td>
-                                  <td>
+                                  <td className="px-4 py-2">
                                     <input
+                                      className="border px-2 py-1 rounded w-full"
                                       value={entry.extension}
                                       onChange={(e) =>
-                                        updateRomField(
-                                          index,
-                                          "extension",
-                                          e.target.value
-                                        )
+                                        updateRomField(index, "extension", e.target.value)
                                       }
                                     />
                                   </td>
-                                  <td className="flex gap-4">
-                                    <button
-                                      onClick={() => handleRomSave(index)}
-                                      className="cursor-pointer text-green-600"
-                                    >
-                                      <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                      onClick={() => handleRomCancel(index)}
-                                      className="cursor-pointer text-red-600"
-                                    >
-                                      <XMarkIcon className="w-5 h-5" />
-                                    </button>
+                                  <td className="px-4 py-2">
+                                    <div className="flex gap-4">
+                                      <button
+                                        onClick={() => handleRomSave(index)}
+                                        className="text-green-600"
+                                      >
+                                        <ClipboardDocumentCheckIcon className="w-5 h-5 cursor-pointer" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleRomCancel(index)}
+                                        className="text-red-600"
+                                      >
+                                        <XMarkIcon className="w-5 h-5 cursor-pointer" />
+                                      </button>
+                                    </div>
                                   </td>
                                 </>
                               ) : (
                                 <>
-                                  <td>{entry.period}</td>
-                                  <td>{entry.flexion}</td>
-                                  <td>{entry.extension}</td>
-                                  <td>
+                                  <td className="px-4 py-2">{entry.flexion}</td>
+                                  <td className="px-4 py-2">{entry.extension}</td>
+                                  <td className="px-4 py-2">
                                     <button
                                       onClick={() => setEditingRomIndex(index)}
-                                      className="cursor-pointer"
+                                      className="text-gray-400"
                                     >
-                                      <PencilIcon className="w-4 h-4" />
+                                      <PencilIcon className="w-5 h-5 cursor-pointer" />
                                     </button>
                                   </td>
                                 </>
@@ -2184,6 +2169,7 @@ const options = {
                           ))}
                         </tbody>
                       </table>
+
                     </td>
                   </tr>
                 </tbody>

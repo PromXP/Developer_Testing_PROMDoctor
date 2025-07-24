@@ -269,6 +269,21 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
         const leftScoreGroups = {};
         const rightScoreGroups = {};
 
+        const KOOSJR_MAP = [
+    100.000, 91.975, 84.600, 79.914, 76.332, 73.342, 70.704, 68.284, 65.994,
+    63.776, 61.583, 59.381, 57.140, 54.840, 52.465, 50.012, 47.487, 44.905,
+    42.281, 39.625, 36.931, 34.174, 31.307, 28.251, 24.875, 20.941, 15.939,
+    8.291, 0.000
+  ];
+
+  function mapKOOSJRScore(rawScore) {
+    const num = parseInt(rawScore);
+    if (!isNaN(num) && num >= 0 && num <= 28) {
+      return KOOSJR_MAP[num];
+    }
+    return null;
+  }
+
         // LEFT
         data.forEach((patient) => {
           patient.questionnaire_scores_left?.forEach((q1) => {
@@ -279,7 +294,21 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
               otherPatient.questionnaire_scores_left?.forEach((q2) => {
                 if (q2.name.includes(q1.name) && q2.period === q1.period) {
                   if (q2.score && q2.score.length > 0) {
-                    leftScoreGroups[key].push(q2.score);
+                    if (
+                      q2.name ===
+                      "Knee Injury and Ostheoarthritis Outcome Score, Joint Replacement (KOOS, JR)"
+                    ) {
+                      const mapped = mapKOOSJRScore(q2.score);
+                      if (mapped !== null) {
+                        leftScoreGroups[key].push(mapped);
+                      }
+                    } else if (q2.name.includes("Short Form - 12 (SF-12)")) {
+                      // Keep array as-is
+                      leftScoreGroups[key].push(q2.score);
+                    } else {
+                      // Generic float push
+                      leftScoreGroups[key].push(parseFloat(q2.score));
+                    }
                   }
                 }
               });
@@ -297,13 +326,28 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
               otherPatient.questionnaire_scores_right?.forEach((q2) => {
                 if (q2.name.includes(q1.name) && q2.period === q1.period) {
                   if (q2.score && q2.score.length > 0) {
-                    rightScoreGroups[key].push(q2.score);
+                    if (
+                      q2.name ===
+                      "Knee Injury and Ostheoarthritis Outcome Score, Joint Replacement (KOOS, JR)"
+                    ) {
+                      const mapped = mapKOOSJRScore(q2.score);
+                      if (mapped !== null) {
+                        rightScoreGroups[key].push(mapped);
+                      }
+                    } else if (q2.name.includes("Short Form - 12 (SF-12)")) {
+                      // Keep array as-is
+                      rightScoreGroups[key].push(q2.score);
+                    } else {
+                      // Generic float push
+                      rightScoreGroups[key].push(parseFloat(q2.score));
+                    }
                   }
                 }
               });
             });
           });
         });
+
 
         console.log("LEFT Score Groups:", leftScoreGroups);
         console.log("RIGHT Score Groups:", rightScoreGroups);
@@ -432,6 +476,14 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
 
   const { width, height } = useWindowSize();
 
+  const KOOSJR_MAP = [
+  100.000, 91.975, 84.600, 79.914, 76.332, 73.342, 70.704, 68.284, 65.994,
+  63.776, 61.583, 59.381, 57.140, 54.840, 52.465, 50.012, 47.487, 44.905,
+  42.281, 39.625, 36.931, 34.174, 31.307, 28.251, 24.875, 20.941, 15.939,
+  8.291, 0.000
+];
+
+
   const normalizePeriod = (period) =>
     period.trim().toUpperCase().replace(/\s+/g, "");
 
@@ -441,8 +493,24 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
         normalizePeriod(s.period) === normalizePeriod(period) &&
         s.name.toLowerCase().includes(type.toLowerCase())
     );
-    return match ? match.score[0] : null;
+
+    if (!match || !match.score || match.score.length === 0) return null;
+
+    const rawScore = match.score[0];
+
+    if (
+      type ===
+      "KOOS"
+    ) {
+      const index = parseInt(rawScore, 10);
+      return !isNaN(index) && index >= 0 && index <= 28
+        ? KOOSJR_MAP[index]
+        : null;
+    }
+
+    return rawScore;
   };
+
 
   const generateChartData = (patient) => {
     const scores =
@@ -660,7 +728,7 @@ console.log("Sttus",currentPeriod);
     const scoreGroups =
       selectedLeg === "left" ? leftscoreGroups : rightscoreGroups;
 
-          console.log("OKS Box Plot", scoreGroups);
+          // console.log("OKS Box Plot", scoreGroups);
 
 
     if (!scoreGroups) return [];
@@ -737,7 +805,7 @@ console.log("Sttus",currentPeriod);
     const scoreGroups =
       selectedLeg === "left" ? leftscoreGroups : rightscoreGroups;
 
-    console.log("SF-12 Box Plot", scoreGroups);
+    // console.log("SF-12 Box Plot", scoreGroups);
 
     if (!scoreGroups) return [];
 
@@ -837,7 +905,12 @@ console.log("Sttus",currentPeriod);
             normalizeLabel(s.period) === name
         );
 
-        const dotValue = patientValue?.score?.[0] ?? null;
+        const rawScore = patientValue?.score?.[0];
+        const dotValue =
+          typeof rawScore === "number" && rawScore >= 0 && rawScore <= 28
+            ? KOOSJR_MAP[rawScore]
+            : null;
+
 
         return {
           name,
@@ -870,7 +943,7 @@ console.log("Sttus",currentPeriod);
     (koosBoxPlotData ?? []).map((item, index) => {
       const stats = computeBoxStats(item.boxData, item.dotValue);
 
-      // console.log("KOOS Stats", koosBoxPlotData);
+      console.log("KOOS Stats", stats);
 
       const isValidDot =
         stats.Patient !== undefined &&

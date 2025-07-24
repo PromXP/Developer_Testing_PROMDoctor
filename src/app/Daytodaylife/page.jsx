@@ -1053,7 +1053,9 @@ const page = ({ goToReport, gotoIJR }) => {
     const today = new Date();
     const diffInDays = Math.floor((today - surgeryDate) / (1000 * 60 * 60 * 24));
 
-    if (diffInDays < 0) {
+    console.log("Diff in days:", diffInDays, "Surgery Date:", surgeryDateStr);
+
+    if (diffInDays <= 0) {
       return "Pre Op";
     }
 

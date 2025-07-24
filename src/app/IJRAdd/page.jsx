@@ -594,48 +594,7 @@ const page = ({ closeijr }) => {
   const [postresurfacingthickness, setpostresurfacingthickness] = useState("0 mm");
   const handlePostresurfacingThicknessChange = (e) => setpostresurfacingthickness(e.target.value);
 
-  // const optionsData = {
-  //   FEMUR: {
-  //     MANUFACTURER: ["MICROPORT"],
-  //     MANUFACTURER: ["MICROPORT"],
-  //     MODEL: {
-  //       MICROPORT: ["EVOLUTION"],
-  //     },
-  //     SIZE: {
-  //       EVOLUTION: ["1", "2", "3", "4", "5", "6", "7"],
-  //     },
-  //   },
-  //   TIBIA: {
-  //     MANUFACTURER: ["MICROPORT"],
-  //     MANUFACTURER: ["MICROPORT"],
-  //     MODEL: {
-  //       MICROPORT: ["EVOLUTION"],
-  //     },
-  //     SIZE: {
-  //       EVOLUTION: ["1", "2", "3", "4", "5", "6", "7"],
-  //     },
-  //   },
-  //   INSERT: {
-  //     MANUFACTURER: ["MICROPORT"],
-  //     MANUFACTURER: ["MICROPORT"],
-  //     MODEL: {
-  //       MICROPORT: ["EVOLUTION"],
-  //     },
-  //     SIZE: {
-  //       EVOLUTION: ["10 mm", "12 mm", "14 mm", "16 mm"],
-  //     },
-  //   },
-  //   PATELLA: {
-  //     MANUFACTURER: ["MICROPORT"],
-  //     MANUFACTURER: ["MICROPORT"],
-  //     MODEL: {
-  //       MICROPORT: ["EVOLUTION"],
-  //     },
-  //     SIZE: {
-  //       EVOLUTION: ["1", "2", "3", "4", "5", "6", "7"],
-  //     },
-  //   },
-  // };
+
 
 const optionsData = {
   "FEMUR": {
@@ -2237,7 +2196,7 @@ const clearAllFields = () => {
                 <tbody>
                   {/* Heading */}
                   <tr>
-                    <td colSpan="3" className="text-lg font-bold pb-2">
+                    <td colSpan="3" className="text-lg font-bold">
                       LATERAL CONDYLE
                     </td>
                   </tr>
