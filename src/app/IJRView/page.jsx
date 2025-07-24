@@ -345,7 +345,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
   const [operatingsurgeon, setoperatingsurgeon] = useState(
     "DR. VETRI KUMAR M K"
   );
-  const operatingsurgeonoptions = ["DR. VETRI KUMAR M K", "DR. VINOTH"];
+  const operatingsurgeonoptions = ["DR. VETRI KUMAR M K", "DR. VINOTH KUMAR"];
   const handleoperatingsurgeonchange = () => {
     if (!operatingsurgeon) {
       showWarning("Operation surgeon Required");
@@ -363,8 +363,8 @@ const page = ({ goToReport, goToIJRAdd }) => {
   };
 
   const [isEditfirstassisstant, setisEditfirstassisstant] = useState(false);
-  const [firstassisstant, setfirstassisstant] = useState("DR. VINOTH");
-  const firstassisstantoptions = ["DR. VETRI KUMAR M K", "DR. VINOTH"];
+  const [firstassisstant, setfirstassisstant] = useState("DR. VINOTH KUMAR");
+  const firstassisstantoptions = ["DR. VETRI KUMAR M K", "DR. VINOTH KUMAR"];
   const handlefirstassisstantchange = () => {
     if (!firstassisstant) {
       showWarning("First Assistant Required");
@@ -382,8 +382,8 @@ const page = ({ goToReport, goToIJRAdd }) => {
   };
 
   const [isEditsecondassisstant, setisEditsecondassisstant] = useState(false);
-  const [secondassisstant, setsecondassisstant] = useState("DR. MILAN");
-  const secondassisstantoptions = ["DR. VINOTH", "DR. MILAN"];
+  const [secondassisstant, setsecondassisstant] = useState("DR. MILAN ADHIKARI");
+  const secondassisstantoptions = ["DR. VINOTH KUMAR", "DR. MILAN ADHIKARI"];
   const handlesecondassisstantchange = () => {
     if (!secondassisstant) {
       showWarning("Second Assistant Required");
@@ -450,22 +450,45 @@ const page = ({ goToReport, goToIJRAdd }) => {
 
   const [isEditsurgindi, setisEditsurgindi] = useState(false);
   const [surgindi, setsurgindi] = useState("");
-  const surgindioptions = ["DEFORMITY", "VARUS", "VALGUS", "PF"];
-  const handlesurgindichange = () => {
-    if (!surgindi) {
-      showWarning("Indication of Surgery Required");
-      return;
-    }
+  const surgindioptions = [
+    "VARUS",
+    "VALGUS",
+    "FLEXION CONTRACTION",
+    "RECURVATUM DEFORMITY",
+  ];
+const handleSurgIndiCheckboxChange = (option) => {
+  const currentValues = surgindi ? surgindi.split(",") : [];
+  let updatedValues;
 
-    const payload = {
-      uhid: patient?.uhid,
-      updates: {
-        surgery_indication: surgindi,
-      },
-    };
+  if (currentValues.includes(option)) {
+    // Remove unchecked option
+    updatedValues = currentValues.filter((item) => item !== option);
+  } else {
+    // Add checked option
+    updatedValues = [...currentValues, option];
+  }
 
-    handleSendremainder(payload);
+  const updatedString = updatedValues.join(",");
+  setsurgindi(updatedString);
+};
+
+const handleSurgIndiSubmit = () => {
+  if (!surgindi) {
+    showWarning("Indication of Surgery Required");
+    return;
+  }
+
+  const payload = {
+    uhid: patient?.uhid,
+    updates: {
+      surgery_indication: surgindi,
+    },
   };
+
+  handleSendremainder(payload);
+};
+
+
 
   const [isEdittechassit, setisEdittechassit] = useState(false);
   const [techassist, settechassist] = useState("");
@@ -488,7 +511,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
 
   const [isEditalignphil, setisEditalignphil] = useState(false);
   const [alignphil, setalignphil] = useState("");
-  const alignphiloptions = ["MA", "KA", "RKA", "FA", "IKA", "HYBRID"];
+  const alignphiloptions = ["MA", "KA", "rKA", "FA", "iKA", "HYBRID"];
   const handlealignphilchange = () => {
     if (!alignphil) {
       showWarning("Allignment Philosophy Required");
@@ -1342,43 +1365,17 @@ const page = ({ goToReport, goToIJRAdd }) => {
   const [isEditFemurShape, setIsEditFemurShape] = useState(false);
   const [originalFemurShape, setOriginalFemurShape] = useState("");
   const [femurShape, setFemurShape] = useState("");
-  const femursizeoptions = ["SPHERIKA", "SPHERIKA ST", "SPHERE"];
-  const handleFemurShapeChange = (e) => setFemursize(e.target.value);
+  const femursizeoptions = ["YES", "NO"];
 
-  const handleFemurShapeSave = () => {
-    if (!femurShape) return showWarning("Femur Shape is required");
-    const payload = {
-      uhid: patient?.uhid,
-      updates: {
-        "bone_resection.femur_size.shape": femurShape,
-      },
-    };
-    handleSendremainder(payload);
-    setIsEditFemurShape(false);
-  };
 
   // INSERT THICKNESS
   const [isEditInsertThickness, setIsEditInsertThickness] = useState(false);
   const [originalInsertThickness, setOriginalInsertThickness] = useState("");
   const [insertthickness, setInsertthickness] = useState("");
-  const insertthicknessoptions = ["CR", "Vit E CR/CS", "CS"];
-  const handleInsertThicknessChange = (e) => setInsertthickness(e.target.value);
-
-  const handleInsertThicknessSave = () => {
-    if (!insertthickness) return showWarning("Insert Thickness is required");
-    const payload = {
-      uhid: patient?.uhid,
-      updates: {
-        "bone_resection.insert_thickness.shape": insertthickness,
-      },
-    };
-    handleSendremainder(payload);
-    setIsEditInsertThickness(false);
-  };
+  
 
   // Femor Size
   const [isEditFemorSize, setIsEditFemorSize] = useState(false);
-  const [originalFemorSize, setOriginalFemorSize] = useState("");
   const [femorSize, setFemorSize] = useState("");
   const handleFemorSizeChange = (e) => setFemorSize(e.target.value);
 
@@ -1387,7 +1384,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
     const payload = {
       uhid: patient?.uhid,
       updates: {
-        "bone_resection.femur_size.size": femorSize,
+        "bone_resection.pfj_resurfacing": femorSize,
       },
     };
     handleSendremainder(payload);
@@ -1405,7 +1402,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
     const payload = {
       uhid: patient?.uhid,
       updates: {
-        "bone_resection.tibial_size": tibialSize,
+        "bone_resection.trachela_resection": tibialSize,
       },
     };
     handleSendremainder(payload);
@@ -1417,9 +1414,11 @@ const page = ({ goToReport, goToIJRAdd }) => {
     useState(false);
   const [originalInsertThicknesssize, setOriginalInsertThicknesssize] =
     useState("");
+
+  const insertthicknessoptions = ["WORN","UNWORN"];
+  
   const [insertThicknesssize, setInsertThicknesssize] = useState("");
-  const handleInsertThicknesssizeChange = (e) =>
-    setInsertThicknesssize(e.target.value);
+  const handleInsertThicknesssizeChange = (option) => setInsertThicknesssize(option);
 
   const handleInsertThicknesssizeSave = () => {
     if (!insertThicknesssize)
@@ -1427,7 +1426,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
     const payload = {
       uhid: patient?.uhid,
       updates: {
-        "bone_resection.insert_thickness.size": insertThicknesssize,
+        "bone_resection.patella": insertThicknesssize,
       },
     };
     handleSendremainder(payload);
@@ -1438,19 +1437,43 @@ const page = ({ goToReport, goToIJRAdd }) => {
   const [isEditPatellaSize, setIsEditPatellaSize] = useState(false);
   const [originalPatellaSize, setOriginalPatellaSize] = useState("");
   const [patellaSize, setPatellaSize] = useState("");
-  const handlePatellaSizeChange = (e) => setPatellaSize(e.target.value);
 
-  const handlePatellaSizeSave = () => {
-    if (!patellaSize) return showWarning("Patella Size is required");
-    const payload = {
-      uhid: patient?.uhid,
-      updates: {
-        "bone_resection.patella_size": patellaSize,
-      },
-    };
-    handleSendremainder(payload);
-    setIsEditPatellaSize(false);
+  // States for edit toggles and values
+const [isEditPreResurfacing, setIsEditPreResurfacing] = useState(false);
+const [preResurfacingThickness, setPreResurfacingThickness] = useState(patientsurgery?.[0].bone_resection.preresurfacing || "");
+
+const [isEditPostResurfacing, setIsEditPostResurfacing] = useState(false);
+const [postResurfacingThickness, setPostResurfacingThickness] = useState(patientsurgery?.[0].bone_resection.postresurfacing || "");
+
+// Handlers
+const handlePreResurfacingChange = (e) => setPreResurfacingThickness(e.target.value);
+const handlePreResurfacingSave = () => {
+  // validation if needed
+  if (!preResurfacingThickness) return alert("Pre Resurfacing Thickness is required");
+
+  // send update payload here
+  const payload = {
+    uhid: patient?.uhid,
+    updates: { "bone_resection.preresurfacing": preResurfacingThickness },
   };
+  handleSendremainder(payload);
+
+  setIsEditPreResurfacing(false);
+};
+
+const handlePostResurfacingChange = (e) => setPostResurfacingThickness(e.target.value);
+const handlePostResurfacingSave = () => {
+  if (!postResurfacingThickness) return alert("Post Resurfacing Thickness is required");
+
+  const payload = {
+    uhid: patient?.uhid,
+    updates: { "bone_resection.postresurfacing": postResurfacingThickness },
+  };
+  handleSendremainder(payload);
+
+  setIsEditPostResurfacing(false);
+};
+
 
   const [editingIndex, setEditingIndex] = useState(null);
   const [editedThicknessTable, setEditedThicknessTable] = useState([]);
@@ -1515,44 +1538,44 @@ const page = ({ goToReport, goToIJRAdd }) => {
   const colHeaders = ["FEMUR", "TIBIA", "INSERT", "PATELLA"];
   const rowHeaders = ["MANUFACTURER", "MODEL", "SIZE"];
 
-  const options = {
-    FEMUR: {
-      // MICROPORT: {
-      //   EVOLUTION: ["1", "2", "3", "4", "5"],
-      //   MODEL_A: ["2", "3", "4"],
-      // },
-      "BIORAD MEDISYS": {
-        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
-      },
+const options = {
+  FEMUR: {
+    "BIORAD MEDISYS": {
+      "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
     },
-    TIBIA: {
-      // MICROPORT: {
-      //   EVOLUTION: ["1", "2", "3", "4", "5"],
-      //   MODEL_A: ["2", "3", "4"],
-      // },
-      "BIORAD MEDISYS": {
-        "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
-      },
+    "MICROPORT": {
+      "EVOLUATION": ["1 mm", "2 mm", "3 mm", "4 mm", "5 mm", "6 mm", "7 mm", "8 mm"],
     },
-    INSERT: {
-      // MICROPORT: {
-      //   EVOLUTION: ["10 mm", "12 mm", "14 mm", "16 mm"],
-      //   MODEL_A: ["12 mm", "14 mm"],
-      // },
-      "BIORAD MEDISYS": {
-        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
-      },
+  },
+  TIBIA: {
+    "BIORAD MEDISYS": {
+      "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
     },
-    PATELLA: {
-      // MICROPORT: {
-      //   EVOLUTION: ["1", "2", "3", "4", "5"],
-      //   MODEL_A: ["2", "3", "4"],
-      // },
-      "BIORAD MEDISYS": {
-        "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
-      },
+    "MICROPORT": {
+      "EVOLUATION": [
+        "1 mm", "2 mm", "2+ mm", "3 mm", "4 mm",
+        "5 mm", "6 mm", "6+ mm", "7 mm", "8 mm",
+      ],
     },
-  };
+  },
+  INSERT: {
+    "BIORAD MEDISYS": {
+      "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
+    },
+    "MICROPORT": {
+      "EVOLUATION": ["10 mm", "12 mm", "14 mm", "17 mm", "21 mm"],
+    },
+  },
+  PATELLA: {
+    "BIORAD MEDISYS": {
+      "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
+    },
+    "MICROPORT": {
+      "EVOLUATION": ["26 mm", "29 mm", "32 mm", "35 mm", "38 mm", "41 mm"],
+    },
+  },
+};
+
 
   const [editedComponents, setEditedComponents] = useState({});
   const [editingCol, setEditingCol] = useState(null);
@@ -2574,14 +2597,6 @@ const page = ({ goToReport, goToIJRAdd }) => {
                               </div>
                             )}
                           </div>
-                          <button
-                            onClick={() => {
-                              setisEditknees(true);
-                            }}
-                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </button>
                         </div>
                       )}
                     </td>
@@ -2596,26 +2611,26 @@ const page = ({ goToReport, goToIJRAdd }) => {
                       {isEditsurgindi ? (
                         <div className="flex flex-row gap-2 text-black text-lg font-medium">
                           <div className="flex flex-row text-black text-lg font-medium gap-8">
-                            {surgindioptions.map((option, index) => (
-                              <label
-                                key={index}
-                                className="flex items-center gap-2 cursor-pointer"
-                              >
-                                <input
-                                  type="radio"
-                                  name="dynamicRadio4"
-                                  value={option}
-                                  checked={surgindi === option}
-                                  onChange={() => setsurgindi(option)}
-                                  className="form-radio text-blue-600"
-                                />
-                                <span>{option}</span>
-                              </label>
-                            ))}
+                       {surgindioptions.map((option, index) => (
+                        <label
+                          key={index}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            value={option}
+                            checked={surgindi.includes(option)}
+                            onChange={() => handleSurgIndiCheckboxChange(option)}
+                            className="form-checkbox text-blue-600"
+                          />
+                          <span>{option}</span>
+                        </label>
+                      ))}
+
                           </div>
                           <div className="flex gap-1">
                             <button
-                              onClick={handlesurgindichange}
+                              onClick={handleSurgIndiSubmit}
                               className="text-green-600 text-xs cursor-pointer"
                             >
                               <ClipboardDocumentCheckIcon className="w-5 h-5" />
@@ -2856,7 +2871,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                       )}
                     </td>
                   </tr>
-
+{/* 
                   <tr className="align-middle">
                     <td className="font-bold text-lg text-black w-1/3">
                       SUGERY NAME
@@ -2908,7 +2923,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                         </div>
                       )}
                     </td>
-                  </tr>
+                  </tr> */}
 
                   <tr className="align-middle">
                     <td className="font-bold text-lg text-black w-1/4">
@@ -2951,14 +2966,14 @@ const page = ({ goToReport, goToIJRAdd }) => {
                             <p className="text-black text-xl font-semibold">
                               {dateOnlyIST}
                             </p>
-                            <button
+                            {/* <button
                               onClick={() => {
                                 setisEditopdate(true);
                               }}
                               className="text-gray-400 hover:text-gray-600 cursor-pointer"
                             >
                               <PencilIcon className="w-4 h-4" />
-                            </button>
+                            </button> */}
                           </div>
                         )}
                       </div>
@@ -3213,17 +3228,24 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditInitThick ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={distalmedialinithick}
                                   onChange={handleInitThickChange}
-                                />
-                                mm
+                                  >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
-                                  onClick={handleWearStatusSave}
+                                  onClick={handleInitThickSave}
                                   className="text-green-600 text-xs cursor-pointer"
                                 >
                                   <ClipboardDocumentCheckIcon className="w-5 h-5" />
@@ -3246,7 +3268,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                                   patientsurgery?.[0].bone_resection
                                     .distal_medial.initial_thickness
                                 }{" "}
-                                mm
+                                
                               </p>
                               <button
                                 onClick={() => {
@@ -3329,16 +3351,23 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           )}
                         </td>
                         <td>
-                          {isEditRecutValue ? (
+                         {isEditRecutValue ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
-                                  value={distalmedialinithick}
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
+                                  value={distalmedialrecutvalue}
                                   onChange={handleRecutValueChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -3361,11 +3390,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_medial.recutvalue
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.distal_medial.recutvalue}
                               </p>
                               <button
                                 onClick={() => {
@@ -3451,13 +3476,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditWasherValue ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={distalmedialwashervalue}
                                   onChange={handleWasherValueChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -3480,11 +3512,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_medial.washervalue
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.distal_medial.washervalue}
                               </p>
                               <button
                                 onClick={() => {
@@ -3506,13 +3534,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditFinalThick ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={distalmedialfinalthick}
                                   onChange={handleFinalThickChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -3535,11 +3570,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_medial.final_thickness
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.distal_medial.final_thickness}
                               </p>
                               <button
                                 onClick={() => {
@@ -3647,13 +3678,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditDistalLateralInitThick ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={distalLateralInitThick}
                                   onChange={handleInputDistalLateralInitThick}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -3676,11 +3714,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.initial_thickness
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.distal_lateral.initial_thickness}
                               </p>
                               <button
                                 onClick={() => {
@@ -3766,13 +3800,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditDistalLateralRecutValue ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={distalLateralRecutValue}
                                   onChange={handleInputDistalLateralRecutValue}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -3795,11 +3836,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.recutvalue
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.distal_lateral.recutvalue}
                               </p>
                               <button
                                 onClick={() => {
@@ -3885,13 +3922,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditDistalLateralWasherValue ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={distalLateralWasherValue}
                                   onChange={handleInputDistalLateralWasherValue}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -3914,11 +3958,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.washervalue
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.distal_lateral.washervalue}
                               </p>
                               <button
                                 onClick={() => {
@@ -3940,13 +3980,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditDistalLateralFinalThick ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={distalLateralFinalThick}
                                   onChange={handleInputDistalLateralFinalThick}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -3969,11 +4016,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.final_thickness
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.distal_lateral.final_thickness}
                               </p>
                               <button
                                 onClick={() => {
@@ -4119,13 +4162,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditPostMedialInitThick ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={postMedialInitThick}
                                   onChange={handlePostMedialInitThickChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -4148,11 +4198,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_medial.initial_thickness
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.posterial_medial.initial_thickness}
                               </p>
                               <button
                                 onClick={() => {
@@ -4238,13 +4284,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditPostMedialRecutValue ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={postMedialRecutValue}
                                   onChange={handlePostMedialRecutValueChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -4267,11 +4320,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_medial.recutvalue
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.posterial_medial.recutvalue}
                               </p>
                               <button
                                 onClick={() => {
@@ -4293,13 +4342,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditPostMedialFinalThick ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={postMedialFinalThick}
                                   onChange={handlePostMedialFinalThickChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -4322,11 +4378,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_medial.final_thickness
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.posterial_medial.final_thickness}
                               </p>
                               <button
                                 onClick={() => {
@@ -4432,13 +4484,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditPostLateralInitThick ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={postLateralInitThick}
                                   onChange={handlePostLateralInitThickChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -4461,11 +4520,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_lateral.initial_thickness
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.posterial_lateral.initial_thickness}
                               </p>
                               <button
                                 onClick={() => {
@@ -4551,13 +4606,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditPostLateralRecutValue ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={postLateralRecutValue}
                                   onChange={handlePostLateralRecutValueChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -4580,11 +4642,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_lateral.recutvalue
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.posterial_lateral.recutvalue}
                               </p>
                               <button
                                 onClick={() => {
@@ -4606,13 +4664,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditPostLateralFinalThick ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={postLateralFinalThick}
                                   onChange={handlePostLateralFinalThickChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -4635,11 +4700,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_lateral.final_thickness
-                                }
-                                mm
+                                {patientsurgery?.[0].bone_resection.posterial_lateral.final_thickness}
                               </p>
                               <button
                                 onClick={() => {
@@ -4779,13 +4840,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                               {isEditTibialLeftValue ? (
                                 <div className="flex flex-row gap-2 text-black text-lg font-medium">
                                   <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                                    <input
-                                      type="text"
-                                      className="border px-2 py-1 w-24 mr-1 rounded"
+                                    <select
+                                      className="border px-2 py-1 w-28 mr-1 rounded"
                                       value={tibialLeftValue}
                                       onChange={handleTibialLeftValueChange}
-                                    />
-                                    mm
+                                    >
+                                      {Array.from({ length: 16 }, (_, i) => {
+                                        const label = `${i} mm`;
+                                        return (
+                                          <option key={i} value={label}>
+                                            {label}
+                                          </option>
+                                        );
+                                      })}
+                                    </select>
                                   </div>
                                   <div className="flex gap-1">
                                     <button
@@ -4812,7 +4880,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                                       patientsurgery?.[0].bone_resection
                                         .tibial_resection_left.value
                                     }
-                                    mm
+                                    
                                   </p>
                                   <button
                                     onClick={() => {
@@ -4927,13 +4995,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                               {isEditTibialRightValue ? (
                                 <div className="flex flex-row gap-2 text-black text-lg font-medium">
                                   <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                                    <input
-                                      type="text"
-                                      className="border px-2 py-1 w-24 mr-1 rounded"
+                                    <select
+                                      className="border px-2 py-1 w-28 mr-1 rounded"
                                       value={tibialRightValue}
                                       onChange={handleTibialRightValueChange}
-                                    />
-                                    mm
+                                    >
+                                      {Array.from({ length: 16 }, (_, i) => {
+                                        const label = `${i} mm`;
+                                        return (
+                                          <option key={i} value={label}>
+                                            {label}
+                                          </option>
+                                        );
+                                      })}
+                                    </select>
                                   </div>
                                   <div className="flex gap-1">
                                     <button
@@ -4960,7 +5035,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                                       patientsurgery?.[0].bone_resection
                                         .tibial_resection_right.value
                                     }
-                                    mm
+                                    
                                   </p>
                                   <button
                                     onClick={() => {
@@ -5122,13 +5197,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditTibialVVRecutValue ? (
                             <div className="flex flex-row gap-2 text-black text-lg font-medium">
                               <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={tibialVVRecutValue}
                                   onChange={handleTibialVVRecutValueChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -5155,7 +5237,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                                   patientsurgery?.[0].bone_resection
                                     .tibialvvrecut.vvrecutvalue
                                 }
-                                deg
+                                
                               </p>
                               <button
                                 onClick={() => {
@@ -5242,13 +5324,20 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           {isEditTibialSlopeRecutValue ? (
                             <div className="flex flex-row gap-2 text-black text-lg font-medium">
                               <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                                <input
-                                  type="text"
-                                  className="border px-2 py-1 w-24 mr-1 rounded"
+                                <select
+                                  className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={tibialSlopeRecutValue}
                                   onChange={handleTibialSlopeRecutValueChange}
-                                />
-                                mm
+                                >
+                                  {Array.from({ length: 16 }, (_, i) => {
+                                    const label = `${i} mm`;
+                                    return (
+                                      <option key={i} value={label}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
                               </div>
                               <div className="flex gap-1">
                                 <button
@@ -5275,7 +5364,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                                   patientsurgery?.[0].bone_resection
                                     .tibialsloperecut.sloperecutvalue
                                 }
-                                deg
+                                
                               </p>
                               <button
                                 onClick={() => {
@@ -5513,18 +5602,28 @@ const page = ({ goToReport, goToIJRAdd }) => {
                 <tbody>
                   <tr className="align-middle">
                     <td className="font-bold text-lg text-black w-1/3">
-                      FEMUR SIZE
+                      PFJ RESURFACING
                     </td>
                     <td className="font-medium text-lg text-black">
                       {isEditFemorSize ? (
                         <div className="flex flex-row gap-2 text-black text-lg font-medium">
                           <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                            <input
-                              type="text"
-                              className="border px-2 py-1 w-24 mr-1 rounded"
-                              value={femorSize}
-                              onChange={handleFemorSizeChange}
-                            />
+                            {femursizeoptions.map((option, index) => (
+                              <label
+                                key={index}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <input
+                                  type="radio"
+                                  name="dynamicRadio11"
+                                  value={option}
+                                  checked={femorSize === option}
+                                  onChange={() => setFemorSize(option)}
+                                  className="form-radio text-blue-600"
+                                />
+                                <span>{option}</span>
+                              </label>
+                            ))}
                           </div>
                           <div className="flex gap-1">
                             <button
@@ -5547,7 +5646,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                       ) : (
                         <div className="flex flex-row gap-2">
                           <p className="text-black text-base font-medium">
-                            {patientsurgery?.[0].bone_resection.femur_size.size}
+                            {patientsurgery?.[0].bone_resection.pfj_resurfacing}
                           </p>
                           <button
                             onClick={() => {
@@ -5560,84 +5659,33 @@ const page = ({ goToReport, goToIJRAdd }) => {
                         </div>
                       )}
                     </td>
-                    <td>
-                      <div className="flex flex-row text-black text-lg font-medium gap-8">
-                        {isEditFemurShape ? (
-                          <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                            <div className="flex flex-row items-center text-black text-lg font-medium gap-8">
-                              {femursizeoptions.map((option, index) => (
-                                <label
-                                  key={index}
-                                  className="flex items-center gap-2 cursor-pointer"
-                                >
-                                  <input
-                                    type="radio"
-                                    name="dynamicRadio11"
-                                    value={option}
-                                    checked={femurShape === option}
-                                    onChange={() => setFemurShape(option)}
-                                    className="form-radio text-blue-600"
-                                  />
-                                  <span>{option}</span>
-                                </label>
-                              ))}
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={handleFemurShapeSave}
-                                className="text-green-600 text-xs cursor-pointer"
-                              >
-                                <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditFemurShape(false);
-                                  setFemorSize("");
-                                }}
-                                className="text-red-600 text-xs cursor-pointer"
-                              >
-                                <XMarkIcon className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-row gap-2">
-                            <p className="text-black text-base font-medium">
-                              {
-                                patientsurgery?.[0].bone_resection.femur_size
-                                  .shape
-                              }
-                            </p>
-                            <button
-                              onClick={() => {
-                                setIsEditFemurShape(true);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </td>
+
                   </tr>
                   <tr>
                     <td colSpan="2" className="h-8"></td>
                   </tr>
                   <tr className="align-middle">
                     <td className="font-bold text-lg text-black w-1/3">
-                      TIBIAL SIZE
+                      TRACHELA RESECTION
                     </td>
                     <td className="font-medium text-lg text-black">
                       {isEditTibialSize ? (
                         <div className="flex flex-row gap-2 text-black text-lg font-medium">
                           <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                            <input
-                              type="text"
-                              className="border px-2 py-1 w-24 mr-1 rounded"
+                            <select
+                              className="border px-2 py-1 rounded"
                               value={tibialSize}
                               onChange={handleTibialSizeChange}
-                            />
+                            >
+                              {Array.from({ length: 16 }, (_, i) => {
+                                const label = `${i} mm`;
+                                return (
+                                  <option key={i} value={label}>
+                                    {label}
+                                  </option>
+                                );
+                              })}
+                            </select>
                           </div>
                           <div className="flex gap-1">
                             <button
@@ -5660,7 +5708,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                       ) : (
                         <div className="flex flex-row gap-2">
                           <p className="text-black text-base font-medium">
-                            {patientsurgery?.[0].bone_resection.tibial_size}
+                            {patientsurgery?.[0].bone_resection.trachela_resection}
                           </p>
                           <button
                             onClick={() => {
@@ -5679,18 +5727,28 @@ const page = ({ goToReport, goToIJRAdd }) => {
                   </tr>
                   <tr className="align-middle">
                     <td className="font-bold text-lg text-black w-1/3">
-                      INSERT THICKNESS
+                      PATELLA
                     </td>
                     <td className="font-medium text-lg text-black">
                       {isEditInsertThicknesssize ? (
                         <div className="flex flex-row gap-2 text-black text-lg font-medium">
                           <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                            <input
-                              type="text"
-                              className="border px-2 py-1 w-24 mr-1 rounded"
-                              value={insertThicknesssize}
-                              onChange={handleInsertThicknesssizeChange}
-                            />
+                            {insertthicknessoptions.map((option, index) => (
+                              <label
+                                key={index}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <input
+                                  type="radio"
+                                  name="dynamicRadio10"
+                                  value={option}
+                                  checked={insertThicknesssize === option}
+                                  onChange={() => handleInsertThicknesssizeChange(option)}
+                                  className="form-radio text-blue-600"
+                                />
+                                <span>{option}</span>
+                              </label>
+                            ))}
                           </div>
                           <div className="flex gap-1">
                             <button
@@ -5715,7 +5773,7 @@ const page = ({ goToReport, goToIJRAdd }) => {
                           <p className="text-black text-xl font-medium">
                             {
                               patientsurgery?.[0].bone_resection
-                                .insert_thickness.size
+                                .patella
                             }
                           </p>
                           <button
@@ -5729,119 +5787,112 @@ const page = ({ goToReport, goToIJRAdd }) => {
                         </div>
                       )}
                     </td>
-                    <td>
-                      {isEditInsertThickness ? (
-                        <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                          <div className="flex flex-row items-center text-black text-lg font-medium gap-8">
-                            {insertthicknessoptions.map((option, index) => (
-                              <label
-                                key={index}
-                                className="flex items-center gap-2 cursor-pointer"
-                              >
-                                <input
-                                  type="radio"
-                                  name="dynamicRadio10"
-                                  value={option}
-                                  checked={insertthickness === option}
-                                  onChange={() => setInsertthickness(option)}
-                                  className="form-radio text-blue-600"
-                                />
-                                <span>{option}</span>
-                              </label>
-                            ))}
-                          </div>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={handleInsertThicknessSave}
-                              className="text-green-600 text-xs cursor-pointer"
-                            >
-                              <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setIsEditInsertThickness(false);
-                                setInsertthickness("");
-                              }}
-                              className="text-red-600 text-xs cursor-pointer"
-                            >
-                              <XMarkIcon className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-row gap-2">
-                          <p className="text-black text-xl font-medium">
-                            {
-                              patientsurgery?.[0].bone_resection
-                                .insert_thickness.shape
-                            }
-                          </p>
-                          <button
-                            onClick={() => {
-                              setIsEditInsertThickness(true);
-                            }}
-                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
+
                   </tr>
                   <tr>
                     <td colSpan="2" className="h-8"></td>
                   </tr>
-                  <tr className="align-middle">
-                    <td className="font-bold text-lg text-black w-1/3">
-                      PATELLA SIZE
-                    </td>
 
-                    <td className="font-medium text-lg text-black">
-                      {isEditPatellaSize ? (
-                        <div className="flex flex-row gap-2 text-black text-lg font-medium">
-                          <div className="flex flex-row items-center text-black text-lg font-medium gap-2">
-                            <input
-                              type="text"
-                              className="border px-2 py-1 w-24 mr-1 rounded"
-                              value={patellaSize}
-                              onChange={handlePatellaSizeChange}
-                            />
-                          </div>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={handlePatellaSizeSave}
-                              className="text-green-600 text-xs cursor-pointer"
-                            >
-                              <ClipboardDocumentCheckIcon className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setIsEditPatellaSize(false);
-                                setPatellaSize("");
-                              }}
-                              className="text-red-600 text-xs cursor-pointer"
-                            >
-                              <XMarkIcon className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-row gap-2">
-                          <p className="text-black text-xl font-medium">
-                            {patientsurgery?.[0].bone_resection.patella_size}
-                          </p>
+                  {patientsurgery?.[0].bone_resection.pfj_resurfacing === "YES" && (
+                    <>
+                      <tr className="align-middle">
+                        <td className="font-bold text-lg text-black w-1/3">PRE RESURFACING THICKNESS</td>
+                        <td className="font-medium text-lg text-black">
+                          {isEditPreResurfacing ? (
+                        <div className="flex items-center gap-2">
+                          <select
+                            className="border px-2 py-1 rounded"
+                            value={preResurfacingThickness}
+                            onChange={handlePreResurfacingChange}
+                          >
+                            {Array.from({ length: 16 }, (_, i) => {
+                              const label = `${i} mm`;
+                              return (
+                                <option key={i} value={label}>
+                                  {label}
+                                </option>
+                              );
+                            })}
+                          </select>
+                          <button onClick={handlePreResurfacingSave} className="text-green-600">
+                            <ClipboardDocumentCheckIcon className="w-5 h-5 cursor-pointer" />
+                          </button>
                           <button
                             onClick={() => {
-                              setIsEditPatellaSize(true);
+                              setIsEditPreResurfacing(false);
+                              setPreResurfacingThickness(preresurfacingthickness || "");
                             }}
-                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                            className="text-red-600"
                           >
-                            <PencilIcon className="w-4 h-4" />
+                            <XMarkIcon className="w-5 h-5 cursor-pointer" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span>{patientsurgery?.[0].bone_resection.preresurfacing || "-"}</span>
+                          <button
+                            onClick={() => setIsEditPreResurfacing(true)}
+                            className="text-gray-400 hover:text-gray-600"
+                          >
+                            <PencilIcon className="w-4 h-4 cursor-pointer" />
                           </button>
                         </div>
                       )}
                     </td>
                   </tr>
+
+                  <tr>
+                    <td colSpan="2" className="h-8"></td>
+                  </tr>
+
+                  <tr className="align-middle">
+                    <td className="font-bold text-lg text-black w-1/3">POST RESURFACING THICKNESS</td>
+                    <td className="font-medium text-lg text-black">
+                      {isEditPostResurfacing ? (
+                        <div className="flex items-center gap-2">
+                          <select
+                            className="border px-2 py-1 rounded"
+                            value={postResurfacingThickness}
+                            onChange={handlePostResurfacingChange}
+                          >
+                            {Array.from({ length: 16 }, (_, i) => {
+                              const label = `${i} mm`;
+                              return (
+                                <option key={i} value={label}>
+                                  {label}
+                                </option>
+                              );
+                            })}
+                          </select>
+                          <button onClick={handlePostResurfacingSave} className="text-green-600">
+                            <ClipboardDocumentCheckIcon className="w-5 h-5 cursor-pointer" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsEditPostResurfacing(false);
+                              setPostResurfacingThickness(postresurfacingthickness || "");
+                            }}
+                            className="text-red-600"
+                          >
+                            <XMarkIcon className="w-5 h-5 cursor-pointer" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span>{patientsurgery?.[0].bone_resection.postresurfacing || "-"}</span>
+                          <button
+                            onClick={() => setIsEditPostResurfacing(true)}
+                            className="text-gray-400 hover:text-gray-600"
+                          >
+                            <PencilIcon className="w-4 h-4 cursor-pointer" />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                </>
+              )}
+                  
                 </tbody>
               </table>
             </div>

@@ -123,8 +123,16 @@ const page = ({ closeijr }) => {
   const questionnaire_assigned_right =
     patient?.questionnaire_assigned_right || [];
   useEffect(() => {
-    setLeftCurrentStatus(getPeriodFromSurgeryDate(patient?.post_surgery_details_left?.date_of_surgery));
-    setRightCurrentStatus(getPeriodFromSurgeryDate(patient?.post_surgery_details_right?.date_of_surgery));
+    setLeftCurrentStatus(
+      getPeriodFromSurgeryDate(
+        patient?.post_surgery_details_left?.date_of_surgery
+      )
+    );
+    setRightCurrentStatus(
+      getPeriodFromSurgeryDate(
+        patient?.post_surgery_details_right?.date_of_surgery
+      )
+    );
   }, [questionnaire_assigned_left, questionnaire_assigned_right]);
 
   const getCurrentPeriod = (side) => {
@@ -233,13 +241,14 @@ const page = ({ closeijr }) => {
   const [operatingsurgeon, setoperatingsurgeon] = useState(
     "DR. VETRI KUMAR M K"
   );
-  const operatingsurgeonoptions = ["DR. VETRI KUMAR M K", "DR. VINOTH"];
+  const operatingsurgeonoptions = ["DR. VETRI KUMAR M K", "DR. VINOTH KUMAR"];
 
-  const [firstassisstant, setfirstassisstant] = useState("DR. VINOTH");
-  const firstassisstantoptions = ["DR. VETRI KUMAR M K", "DR. VINOTH"];
+  const [firstassisstant, setfirstassisstant] = useState("DR. VINOTH KUMAR");
+  const firstassisstantoptions = ["DR. VETRI KUMAR M K", "DR. VINOTH KUMAR"];
 
-  const [secondassisstant, setsecondassisstant] = useState("DR. MILAN");
-  const secondassisstantoptions = ["DR. VINOTH", "DR. MILAN"];
+  const [secondassisstant, setsecondassisstant] =
+    useState("DR. MILAN ADHIKARI");
+  const secondassisstantoptions = ["DR. VINOTH KUMAR", "DR. MILAN ADHIKARI"];
 
   const [manageproc, setmanagproc] = useState("");
   const procedureoptions = [
@@ -259,13 +268,30 @@ const page = ({ closeijr }) => {
   };
 
   const [surgindi, setsurgindi] = useState("");
-  const surgindioptions = ["DEFORMITY", "VARUS", "VALGUS", "PF"];
+  const surgindioptions = [
+    "VARUS",
+    "VALGUS",
+    "FLEXION CONTRACTION",
+    "RECURVATUM DEFORMITY",
+  ];
+  const handleCheckboxChange = (option) => {
+  const currentValues = surgindi ? surgindi.split(",") : [];
+  if (currentValues.includes(option)) {
+    // Remove unchecked option
+    const updated = currentValues.filter((item) => item !== option);
+    setsurgindi(updated.join(","));
+  } else {
+    // Add checked option
+    const updated = [...currentValues, option];
+    setsurgindi(updated.join(","));
+  }
+};
 
   const [techassist, settechassist] = useState("");
-  const techassistoptions = ["COMPUTER GUIDE", "ROBOTIC", "PSI"];
+  const techassistoptions = ["COMPUTER GUIDE", "ROBOTIC", "PSI","CONVENTIONAL INSTRUMENTS"];
 
   const [alignphil, setalignphil] = useState("");
-  const alignphiloptions = ["MA", "KA", "RKA", "FA", "IKA", "HYBRID"];
+  const alignphiloptions = ["MA", "KA", "rKA", "FA", "iKA", "HYBRID"];
 
   const [toruused, settourused] = useState("");
   const tourusedoptions = ["Yes", "No"];
@@ -386,7 +412,7 @@ const page = ({ closeijr }) => {
     setWearStatus(event.target.value);
   };
 
-  const [distalmedialinithick, setdistalmedialinithick] = useState(""); // or use 0 for a number
+  const [distalmedialinithick, setdistalmedialinithick] = useState("0 mm"); // or use 0 for a number
 
   const handleInputdistalmedialinithick = (event) => {
     setdistalmedialinithick(event.target.value);
@@ -398,7 +424,7 @@ const page = ({ closeijr }) => {
     setdistalmedialrecutyn(event.target.value);
   };
 
-  const [distalmedialrecutvalue, setdistalmedialrecutvalue] = useState(""); // or use 0 for a number
+  const [distalmedialrecutvalue, setdistalmedialrecutvalue] = useState("0 mm"); // or use 0 for a number
 
   const handleInputdistalmedialrecutvalue = (event) => {
     setdistalmedialrecutvalue(event.target.value);
@@ -410,13 +436,13 @@ const page = ({ closeijr }) => {
     setdistalmedialwasheryn(event.target.value);
   };
 
-  const [distalmedialwashervalue, setdistalmedialwashervalue] = useState(""); // or use 0 for a number
+  const [distalmedialwashervalue, setdistalmedialwashervalue] = useState("0 mm"); // or use 0 for a number
 
   const handleInputdistalmedialwashervalue = (event) => {
     setdistalmedialwashervalue(event.target.value);
   };
 
-  const [distalmedialfinalthick, setdistalmedialfinalthick] = useState(""); // or use 0 for a number
+  const [distalmedialfinalthick, setdistalmedialfinalthick] = useState("0 mm"); // or use 0 for a number
 
   const handleInputdistalmedialfinalthick = (event) => {
     setdistalmedialfinalthick(event.target.value);
@@ -426,7 +452,7 @@ const page = ({ closeijr }) => {
   const [wearStatusLat, setWearStatusLat] = useState("");
   const handleChangeWearStatusLat = (e) => setWearStatusLat(e.target.value);
 
-  const [distallateralinithick, setdistallateralinithick] = useState("");
+  const [distallateralinithick, setdistallateralinithick] = useState("0 mm");
   const handleInputdistallateralinithick = (e) =>
     setdistallateralinithick(e.target.value);
 
@@ -434,7 +460,7 @@ const page = ({ closeijr }) => {
   const handleInputdistallateralrecutyn = (e) =>
     setdistallateralrecutyn(e.target.value);
 
-  const [distallateralrecutvalue, setdistallateralrecutvalue] = useState("");
+  const [distallateralrecutvalue, setdistallateralrecutvalue] = useState("0 mm");
   const handleInputdistallateralrecutvalue = (e) =>
     setdistallateralrecutvalue(e.target.value);
 
@@ -442,11 +468,11 @@ const page = ({ closeijr }) => {
   const handleInputdistallateralwasheryn = (e) =>
     setdistallateralwasheryn(e.target.value);
 
-  const [distallateralwashervalue, setdistallateralwashervalue] = useState("");
+  const [distallateralwashervalue, setdistallateralwashervalue] = useState("0 mm");
   const handleInputdistallateralwashervalue = (e) =>
     setdistallateralwashervalue(e.target.value);
 
-  const [distallateralfinalthick, setdistallateralfinalthick] = useState("");
+  const [distallateralfinalthick, setdistallateralfinalthick] = useState("0 mm");
   const handleInputdistallateralfinalthick = (e) =>
     setdistallateralfinalthick(e.target.value);
 
@@ -463,7 +489,7 @@ const page = ({ closeijr }) => {
   const handlePostmedialRecutYNChange = (e) =>
     setPostmedialRecutYN(e.target.value);
 
-  const [postmedialRecutValue, setPostmedialRecutValue] = useState("");
+  const [postmedialRecutValue, setPostmedialRecutValue] = useState("0 mm");
   const handlePostmedialRecutValueChange = (e) =>
     setPostmedialRecutValue(e.target.value);
 
@@ -476,7 +502,7 @@ const page = ({ closeijr }) => {
   const handlePostlateralWearChange = (e) => setPostlateralWear(e.target.value);
 
   const [postlateralInitialThickness, setPostlateralInitialThickness] =
-    useState("");
+    useState("0 mm");
   const handlePostlateralInitialThicknessChange = (e) =>
     setPostlateralInitialThickness(e.target.value);
 
@@ -484,7 +510,7 @@ const page = ({ closeijr }) => {
   const handlePostlateralRecutYNChange = (e) =>
     setPostlateralRecutYN(e.target.value);
 
-  const [postlateralRecutValue, setPostlateralRecutValue] = useState("");
+  const [postlateralRecutValue, setPostlateralRecutValue] = useState("0 mm");
   const handlePostlateralRecutValueChange = (e) =>
     setPostlateralRecutValue(e.target.value);
 
@@ -497,20 +523,20 @@ const page = ({ closeijr }) => {
   const [tibialLeftWear, setTibialLeftWear] = useState("");
   const handleTibialLeftWearChange = (e) => setTibialLeftWear(e.target.value);
 
-  const [tibialLeftValue, setTibialLeftValue] = useState("");
+  const [tibialLeftValue, setTibialLeftValue] = useState("0 mm");
   const handleTibialLeftValueChange = (e) => setTibialLeftValue(e.target.value);
 
   const [tibialRightWear, setTibialRightWear] = useState("");
   const handleTibialRightWearChange = (e) => setTibialRightWear(e.target.value);
 
-  const [tibialRightValue, setTibialRightValue] = useState("");
+  const [tibialRightValue, setTibialRightValue] = useState("0 mm");
   const handleTibialRightValueChange = (e) =>
     setTibialRightValue(e.target.value);
 
   const [tibialVVRecutYN, setTibialVVRecutYN] = useState("");
   const handleTibialVVRecutYNChange = (e) => setTibialVVRecutYN(e.target.value);
 
-  const [tibialVVRecutValue, setTibialVVRecutValue] = useState("");
+  const [tibialVVRecutValue, setTibialVVRecutValue] = useState("0 mm");
   const handleTibialVVRecutValueChange = (e) =>
     setTibialVVRecutValue(e.target.value);
 
@@ -518,7 +544,7 @@ const page = ({ closeijr }) => {
   const handleTibialSlopeRecutYNChange = (e) =>
     setTibialSlopeRecutYN(e.target.value);
 
-  const [tibialSlopeRecutValue, setTibialSlopeRecutValue] = useState("");
+  const [tibialSlopeRecutValue, setTibialSlopeRecutValue] = useState("0 mm");
   const handleTibialSlopeRecutValueChange = (e) =>
     setTibialSlopeRecutValue(e.target.value);
 
@@ -526,10 +552,10 @@ const page = ({ closeijr }) => {
   const handleFinalCheckChange = (e) => setFinalCheck(e.target.value);
 
   const [femursize, setfemursize] = useState("");
-  const femursizeoptions = ["SPHERIKA", "SPHERIKA ST", "SPHERE"];
+  const femursizeoptions = ["YES", "NO"];
 
   const [insertthickness, setinsertthickness] = useState("");
-  const insertthicknessoptions = ["CR", "Vit E CR/CS", "CS"];
+  const insertthicknessoptions = ["WORN", "UNWORN"];
 
   const rowHeaders = ["MANUFACTURER", "MODEL", "SIZE"];
   const colHeaders = ["FEMUR", "TIBIA", "INSERT", "PATELLA"];
@@ -553,7 +579,7 @@ const page = ({ closeijr }) => {
   const [femorSize, setFemorSize] = useState("");
   const handleFemorSizeChange = (e) => setFemorSize(e.target.value);
 
-  const [tibialSize, setTibialSize] = useState("");
+  const [tibialSize, setTibialSize] = useState("0 mm");
   const handleTibialSizeChange = (e) => setTibialSize(e.target.value);
 
   const [insertThickness, setInsertThickness] = useState("");
@@ -561,6 +587,12 @@ const page = ({ closeijr }) => {
 
   const [patellaSize, setPatellaSize] = useState("");
   const handlePatellaSizeChange = (e) => setPatellaSize(e.target.value);
+
+  const [preresurfacingthickness, setpreresurfacingthickness] = useState("0 mm");
+  const handlePreresurfacingThicknessChange = (e) => setpreresurfacingthickness(e.target.value);
+
+  const [postresurfacingthickness, setpostresurfacingthickness] = useState("0 mm");
+  const handlePostresurfacingThicknessChange = (e) => setpostresurfacingthickness(e.target.value);
 
   // const optionsData = {
   //   FEMUR: {
@@ -605,48 +637,57 @@ const page = ({ closeijr }) => {
   //   },
   // };
 
-  const optionsData = {
-    FEMUR: {
-      MANUFACTURER: ["BIORAD MEDISYS"],
-      MANUFACTURER: ["BIORAD MEDISYS"],
-      MODEL: {
-        "BIORAD MEDISYS": ["EXCEL MPK"],
-      },
-      SIZE: {
-        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
-      },
+const optionsData = {
+  "FEMUR": {
+    "MANUFACTURER": ["BIORAD MEDISYS", "MICROPORT"],
+    "MODEL": {
+      "BIORAD MEDISYS": ["EXCEL MPK"],
+      "MICROPORT": ["EVOLUATION"]
     },
-    TIBIA: {
-      MANUFACTURER: ["BIORAD MEDISYS"],
-      MANUFACTURER: ["BIORAD MEDISYS"],
-      MODEL: {
-        "BIORAD MEDISYS": ["EXCEL MPK"],
-      },
-      SIZE: {
-        "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
-      },
+    "SIZE": {
+      "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "EVOLUATION": ["1 mm", "2 mm", "3 mm", "4 mm", "5 mm", "6 mm", "7 mm", "8 mm"]
+    }
+  },
+  "TIBIA": {
+    "MANUFACTURER": ["BIORAD MEDISYS", "MICROPORT"],
+    "MODEL": {
+      "BIORAD MEDISYS": ["EXCEL MPK"],
+      "MICROPORT": ["EVOLUATION"]
     },
-    INSERT: {
-      MANUFACTURER: ["BIORAD MEDISYS"],
-      MANUFACTURER: ["BIORAD MEDISYS"],
-      MODEL: {
-        "BIORAD MEDISYS": ["EXCEL MPK"],
-      },
-      SIZE: {
-        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
-      },
+    "SIZE": {
+      "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
+      "EVOLUATION": [
+        "1 mm", "2 mm", "2+ mm", "3 mm", "4 mm",
+        "5 mm", "6 mm", "6+ mm", "7 mm", "8 mm"
+      ]
+    }
+  },
+  "INSERT": {
+    "MANUFACTURER": ["BIORAD MEDISYS", "MICROPORT"],
+    "MODEL": {
+      "BIORAD MEDISYS": ["EXCEL MPK"],
+      "MICROPORT": ["EVOLUATION"]
     },
-    PATELLA: {
-      MANUFACTURER: ["BIORAD MEDISYS"],
-      MANUFACTURER: ["BIORAD MEDISYS"],
-      MODEL: {
-        "BIORAD MEDISYS": ["EXCEL MPK"],
-      },
-      SIZE: {
-        "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
-      },
+    "SIZE": {
+      "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
+      "EVOLUATION": ["10 mm", "12 mm", "14 mm", "17 mm", "21 mm"]
+    }
+  },
+  "PATELLA": {
+    "MANUFACTURER": ["BIORAD MEDISYS", "MICROPORT"],
+    "MODEL": {
+      "BIORAD MEDISYS": ["EXCEL MPK"],
+      "MICROPORT": ["EVOLUATION"]
     },
-  };
+    "SIZE": {
+      "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
+      "EVOLUATION": ["26 mm", "29 mm", "32 mm", "35 mm", "38 mm", "41 mm"]
+    }
+  }
+};
+
+
   const [selectedValues, setSelectedValues] = useState(
     colHeaders.reduce((acc, col) => {
       acc[col] = rowHeaders.reduce((rowAcc, row) => {
@@ -675,13 +716,17 @@ const page = ({ closeijr }) => {
     });
   };
 
- const isoDate =
-  (patient?.post_surgery_details_left?.date_of_surgery?.startsWith("0001-01-01")
-    ? null
-    : patient?.post_surgery_details_left?.date_of_surgery) ||
-  (patient?.post_surgery_details_right?.date_of_surgery?.startsWith("0001-01-01")
-    ? null
-    : patient?.post_surgery_details_right?.date_of_surgery);
+  const isoDate =
+    (patient?.post_surgery_details_left?.date_of_surgery?.startsWith(
+      "0001-01-01"
+    )
+      ? null
+      : patient?.post_surgery_details_left?.date_of_surgery) ||
+    (patient?.post_surgery_details_right?.date_of_surgery?.startsWith(
+      "0001-01-01"
+    )
+      ? null
+      : patient?.post_surgery_details_right?.date_of_surgery);
 
   const istDate = new Date(isoDate);
 
@@ -692,34 +737,101 @@ const page = ({ closeijr }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const clearAllFields = () => {
-    setselectedHospital("Parvathy Hospital");
-    setSelected("");
-    setasagrade("");
-    setpreopflexion("");
-    setpreopextension("");
-    setconsultant("DR. VETRI KUMAR M K");
-    setoperatingsurgeon("DR. VETRI KUMAR M K");
-    setfirstassisstant("DR. VINOTH");
-    setsecondassisstant("DR. MILAN");
-    setmanagproc("");
-    setsurgindi("");
-    settechassist("");
-    setalignphil("");
-    settourused("");
-    setoptime("");
-    setSelectedKnees([]);
-    setopname("");
-    setSelectedValues(
-      colHeaders.reduce((acc, col) => {
-        acc[col] = rowHeaders.reduce((rowAcc, row) => {
-          rowAcc[row] = "";
-          return rowAcc;
-        }, {});
-        return acc;
-      }, {})
-    );
-  };
+const clearAllFields = () => {
+  setselectedHospital("Parvathy Hospital");
+  setSelected("");
+  setasagrade("");
+  setpreopflexion("");
+  setpreopextension("");
+  setconsultant("DR. VETRI KUMAR M K");
+  setoperatingsurgeon("DR. VETRI KUMAR M K");
+  setfirstassisstant("DR. VINOTH");
+  setsecondassisstant("DR. MILAN");
+  setmanagproc("");
+  setsurgindi("");
+  settechassist("");
+  setalignphil("");
+  settourused("");
+  setoptime("");
+  setSelectedKnees([]);
+  setopname("");
+
+  setSelectedValues(
+    colHeaders.reduce((acc, col) => {
+      acc[col] = rowHeaders.reduce((rowAcc, row) => {
+        rowAcc[row] = "";
+        return rowAcc;
+      }, {});
+      return acc;
+    }, {})
+  );
+
+  // ACL / PCL
+  setaclcondition("");
+  setpclcondition("");
+
+  // DISTAL MEDIAL
+  setWearStatus("");
+  setdistalmedialinithick("0 mm");
+  setdistalmedialrecutyn("");
+  setdistalmedialrecutvalue("0 mm");
+  setdistalmedialwasheryn("");
+  setdistalmedialwashervalue("0 mm");
+  setdistalmedialfinalthick("0 mm");
+
+  // DISTAL LATERAL
+  setWearStatusLat("");
+  setdistallateralinithick("0 mm");
+  setdistallateralrecutyn("");
+  setdistallateralrecutvalue("0 mm");
+  setdistallateralwasheryn("");
+  setdistallateralwashervalue("0 mm");
+  setdistallateralfinalthick("0 mm");
+
+  // POST MEDIAL
+  setPostmedialWear("");
+  setPostmedialInitialThickness("");
+  setPostmedialRecutYN("");
+  setPostmedialRecutValue("0 mm");
+  setPostmedialFinalThickness("");
+
+  // POST LATERAL
+  setPostlateralWear("");
+  setPostlateralInitialThickness("0 mm");
+  setPostlateralRecutYN("");
+  setPostlateralRecutValue("0 mm");
+  setPostlateralFinalThickness("");
+
+  // TIBIAL
+  setTibialLeftWear("");
+  setTibialLeftValue("0 mm");
+  setTibialRightWear("");
+  setTibialRightValue("0 mm");
+  setTibialVVRecutYN("");
+  setTibialVVRecutValue("0 mm");
+  setTibialSlopeRecutYN("");
+  setTibialSlopeRecutValue("0 mm");
+  setTibialSize("0 mm");
+
+  // FINAL CHECK + INSERT + FEMUR
+  setFinalCheck("");
+  setfemursize("");
+  setinsertthickness("");
+  setpreresurfacingthickness("0 mm");
+  setpostresurfacingthickness("0 mm");
+
+  // Reset table data
+  setTableData(
+    [10, 11, 12, 13, 14].map((thickness) => ({
+      thickness,
+      numOfTicks: "",
+      extensionExtOrient: "",
+      flexionIntOrient: "",
+      liftOff: ""
+    }))
+  );
+};
+
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -784,8 +896,8 @@ const page = ({ closeijr }) => {
       errors.align_phil = "Alignment philosophy is required.";
     if (!isNonEmpty(payload.torq_used))
       errors.torq_used = "Torque used info is required.";
-    if (!isNonEmpty(payload.op_name))
-      errors.op_name = "Operation name is required.";
+    // if (!isNonEmpty(payload.op_name))
+    //   errors.op_name = "Operation name is required.";
     if (!isValidDate(payload.op_date))
       errors.op_date = "Valid operation date (YYYY-MM-DD) is required.";
     if (!isValidTime(payload.op_time))
@@ -863,18 +975,25 @@ const page = ({ closeijr }) => {
       errors.final_check = "Final check is required.";
 
     // Femur, Tibia, Insert, Patella size info
-    if (!isNonEmpty(bone.femur_size?.size))
-      errors.femur_size = "Femur size is required.";
-    if (!isNonEmpty(bone.femur_size?.shape))
-      errors.femur_shape = "Femur shape is required.";
-    if (!isNonEmpty(bone.tibial_size))
-      errors.tibial_size = "Tibial size is required.";
-    if (!isNonEmpty(bone.insert_thickness?.size))
-      errors.insert_size = "Insert thickness is required.";
-    if (!isNonEmpty(bone.insert_thickness?.shape))
-      errors.insert_shape = "Insert shape is required.";
-    if (!isNonEmpty(bone.patella_size))
-      errors.patella_size = "Patella size is required.";
+        if (!isNonEmpty(bone.pfj_resurfacing)) {
+          errors.pfj_resurfacing = "PFJ Resurfacing is required.";
+        } else if (bone.pfj_resurfacing === "YES") {
+          if (!isNonEmpty(bone.preresurfacing)) {
+            errors.preresurfacing = "Pre-resurfacing thickness is required.";
+          }
+          if (!isNonEmpty(bone.postresurfacing)) {
+            errors.postresurfacing = "Post-resurfacing thickness is required.";
+          }
+        }
+    // if (!isNonEmpty(bone.femur_size?.shape))
+    //   errors.femur_shape = "Femur shape is required.";
+    if (!isNonEmpty(bone.trachela_resection))
+      errors.trachela_resection = "Tracheal Resection is required.";
+    if (!isNonEmpty(bone.patella))
+      errors.patella = "Patella is required.";
+    // if (!isNonEmpty(bone.insert_thickness?.shape))
+    //   errors.insert_shape = "Insert shape is required.";
+
 
     // Thickness Table Validation
     const table = bone.thickness_table || [];
@@ -899,17 +1018,17 @@ const page = ({ closeijr }) => {
     return errors;
   };
 
-    const side = [
-  ...(patient?.post_surgery_details_left?.date_of_surgery &&
+  const side = [
+    ...(patient?.post_surgery_details_left?.date_of_surgery &&
     !patient.post_surgery_details_left.date_of_surgery.startsWith("0001-01-01")
       ? ["Left Knee"]
       : []),
 
-  ...(patient?.post_surgery_details_right?.date_of_surgery &&
+    ...(patient?.post_surgery_details_right?.date_of_surgery &&
     !patient.post_surgery_details_right.date_of_surgery.startsWith("0001-01-01")
       ? ["Right Knee"]
       : []),
-];
+  ];
 
   const handleSendremainder = async () => {
     const payload = {
@@ -932,7 +1051,7 @@ const page = ({ closeijr }) => {
       tech_assist: techassist,
       align_phil: alignphil,
       torq_used: toruused,
-      op_name: opname,
+      // op_name: opname,
       op_date: dateOnlyIST,
       op_time: optime,
       components_details: selectedValues,
@@ -989,22 +1108,17 @@ const page = ({ closeijr }) => {
         },
         final_check: finalCheck,
         thickness_table: tableData,
-        femur_size: {
-          size: femorSize,
-          shape: femursize,
-        },
-        tibial_size: tibialSize,
-        insert_thickness: {
-          size: insertThickness,
-          shape: insertthickness,
-        },
-        patella_size: patellaSize,
+        pfj_resurfacing: femursize,
+        trachela_resection: tibialSize,
+        patella: insertthickness,
+        preresurfacing:preresurfacingthickness,
+        postresurfacing: postresurfacingthickness,
       },
       posting_timestamp: new Date().toISOString(),
     };
-    // console.log("Surgery Data", payload);
+    console.log("Surgery Data", payload);
     // return;
-    setIsSubmitting(true); // 🔒 Lock submission
+    // setIsSubmitting(true); // 🔒 Lock submission
 
     try {
       const response = await fetch(API_URL + "uploadpatientsurgery", {
@@ -1073,13 +1187,13 @@ const page = ({ closeijr }) => {
       first_assistant: firstassisstant,
       second_assistant: secondassisstant,
       mag_proc: manageproc,
-      side: selectedKnees.join(", "),
+      side: side.join(", "),
       surgery_indication: surgindi,
       tech_assist: techassist,
       align_phil: alignphil,
       torq_used: toruused,
-      op_name: opname,
-      op_date: surgerydate,
+      // op_name: opname,
+      op_date: dateOnlyIST,
       op_time: optime,
       components_details: selectedValues,
       bone_resection: {
@@ -1135,16 +1249,11 @@ const page = ({ closeijr }) => {
         },
         final_check: finalCheck,
         thickness_table: tableData,
-        femur_size: {
-          size: femorSize,
-          shape: femursize,
-        },
-        tibial_size: tibialSize,
-        insert_thickness: {
-          size: insertThickness,
-          shape: insertthickness,
-        },
-        patella_size: patellaSize,
+        pfj_resurfacing: femursize,
+        trachela_resection: tibialSize,
+        patella: insertthickness,
+        preresurfacing:preresurfacingthickness,
+        postresurfacing: postresurfacingthickness,
       },
       posting_timestamp: new Date().toISOString(),
     };
@@ -1161,21 +1270,23 @@ const page = ({ closeijr }) => {
     }
   };
 
-  function getPeriodFromSurgeryDate(surgeryDateStr,patient) {
+  function getPeriodFromSurgeryDate(surgeryDateStr, patient) {
     if (!surgeryDateStr) return "Not Found";
 
-  const surgeryDate = new Date(surgeryDateStr);
+    const surgeryDate = new Date(surgeryDateStr);
 
-  // Check for invalid or default placeholder date
-  if (
-    isNaN(surgeryDate) ||
-    surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
-  ) {
-    return "Not Found";
-  }
+    // Check for invalid or default placeholder date
+    if (
+      isNaN(surgeryDate) ||
+      surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
+    ) {
+      return "Not Found";
+    }
 
     const today = new Date();
-    const diffInDays = Math.floor((today - surgeryDate) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor(
+      (today - surgeryDate) / (1000 * 60 * 60 * 24)
+    );
 
     if (diffInDays < 0) {
       return "Pre Op";
@@ -1698,8 +1809,13 @@ const page = ({ closeijr }) => {
 
               {/* INDICATION OF SURGERY Row */}
               <tr className="align-middle">
-                <td className="font-bold text-lg text-black w-1/4">
+                <td className="font-bold text-xl text-black w-1/4">
                   INDICATION OF SURGERY
+                </td>
+              </tr>
+              <tr className="align-middle">
+                <td className="font-bold text-lg text-black w-1/4">
+                  DEFORMITY
                 </td>
                 <td>
                   <div className="flex flex-row text-black text-lg font-medium gap-8">
@@ -1709,12 +1825,11 @@ const page = ({ closeijr }) => {
                         className="flex items-center gap-2 cursor-pointer"
                       >
                         <input
-                          type="radio"
-                          name="dynamicRadio4"
+                          type="checkbox"
                           value={option}
-                          checked={surgindi === option}
-                          onChange={() => setsurgindi(option)}
-                          className="form-radio text-blue-600"
+                          checked={surgindi.includes(option)}
+                          onChange={() => handleCheckboxChange(option)}
+                          className="form-checkbox text-blue-600"
                         />
                         <span>{option}</span>
                       </label>
@@ -1826,23 +1941,7 @@ const page = ({ closeijr }) => {
                 </td>
               </tr>
 
-              <tr className="align-middle">
-                <td className="font-bold text-lg text-black w-1/3">
-                  OPERATIVE NAME
-                </td>
-                <td>
-                  <div className="flex flex-row items-center gap-4">
-                    <input
-                      id="opname"
-                      type="text"
-                      placeholder=""
-                      value={opname}
-                      onChange={handleChangeopname}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black font-semibold text-lg"
-                    />
-                  </div>
-                </td>
-              </tr>
+              
 
               <tr className="align-middle">
                 <td className="font-bold text-lg text-black w-1/3">
@@ -1867,7 +1966,7 @@ const page = ({ closeijr }) => {
                     <input
                       id="optime"
                       type="text"
-                      placeholder="HH:MM (24 HRS)"
+                      placeholder="HH:MM"
                       value={optime}
                       maxLength={5}
                       onChange={handleOptimeChange}
@@ -1935,317 +2034,405 @@ const page = ({ closeijr }) => {
             </tbody>
           </table>
 
-          <div className="w-full h-96 flex flex-row text-black text-sm ">
-            {/* Left image */}
-            <div className="w-1/3 flex justify-center">
-              <Image
-                src={Medialcondyle}
-                alt="Medial Condyle"
-                className="w-2/3 h-full"
-              />
+          <div className="w-full flex flex-row">
+            <div className="w-full h-fit flex flex-row text-black text-sm gap-2 pr-2">
+              {/* Left image */}
+              <div className="w-1/4 flex justify-center">
+                <Image
+                  src={Medialcondyle}
+                  alt="Medial Condyle"
+                  className="w-full h-full"
+                />
+              </div>
+
+              {/* Right content */}
+              <table className="w-3/4 text-black text-base border-separate border-spacing-y-3 h-fit shadow-lg py-2 px-4 rounded-2xl">
+                <tbody>
+                  {/* Heading */}
+                  <tr>
+                    <td colSpan="3" className="text-lg font-bold">
+                      MEDIAL CONDYLE
+                    </td>
+                  </tr>
+
+                  {/* Wear Selection */}
+                  <tr>
+                    <td colSpan="3">
+                      <div className="flex flex-row text-black text-base font-medium gap-8">
+                      <label className="mr-6 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="wear"
+                          value="unworn"
+                          className="mr-1"
+                          checked={wearStatus === "unworn"}
+                          onChange={handleChangewearstatus}
+                        />
+                        UNWORN
+                      </label>
+                      <label className="cursor-pointer">
+                        <input
+                          type="radio"
+                          name="wear"
+                          value="worn"
+                          className="mr-1"
+                          checked={wearStatus === "worn"}
+                          onChange={handleChangewearstatus}
+                        />
+                        WORN
+                      </label>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* INITIAL THICKNESS */}
+                  <tr>
+                    <td className="font-semibold w-1/2 text-base">INITIAL THICKNESS</td>
+                    <td className="w-1/4 text-black text-base flex flex-row items-center font-medium gap-2">
+                      <select
+                        className="border px-2 py-1 w-28 mr-1 rounded"
+                        value={distalmedialinithick}
+                        onChange={handleInputdistalmedialinithick}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </td>
+                  </tr>
+
+                  {/* RECUT */}
+                  <tr>
+                    <td className="font-semibold">RECUT</td>
+                    <td>
+                      <div className="flex flex-row text-black text-base font-medium gap-8">
+                      <label className="mr-4 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="recut"
+                          value="no"
+                          className="mr-1"
+                          checked={distalmedialrecutyn === "no"}
+                          onChange={handleInputdistalmedialrecutyn}
+                        />{" "}
+                        N
+                      </label>
+                      <label className="cursor-pointer">
+                        <input
+                          type="radio"
+                          name="recut"
+                          value="yes"
+                          className="mr-1"
+                          checked={distalmedialrecutyn === "yes"}
+                          onChange={handleInputdistalmedialrecutyn}
+                        />{" "}
+                        Y
+                      </label>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                      <select
+                        className="border px-2 py-1 w-28 rounded mr-1"
+                        value={distalmedialrecutvalue}
+                        onChange={handleInputdistalmedialrecutvalue}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* WASHER */}
+                  <tr>
+                    <td className="font-semibold">WASHER</td>
+                    <td>
+                      <div className="flex flex-row text-black text-base font-medium gap-8">
+                      <label className="mr-4 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="washer"
+                          value="no"
+                          className="mr-1"
+                          checked={distalmedialwasheryn === "no"}
+                          onChange={handleInputdistalmedialwasheryn}
+                        />{" "}
+                        N
+                      </label>
+                      <label className="cursor-pointer">
+                        <input
+                          type="radio"
+                          name="washer"
+                          value="yes"
+                          className="mr-1"
+                          checked={distalmedialwasheryn === "yes"}
+                          onChange={handleInputdistalmedialwasheryn}
+                        />{" "}
+                        Y
+                      </label>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                      <select
+                        className="border px-2 py-1 w-28 rounded mr-1"
+                        value={distalmedialwashervalue}
+                        onChange={handleInputdistalmedialwashervalue}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* FINAL THICKNESS */}
+                  <tr>
+                    <td className="font-semibold">FINAL THICKNESS</td>
+                    <td>
+                      <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                      <select
+                        className="border px-2 py-1 w-24 mr-1 rounded"
+                        value={distalmedialfinalthick}
+                        onChange={handleInputdistalmedialfinalthick}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
-            {/* Right content */}
-            <table className="w-2/3 text-black text-lg border-separate border-spacing-y-2">
-              <tbody>
-                {/* Heading */}
-                <tr>
-                  <td colSpan="3" className="text-lg font-bold pb-2">
-                    MEDIAL CONDYLE
-                  </td>
-                </tr>
+            <div className="w-full h-fit flex flex-row text-black text-sm gap-2 pl-2 ">
 
-                {/* Wear Selection */}
-                <tr>
-                  <td colSpan="1">
-                    <label className="mr-6 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="wear"
-                        value="unworn"
-                        className="mr-1"
-                        checked={wearStatus === "unworn"}
-                        onChange={handleChangewearstatus}
-                      />
-                      UNWORN
-                    </label>
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name="wear"
-                        value="worn"
-                        className="mr-1"
-                        checked={wearStatus === "worn"}
-                        onChange={handleChangewearstatus}
-                      />
-                      WORN
-                    </label>
-                  </td>
-                </tr>
+              {/* Right content */}
+              <table className="w-3/4 text-black text-base border-separate border-spacing-y-3 h-fit shadow-lg py-2 px-4 rounded-2xl">
+                <tbody>
+                  {/* Heading */}
+                  <tr>
+                    <td colSpan="3" className="text-lg font-bold pb-2">
+                      LATERAL CONDYLE
+                    </td>
+                  </tr>
 
-                {/* INITIAL THICKNESS */}
-                <tr>
-                  <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
-                  <td className="w-1/4">
-                    <input
-                      type="text"
-                      className="border px-2 py-1 w-24 mr-1 rounded"
-                      value={distalmedialinithick}
-                      onChange={handleInputdistalmedialinithick}
-                    />
-                    mm
-                  </td>
-                </tr>
+                  {/* LATERAL SECTION */}
 
-                {/* RECUT */}
-                <tr>
-                  <td className="font-semibold">RECUT</td>
-                  <td>
-                    <label className="mr-4 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="recut"
-                        value="no"
-                        className="mr-1"
-                        checked={distalmedialrecutyn === "no"}
-                        onChange={handleInputdistalmedialrecutyn}
-                      />{" "}
-                      N
-                    </label>
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name="recut"
-                        value="yes"
-                        className="mr-1"
-                        checked={distalmedialrecutyn === "yes"}
-                        onChange={handleInputdistalmedialrecutyn}
-                      />{" "}
-                      Y
-                    </label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="border px-2 py-1 w-24 rounded mr-1"
-                      value={distalmedialrecutvalue}
-                      onChange={handleInputdistalmedialrecutvalue}
-                    />
-                    mm
-                  </td>
-                </tr>
+                  {/* Wear Selection */}
+                  <tr>
+                    <td colSpan="3">
+                      <div className="flex flex-row text-black text-base font-medium gap-8">
+                      <label className="mr-6 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="wearLat"
+                          value="unworn"
+                          className="mr-1"
+                          checked={wearStatusLat === "unworn"}
+                          onChange={handleChangeWearStatusLat}
+                        />
+                        UNWORN
+                      </label>
+                      <label className="cursor-pointer">
+                        <input
+                          type="radio"
+                          name="wearLat"
+                          value="worn"
+                          className="mr-1"
+                          checked={wearStatusLat === "worn"}
+                          onChange={handleChangeWearStatusLat}
+                        />
+                        WORN
+                      </label>
+                      </div>
+                    </td>
+                  </tr>
 
-                {/* WASHER */}
-                <tr>
-                  <td className="font-semibold">WASHER</td>
-                  <td>
-                    <label className="mr-4 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="washer"
-                        value="no"
-                        className="mr-1"
-                        checked={distalmedialwasheryn === "no"}
-                        onChange={handleInputdistalmedialwasheryn}
-                      />{" "}
-                      N
-                    </label>
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name="washer"
-                        value="yes"
-                        className="mr-1"
-                        checked={distalmedialwasheryn === "yes"}
-                        onChange={handleInputdistalmedialwasheryn}
-                      />{" "}
-                      Y
-                    </label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="border px-2 py-1 w-24 rounded mr-1"
-                      checked={distalmedialwashervalue}
-                      onChange={handleInputdistalmedialwashervalue}
-                    />
-                    mm
-                  </td>
-                </tr>
+                  {/* INITIAL THICKNESS */}
+                  <tr>
+                    <td className="font-semibold w-1/2">INITIAL THICKNESS</td>
+                    <td>
+                      <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                      <select
+                        className="border px-2 py-1 w-24 mr-1 rounded"
+                        value={distallateralinithick}
+                        onChange={handleInputdistallateralinithick}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      </div>
+                    </td>
+                  </tr>
 
-                {/* FINAL THICKNESS */}
-                <tr>
-                  <td className="font-semibold">FINAL THICKNESS</td>
-                  <td>
-                    <input
-                      type="text"
-                      className="border px-2 py-1 w-24 mr-1 rounded"
-                      checked={distalmedialfinalthick}
-                      onChange={handleInputdistalmedialfinalthick}
-                    />
-                    mm
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  {/* RECUT */}
+                  <tr>
+                    <td className="font-semibold">RECUT</td>
+                    <td className="w-1/4">
+                    <div className="flex flex-row text-black text-base font-medium gap-8">
+                      <label className="mr-4 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="recutLat"
+                          value="no"
+                          className="mr-1"
+                          checked={distallateralrecutyn === "no"}
+                          onChange={handleInputdistallateralrecutyn}
+                        />
+                        N
+                      </label>
+                      <label className="cursor-pointer">
+                        <input
+                          type="radio"
+                          name="recutLat"
+                          value="yes"
+                          className="mr-1"
+                          checked={distallateralrecutyn === "yes"}
+                          onChange={handleInputdistallateralrecutyn}
+                        />
+                        Y
+                      </label>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                      <select
+                        className="border px-2 py-1 w-24 rounded mr-1"
+                        value={distallateralrecutvalue}
+                        onChange={handleInputdistallateralrecutvalue}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      </div>
+                    </td>
+                  </tr>
 
-          <div className="w-full h-96 flex flex-row  text-black text-sm ">
-            {/* Left image */}
-            <div className="w-1/3 flex justify-center">
-              <Image
-                src={Lateralcondyle}
-                alt="Medial Condyle"
-                className="w-2/3 h-full"
-              />
+                  {/* WASHER */}
+                  <tr>
+                    <td className="font-semibold">WASHER</td>
+                    <td>
+                      <div className="flex flex-row text-black text-base font-medium gap-8">
+                      <label className="mr-4 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="washerLat"
+                          value="no"
+                          className="mr-1"
+                          checked={distallateralwasheryn === "no"}
+                          onChange={handleInputdistallateralwasheryn}
+                        />
+                        N
+                      </label>
+                      <label className="cursor-pointer">
+                        <input
+                          type="radio"
+                          name="washerLat"
+                          value="yes"
+                          className="mr-1"
+                          checked={distallateralwasheryn === "yes"}
+                          onChange={handleInputdistallateralwasheryn}
+                        />
+                        Y
+                      </label>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                      <select
+                        className="border px-2 py-1 w-24 rounded mr-1"
+                        value={distallateralwashervalue}
+                        onChange={handleInputdistallateralwashervalue}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* FINAL THICKNESS */}
+                  <tr>
+                    <td className="font-semibold">FINAL THICKNESS</td>
+                    <td>
+                      <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                      <select
+                        className="border px-2 py-1 w-24 mr-1 rounded"
+                        value={distallateralfinalthick}
+                        onChange={handleInputdistallateralfinalthick}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+
+              {/* Left image */}
+              <div className="w-1/4 flex justify-center">
+                <Image
+                  src={Lateralcondyle}
+                  alt="Medial Condyle"
+                  className="w-full h-full"
+                />
+              </div>
+
             </div>
-
-            {/* Right content */}
-            <table className="w-2/3 text-black text-lg border-separate border-spacing-y-2">
-              <tbody>
-                {/* Heading */}
-                <tr>
-                  <td colSpan="3" className="text-lg font-bold pb-2">
-                    LATERAL CONDYLE
-                  </td>
-                </tr>
-
-                {/* LATERAL SECTION */}
-
-                {/* Wear Selection */}
-                <tr>
-                  <td colSpan="1">
-                    <label className="mr-6 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="wearLat"
-                        value="unworn"
-                        className="mr-1"
-                        checked={wearStatusLat === "unworn"}
-                        onChange={handleChangeWearStatusLat}
-                      />
-                      UNWORN
-                    </label>
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name="wearLat"
-                        value="worn"
-                        className="mr-1"
-                        checked={wearStatusLat === "worn"}
-                        onChange={handleChangeWearStatusLat}
-                      />
-                      WORN
-                    </label>
-                  </td>
-                </tr>
-
-                {/* INITIAL THICKNESS */}
-                <tr>
-                  <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
-                  <td>
-                    <input
-                      type="text"
-                      className="border px-2 py-1 w-24 mr-1 rounded"
-                      value={distallateralinithick}
-                      onChange={handleInputdistallateralinithick}
-                    />
-                    mm
-                  </td>
-                </tr>
-
-                {/* RECUT */}
-                <tr>
-                  <td className="font-semibold">RECUT</td>
-                  <td className="w-1/4">
-                    <label className="mr-4 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="recutLat"
-                        value="no"
-                        className="mr-1"
-                        checked={distallateralrecutyn === "no"}
-                        onChange={handleInputdistallateralrecutyn}
-                      />
-                      N
-                    </label>
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name="recutLat"
-                        value="yes"
-                        className="mr-1"
-                        checked={distallateralrecutyn === "yes"}
-                        onChange={handleInputdistallateralrecutyn}
-                      />
-                      Y
-                    </label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="border px-2 py-1 w-24 rounded mr-1"
-                      value={distallateralrecutvalue}
-                      onChange={handleInputdistallateralrecutvalue}
-                    />
-                    mm
-                  </td>
-                </tr>
-
-                {/* WASHER */}
-                <tr>
-                  <td className="font-semibold">WASHER</td>
-                  <td>
-                    <label className="mr-4 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="washerLat"
-                        value="no"
-                        className="mr-1"
-                        checked={distallateralwasheryn === "no"}
-                        onChange={handleInputdistallateralwasheryn}
-                      />
-                      N
-                    </label>
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name="washerLat"
-                        value="yes"
-                        className="mr-1"
-                        checked={distallateralwasheryn === "yes"}
-                        onChange={handleInputdistallateralwasheryn}
-                      />
-                      Y
-                    </label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="border px-2 py-1 w-24 rounded mr-1"
-                      value={distallateralwashervalue}
-                      onChange={handleInputdistallateralwashervalue}
-                    />
-                    mm
-                  </td>
-                </tr>
-
-                {/* FINAL THICKNESS */}
-                <tr>
-                  <td className="font-semibold">FINAL THICKNESS</td>
-                  <td>
-                    <input
-                      type="text"
-                      className="border px-2 py-1 w-24 mr-1 rounded"
-                      value={distallateralfinalthick}
-                      onChange={handleInputdistallateralfinalthick}
-                    />
-                    mm
-                  </td>
-                </tr>
-              </tbody>
-            </table>
           </div>
+          
 
           <table className="w-full border-separate border-spacing-y-8">
             <tbody>
@@ -2267,18 +2454,20 @@ const page = ({ closeijr }) => {
             </tbody>
           </table>
 
-          <div className="w-full h-96 flex flex-row  text-black text-sm ">
+          <div className="w-full flex flex-row">
+
+          <div className="w-full h-fit flex flex-row  text-black text-sm gap-2 pr-2">
             {/* Left image */}
-            <div className="w-1/3 flex justify-center">
+            <div className="w-1/4 flex justify-center">
               <Image
                 src={Medialcondylepost}
                 alt="Medial Condyle"
-                className="w-2/3 h-full"
+                className="w-full h-full"
               />
             </div>
 
             {/* Right content */}
-            <table className="w-2/3 text-black text-lg border-separate border-spacing-y-2">
+            <table className="w-3/4 text-black text-base border-separate border-spacing-y-3 h-fit shadow-lg py-2 px-4 rounded-2xl">
               <tbody>
                 {/* Heading */}
                 <tr>
@@ -2289,7 +2478,8 @@ const page = ({ closeijr }) => {
 
                 {/* Wear Selection */}
                 <tr>
-                  <td colSpan="1">
+                  <td colSpan="3">
+                    <div className="flex flex-row text-black text-base font-medium gap-8">
                     <label className="mr-6 cursor-pointer">
                       <input
                         type="radio"
@@ -2312,20 +2502,30 @@ const page = ({ closeijr }) => {
                       />
                       WORN
                     </label>
+                    </div>
                   </td>
                 </tr>
 
                 {/* INITIAL THICKNESS */}
                 <tr>
-                  <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
+                  <td className="font-semibold w-1/2">INITIAL THICKNESS</td>
                   <td>
-                    <input
-                      type="text"
+                    <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                    <select
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={postmedialInitialThickness}
                       onChange={handlePostmedialInitialThicknessChange}
-                    />
-                    mm
+                    >
+                      {Array.from({ length: 16 }, (_, i) => {
+                        const label = `${i} mm`;
+                        return (
+                          <option key={i} value={label}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    </div>
                   </td>
                 </tr>
 
@@ -2333,6 +2533,7 @@ const page = ({ closeijr }) => {
                 <tr>
                   <td className="font-semibold">RECUT</td>
                   <td className="w-1/4">
+                  <div className="flex flex-row text-black text-base font-medium gap-8">
                     <label className="mr-4 cursor-pointer">
                       <input
                         type="radio"
@@ -2355,15 +2556,25 @@ const page = ({ closeijr }) => {
                       />
                       Y
                     </label>
+                    </div>
                   </td>
                   <td>
-                    <input
-                      type="text"
+                    <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                    <select
                       className="border px-2 py-1 w-24 rounded mr-1"
                       value={postmedialRecutValue}
                       onChange={handlePostmedialRecutValueChange}
-                    />
-                    mm
+                    >
+                      {Array.from({ length: 16 }, (_, i) => {
+                        const label = `${i} mm`;
+                        return (
+                          <option key={i} value={label}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    </div>
                   </td>
                 </tr>
 
@@ -2371,31 +2582,32 @@ const page = ({ closeijr }) => {
                 <tr>
                   <td className="font-semibold">FINAL THICKNESS</td>
                   <td>
-                    <input
-                      type="text"
+                    <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                    <select
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={postmedialFinalThickness}
                       onChange={handlePostmedialFinalThicknessChange}
-                    />
-                    mm
+                    >
+                      {Array.from({ length: 16 }, (_, i) => {
+                        const label = `${i} mm`;
+                        return (
+                          <option key={i} value={label}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div className="w-full h-96 flex flex-row text-black text-sm ">
-            {/* Left image */}
-            <div className="w-1/3 flex justify-center">
-              <Image
-                src={Lateralcondylepost}
-                alt="Medial Condyle"
-                className="w-2/3 h-full"
-              />
-            </div>
-
+          <div className="w-full h-fit flex flex-row  text-black text-sm gap-2 pl-2">
+            
             {/* Right content */}
-            <table className="w-2/3 text-black text-lg border-separate border-spacing-y-2">
+            <table className="w-3/4 text-black text-base border-separate border-spacing-y-3 h-fit shadow-lg py-2 px-4 rounded-2xl">
               <tbody>
                 {/* Heading */}
                 <tr>
@@ -2406,7 +2618,8 @@ const page = ({ closeijr }) => {
 
                 {/* Wear Selection */}
                 <tr>
-                  <td colSpan="1">
+                  <td colSpan="3">
+                    <div className="flex flex-row text-black text-base font-medium gap-8">
                     <label className="mr-6 cursor-pointer">
                       <input
                         type="radio"
@@ -2429,20 +2642,30 @@ const page = ({ closeijr }) => {
                       />
                       WORN
                     </label>
+                    </div>
                   </td>
                 </tr>
 
                 {/* INITIAL THICKNESS */}
                 <tr>
-                  <td className="font-semibold w-1/4">INITIAL THICKNESS</td>
+                  <td className="font-semibold w-1/2">INITIAL THICKNESS</td>
                   <td className="w-1/4">
-                    <input
-                      type="text"
+                  <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                    <select
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={postlateralInitialThickness}
                       onChange={handlePostlateralInitialThicknessChange}
-                    />
-                    mm
+                    >
+                      {Array.from({ length: 16 }, (_, i) => {
+                        const label = `${i} mm`;
+                        return (
+                          <option key={i} value={label}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>                    
+                    </div>
                   </td>
                 </tr>
 
@@ -2450,6 +2673,7 @@ const page = ({ closeijr }) => {
                 <tr>
                   <td className="font-semibold">RECUT</td>
                   <td>
+                    <div className="flex flex-row text-black text-base font-medium gap-8">
                     <label className="mr-4 cursor-pointer">
                       <input
                         type="radio"
@@ -2472,15 +2696,25 @@ const page = ({ closeijr }) => {
                       />
                       Y
                     </label>
+                    </div>
                   </td>
                   <td>
-                    <input
-                      type="text"
+                    <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                    <select
                       className="border px-2 py-1 w-24 rounded mr-1"
                       value={postlateralRecutValue}
                       onChange={handlePostlateralRecutValueChange}
-                    />
-                    mm
+                    >
+                      {Array.from({ length: 16 }, (_, i) => {
+                        const label = `${i} mm`;
+                        return (
+                          <option key={i} value={label}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    </div>
                   </td>
                 </tr>
 
@@ -2488,17 +2722,38 @@ const page = ({ closeijr }) => {
                 <tr>
                   <td className="font-semibold">FINAL THICKNESS</td>
                   <td>
-                    <input
-                      type="text"
+                    <div className="flex flex-row items-center text-black text-base font-medium gap-2">
+                    <select
                       className="border px-2 py-1 w-24 mr-1 rounded"
                       value={postlateralFinalThickness}
                       onChange={handlePostlateralFinalThicknessChange}
-                    />
-                    mm
+                    >
+                      {Array.from({ length: 16 }, (_, i) => {
+                        const label = `${i} mm`;
+                        return (
+                          <option key={i} value={label}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
+
+            {/* Left image */}
+            <div className="w-1/4 flex justify-center">
+              <Image
+                src={Lateralcondylepost}
+                alt="Medial Condyle"
+                className="w-full h-full"
+              />
+            </div>
+
+          </div>
+
           </div>
 
           <table className="w-full border-separate border-spacing-y-8">
@@ -2570,13 +2825,20 @@ const page = ({ closeijr }) => {
                   {/* TIBIAL LEFT MEASUREMENT */}
                   <tr>
                     <td>
-                      <input
-                        type="text"
+                      <select
                         className="border px-2 py-1 w-24 mr-1 rounded"
                         value={tibialLeftValue}
                         onChange={handleTibialLeftValueChange}
-                      />
-                      mm
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
                     </td>
                   </tr>
                 </tbody>
@@ -2639,13 +2901,20 @@ const page = ({ closeijr }) => {
                   {/* TIBIAL RIGHT - MEASUREMENT */}
                   <tr>
                     <td>
-                      <input
-                        type="text"
+                      <select
                         className="border px-2 py-1 w-24 mr-1 rounded"
                         value={tibialRightValue}
                         onChange={handleTibialRightValueChange}
-                      />
-                      mm
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
                     </td>
                   </tr>
                 </tbody>
@@ -2713,13 +2982,21 @@ const page = ({ closeijr }) => {
                   </label>
                 </td>
                 <td className="text-lg">
-                  <input
-                    type="text"
+                  <select
                     className="border px-2 py-1 w-24 rounded mr-1"
                     value={tibialVVRecutValue}
                     onChange={handleTibialVVRecutValueChange}
-                  />
-                  deg
+                  >
+                    {Array.from({ length: 16 }, (_, i) => {
+                      const label = `${i} mm`;
+                      return (
+                        <option key={i} value={label}>
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </select>
+
                 </td>
               </tr>
               <tr>
@@ -2754,13 +3031,20 @@ const page = ({ closeijr }) => {
                   </label>
                 </td>
                 <td className="text-lg">
-                  <input
-                    type="text"
+                  <select
                     className="border px-2 py-1 w-24 rounded mr-1"
                     value={tibialSlopeRecutValue}
                     onChange={handleTibialSlopeRecutValueChange}
-                  />
-                  deg
+                  >
+                    {Array.from({ length: 16 }, (_, i) => {
+                      const label = `${i} mm`;
+                      return (
+                        <option key={i} value={label}>
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </select>
                 </td>
               </tr>
             </tbody>
@@ -2899,7 +3183,7 @@ const page = ({ closeijr }) => {
             </tbody>
           </table>
 
-          <table className="w-full border-separate border-spacing-y-0 text-black">
+          {/* <table className="w-full border-separate border-spacing-y-0 text-black">
             <tbody>
               <tr className="align-middle">
                 <td className="font-bold text-lg text-black w-1/3">
@@ -3004,7 +3288,149 @@ const page = ({ closeijr }) => {
                 </td>
               </tr>
             </tbody>
+          </table> */}
+
+          <table className="w-full border-separate border-spacing-y-0 text-black">
+            <tbody>
+              <tr className="align-middle">
+                <td className="font-bold text-lg text-black w-1/3">
+                  PFJ RESURFACING
+                </td>
+                <td className="font-medium text-lg text-black flex flex-row gap-8">
+                  {femursizeoptions.map((option, index) => (
+                      <label
+                        key={index}
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <input
+                          type="radio"
+                          name="dynamicRadio11"
+                          value={option}
+                          checked={femursize === option}
+                          onChange={() => setfemursize(option)}
+                          className="form-radio text-blue-600"
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                </td>
+              </tr>
+
+              <tr>
+                <td colSpan="2" className="h-8"></td>
+              </tr>
+
+              <tr className="align-middle">
+                <td className="font-bold text-lg text-black w-1/3">
+                  TRACHELA RESECTION
+                </td>
+                <td className="font-medium text-lg text-black">
+                  <select
+                    className="border px-2 py-1 rounded"
+                    value={tibialSize}
+                    onChange={handleTibialSizeChange}
+                  >
+                    {Array.from({ length: 16 }, (_, i) => {
+                      const label = `${i} mm`;
+                      return (
+                        <option key={i} value={label}>
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </td>
+              </tr>
+
+              <tr>
+                <td colSpan="2" className="h-8"></td>
+              </tr>
+
+              <tr className="align-middle">
+                <td className="font-bold text-lg text-black w-1/3">
+                  PATELLA
+                </td>
+                <td className="font-medium text-lg text-black">
+                  <div className="flex flex-row text-black text-lg font-medium gap-8">
+                    {insertthicknessoptions.map((option, index) => (
+                      <label
+                        key={index}
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <input
+                          type="radio"
+                          name="dynamicRadio10"
+                          value={option}
+                          checked={insertthickness === option}
+                          onChange={() => setinsertthickness(option)}
+                          className="form-radio text-blue-600"
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td colSpan="2" className="h-8"></td>
+              </tr>
+
+              {femursize === "YES" && (
+                <>
+                  <tr className="align-middle">
+                    <td className="font-bold text-lg text-black w-1/3">
+                      PRE RESURFACING THICKNESS
+                    </td>
+                    <td className="font-medium text-lg text-black">
+                      <select
+                        className="border px-2 py-1 rounded"
+                        value={preresurfacingthickness}
+                        onChange={handlePreresurfacingThicknessChange}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td colSpan="2" className="h-8"></td>
+                  </tr>
+
+                  <tr className="align-middle">
+                    <td className="font-bold text-lg text-black w-1/3">
+                      POST RESURFACING THICKNESS
+                    </td>
+                    <td className="font-medium text-lg text-black">
+                      <select
+                        className="border px-2 py-1 rounded"
+                        value={postresurfacingthickness}
+                        onChange={handlePostresurfacingThicknessChange}
+                      >
+                        {Array.from({ length: 16 }, (_, i) => {
+                          const label = `${i} mm`;
+                          return (
+                            <option key={i} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </td>
+                  </tr>
+                </>
+              )}
+
+            </tbody>
           </table>
+
         </div>
 
         <div className="flex flex-col">
@@ -3088,11 +3514,12 @@ const page = ({ closeijr }) => {
               style={{ backgroundColor: "rgba(0, 85, 133, 0.9)" }}
               onClick={!isSubmitting ? handlesubmitpop : undefined}
             >
-              {isSubmitting ? "ON PROGRESS..." : "SUBMIT"}
+              {isSubmitting ? "SAVING..." : "DRAFT"}
             </p>
           </div>
         </div>
       </div>
+      
       {showAlert && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
           <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
