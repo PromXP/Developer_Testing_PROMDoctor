@@ -1003,102 +1003,103 @@ const page = ({ closeijr }) => {
   
     const [submitconfirmpop, setsubmitconfirmpop] = useState(false);
     const handlesubmitpop = () => {
-      const payload = {
-        patuhid: patient?.uhid,
-        hospital_name: selectedHospital,
-        anaesthetic_type: selected,
-        asa_grade: asagrade,
-        rom: [{
-          period: "preop", // to match "preop", "1month", etc.
-          flexion: preopflexion,
-          extension: preopextension,
-        }],
-        consultant_incharge: consultant,
-        operating_surgeon: operatingsurgeon,
-        first_assistant: firstassisstant,
-        second_assistant: secondassisstant,
-        mag_proc: manageproc,
-        side: side.join(", "),
-        surgery_indication: surgindi,
-        tech_assist: techassist,
-        align_phil: alignphil,
-        torq_used: toruused,
-        // op_name: opname,
-        op_date: dateOnlyIST,
-        op_time: optime,
-        components_details: selectedValues,
-        bone_resection: {
-          acl: aclcondition,
-          distal_medial: {
-            wear: wearStatus,
-            initial_thickness: distalmedialinithick,
-            recut: distalmedialrecutyn,
-            recutvalue: distalmedialrecutvalue,
-            washer: distalmedialwasheryn,
-            washervalue: distalmedialwashervalue,
-            final_thickness: distalmedialfinalthick,
-          },
-          distal_lateral: {
-            wear: wearStatusLat,
-            initial_thickness: distallateralinithick,
-            recut: distallateralrecutyn,
-            recutvalue: distallateralrecutvalue,
-            washer: distallateralwasheryn,
-            washervalue: distallateralwashervalue,
-            final_thickness: distallateralfinalthick,
-          },
-          posterial_medial: {
-            wear: postmedialWear,
-            initial_thickness: postmedialInitialThickness,
-            recut: postmedialRecutYN,
-            recutvalue: postmedialRecutValue,
-            final_thickness: postmedialFinalThickness,
-          },
-          posterial_lateral: {
-            wear: postlateralWear,
-            initial_thickness: postlateralInitialThickness,
-            recut: postlateralRecutYN,
-            recutvalue: postlateralRecutValue,
-            final_thickness: postlateralFinalThickness,
-          },
-          tibial_resection_left: {
-            wear: tibialLeftWear,
-            value: tibialLeftValue,
-          },
-          tibial_resection_right: {
-            wear: tibialRightWear,
-            value: tibialRightValue,
-          },
-          pcl: pclcondition,
-          tibialvvrecut: {
-            vvrecut: tibialVVRecutYN,
-            vvrecutvalue: tibialVVRecutValue,
-          },
-          tibialsloperecut: {
-            sloperecut: tibialSlopeRecutYN,
-            sloperecutvalue: tibialSlopeRecutValue,
-          },
-          final_check: finalCheck,
-          thickness_table: tableData,
-          pfj_resurfacing: femursize,
-          trachela_resection: tibialSize,
-          patella: insertthickness,
-          preresurfacing:preresurfacingthickness,
-          postresurfacing: postresurfacingthickness,
-        },
-        posting_timestamp: new Date().toISOString(),
-      };
+      // const payload = {
+      //   patuhid: patient?.uhid,
+      //   hospital_name: selectedHospital,
+      //   anaesthetic_type: selected,
+      //   asa_grade: asagrade,
+      //   rom: [{
+      //     period: "preop", // to match "preop", "1month", etc.
+      //     flexion: preopflexion,
+      //     extension: preopextension,
+      //   }],
+      //   consultant_incharge: consultant,
+      //   operating_surgeon: operatingsurgeon,
+      //   first_assistant: firstassisstant,
+      //   second_assistant: secondassisstant,
+      //   mag_proc: manageproc,
+      //   side: side.join(", "),
+      //   surgery_indication: surgindi,
+      //   tech_assist: techassist,
+      //   align_phil: alignphil,
+      //   torq_used: toruused,
+      //   // op_name: opname,
+      //   op_date: dateOnlyIST,
+      //   op_time: optime,
+      //   components_details: selectedValues,
+      //   bone_resection: {
+      //     acl: aclcondition,
+      //     distal_medial: {
+      //       wear: wearStatus,
+      //       initial_thickness: distalmedialinithick,
+      //       recut: distalmedialrecutyn,
+      //       recutvalue: distalmedialrecutvalue,
+      //       washer: distalmedialwasheryn,
+      //       washervalue: distalmedialwashervalue,
+      //       final_thickness: distalmedialfinalthick,
+      //     },
+      //     distal_lateral: {
+      //       wear: wearStatusLat,
+      //       initial_thickness: distallateralinithick,
+      //       recut: distallateralrecutyn,
+      //       recutvalue: distallateralrecutvalue,
+      //       washer: distallateralwasheryn,
+      //       washervalue: distallateralwashervalue,
+      //       final_thickness: distallateralfinalthick,
+      //     },
+      //     posterial_medial: {
+      //       wear: postmedialWear,
+      //       initial_thickness: postmedialInitialThickness,
+      //       recut: postmedialRecutYN,
+      //       recutvalue: postmedialRecutValue,
+      //       final_thickness: postmedialFinalThickness,
+      //     },
+      //     posterial_lateral: {
+      //       wear: postlateralWear,
+      //       initial_thickness: postlateralInitialThickness,
+      //       recut: postlateralRecutYN,
+      //       recutvalue: postlateralRecutValue,
+      //       final_thickness: postlateralFinalThickness,
+      //     },
+      //     tibial_resection_left: {
+      //       wear: tibialLeftWear,
+      //       value: tibialLeftValue,
+      //     },
+      //     tibial_resection_right: {
+      //       wear: tibialRightWear,
+      //       value: tibialRightValue,
+      //     },
+      //     pcl: pclcondition,
+      //     tibialvvrecut: {
+      //       vvrecut: tibialVVRecutYN,
+      //       vvrecutvalue: tibialVVRecutValue,
+      //     },
+      //     tibialsloperecut: {
+      //       sloperecut: tibialSlopeRecutYN,
+      //       sloperecutvalue: tibialSlopeRecutValue,
+      //     },
+      //     final_check: finalCheck,
+      //     thickness_table: tableData,
+      //     pfj_resurfacing: femursize,
+      //     trachela_resection: tibialSize,
+      //     patella: insertthickness,
+      //     preresurfacing:preresurfacingthickness,
+      //     postresurfacing: postresurfacingthickness,
+      //   },
+      //   posting_timestamp: new Date().toISOString(),
+      // };
   
-      const errors = validatePayloadAndWarn(payload);
-      const firstErrorKey = Object.keys(errors)[0];
+      // const errors = validatePayloadAndWarn(payload);
+      // const firstErrorKey = Object.keys(errors)[0];
   
-      if (firstErrorKey) {
-        showWarning(errors[firstErrorKey]); // Show specific field error
-        return; // Stop submission
-      } else {
-        // handleSendremainder();
-        setsubmitconfirmpop(true);
-      }
+      // if (firstErrorKey) {
+      //   showWarning(errors[firstErrorKey]); // Show specific field error
+      //   return; // Stop submission
+      // } else {
+      //   // handleSendremainder();
+      //   setsubmitconfirmpop(true);
+      // }
+      setsubmitconfirmpop(true);
     };
   
     function getPeriodFromSurgeryDate(surgeryDateStr, patient) {
