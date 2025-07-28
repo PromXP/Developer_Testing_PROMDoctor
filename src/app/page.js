@@ -45,9 +45,9 @@ export default function Home() {
     return size;
   };
 
-    const [showAlert, setshowAlert] = useState(false);
-    const [alermessage, setAlertMessage] = useState("");
-    const showWarning = (message) => {
+  const [showAlert, setshowAlert] = useState(false);
+  const [alermessage, setAlertMessage] = useState("");
+  const showWarning = (message) => {
     setAlertMessage(message);
     setshowAlert(true);
     setTimeout(() => setshowAlert(false), 4000);
@@ -63,18 +63,32 @@ export default function Home() {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+  const userData = localStorage.getItem("userData");
+  if (userData) {
+    const { identifier, password, role } = JSON.parse(userData);
+
+    axios
+      .post(API_URL + "login", { identifier, password, role })
+      .then(() => {
+        router.replace("/Landing");
+      })
+      .catch(() => {
+        localStorage.removeItem("userData"); // Clear on failure
+      });
+  }
+}, []);
+
+
   const handleLogin = async () => {
     if (typeof window !== "undefined") {
       setLoading(true);
       try {
-        const response = await axios.post(
-          API_URL+"login",
-          {
-            identifier,
-            password,
-            role: "doctor",
-          }
-        );
+        const response = await axios.post(API_URL + "login", {
+          identifier,
+          password,
+          role: "doctor",
+        });
 
         // Store only identifier, password, and role in localStorage
         localStorage.setItem(
@@ -86,7 +100,7 @@ export default function Home() {
           })
         );
 
-        router.push("/Landing");
+        router.replace("/Landing");
       } catch (error) {
         showWarning("Login failed. Please check your credentials.");
       } finally {
@@ -123,7 +137,13 @@ export default function Home() {
             </div>
 
             {/* Input Fields */}
-            <div className="w-full max-w-lg flex flex-col gap-8">
+            <form
+              className="w-full max-w-lg flex flex-col gap-8"
+              onSubmit={(e) => {
+                e.preventDefault(); // Prevent default page reload
+                handleLogin();
+              }}
+            >
               <div className="relative w-full">
                 <label className="absolute left-4 -top-2 bg-white px-1 text-[#7075DB] text-sm">
                   Email / Phone / UEID
@@ -155,7 +175,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Remember Me & Forgot Password */}
               <div className="flex flex-wrap justify-center items-center text-sm">
                 <p
                   className="text-[#FF8682] cursor-pointer"
@@ -166,12 +185,12 @@ export default function Home() {
               </div>
 
               <button
+                type="submit"
                 className="w-full bg-[#7075DB] text-lg text-white py-2.5 rounded-lg cursor-pointer"
-                onClick={handleLogin}
               >
                 {loading ? "Logging in..." : "Login"}
               </button>
-            </div>
+            </form>
           </div>
 
           {/* Right Section - Image*/}
@@ -188,12 +207,12 @@ export default function Home() {
             />
           </div>
           {showAlert && (
-                <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
-                  <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
-                    {alermessage}
-                  </div>
-                </div>
-              )}
+            <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+              <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
+                {alermessage}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -297,12 +316,12 @@ export default function Home() {
             />
           </div>
           {showAlert && (
-                <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
-                  <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
-                    {alermessage}
-                  </div>
-                </div>
-              )}
+            <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+              <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
+                {alermessage}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
