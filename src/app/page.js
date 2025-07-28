@@ -64,21 +64,20 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-  const userData = localStorage.getItem("userData");
-  if (userData) {
-    const { identifier, password, role } = JSON.parse(userData);
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const { identifier, password, role } = JSON.parse(userData);
 
-    axios
-      .post(API_URL + "login", { identifier, password, role })
-      .then(() => {
-        router.replace("/Landing");
-      })
-      .catch(() => {
-        localStorage.removeItem("userData"); // Clear on failure
-      });
-  }
-}, []);
-
+      axios
+        .post(API_URL + "login", { identifier, password, role })
+        .then(() => {
+          router.replace("/Landing");
+        })
+        .catch(() => {
+          localStorage.removeItem("userData"); // Clear on failure
+        });
+    }
+  }, []);
 
   const handleLogin = async () => {
     if (typeof window !== "undefined") {
@@ -242,10 +241,16 @@ export default function Home() {
             </div>
 
             {/* Input Fields */}
-            <div className="w-full max-w-lg flex flex-col gap-8">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault(); // Prevent default form reload
+                handleLogin(); // Trigger your login function
+              }}
+              className="w-full max-w-lg flex flex-col gap-8"
+            >
               <div className="relative w-full">
                 <label className="absolute left-4 -top-2 bg-white px-1 text-[#7075DB] text-sm">
-                  Email / Phone / UHID
+                  Email / Phone / UEID
                 </label>
                 <input
                   type="text"
@@ -259,7 +264,6 @@ export default function Home() {
                 <label className="absolute left-4 -top-2 bg-white px-1 text-[#7075DB] text-sm">
                   Password
                 </label>
-
                 <input
                   type={showPassword ? "text" : "password"}
                   className="w-full text-black py-3 px-4 border-[1.6px] border-[#79747E] rounded-sm text-lg focus:border-[#7075DB] outline-none"
@@ -275,7 +279,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Remember Me & Forgot Password */}
               <div className="flex flex-wrap justify-center items-center text-sm">
                 <p
                   className="text-[#FF8682] cursor-pointer"
@@ -286,12 +289,12 @@ export default function Home() {
               </div>
 
               <button
+                type="submit"
                 className="w-full bg-[#7075DB] text-lg text-white py-2.5 rounded-lg cursor-pointer"
-                onClick={handleLogin}
               >
                 {loading ? "Logging in..." : "Login"}
               </button>
-            </div>
+            </form>
           </div>
 
           {/* Right Section - Image*/}
