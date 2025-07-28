@@ -1906,7 +1906,9 @@ const options = {
         </div>
         {patientsurgery?.[0] ? (
           <>
-            <div className="flex flex-col">
+            <div className={`flex flex-col ${
+    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}>
               <div>
                 <p className="text-black text-3xl font-semibold">
                   OPERATION DETAILS
@@ -2176,7 +2178,9 @@ const options = {
               </table>
             </div>
 
-            <div className="flex flex-col">
+            <div className={`flex flex-col  ${
+    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}>
               <div>
                 <p className="text-black text-3xl font-semibold">
                   SURGEON DETAILS
@@ -2411,7 +2415,9 @@ const options = {
               </table>
             </div>
 
-            <div className="flex flex-col gap-8 pb-8">
+            <div className={`flex flex-col gap-8 pb-8  ${
+    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}>
               <div>
                 <p className="text-black text-3xl font-semibold">
                   MANAGE PROCEDURES
@@ -2472,7 +2478,9 @@ const options = {
               )}
             </div>
 
-            <div className="flex flex-col">
+            <div className={`flex flex-col  ${
+    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}>
               <div>
                 <p className="text-black text-3xl font-semibold">
                   PROCEDURE DETAILS
@@ -2653,7 +2661,9 @@ const options = {
               </table>
             </div>
 
-            <div className="flex flex-col">
+            <div className={`flex flex-col  ${
+    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}>
               <div>
                 <p className="text-black text-3xl font-semibold">
                   SURGICAL APPROACH
@@ -2788,7 +2798,9 @@ const options = {
               </table>
             </div>
 
-            <div className="flex flex-col">
+            <div className={`flex flex-col  ${
+    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}>
               <div>
                 <p className="text-black text-3xl font-semibold">
                   INTRA OPERATIVE EVENTS
@@ -3024,7 +3036,9 @@ const options = {
               </table>
             </div>
 
-            <div className="flex flex-col gap-8">
+            <div className={`flex flex-col gap-8  ${
+    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}>
               <div>
                 <p className="text-black text-3xl font-semibold">
                   BONE RESECTION
@@ -5883,7 +5897,9 @@ const options = {
               </table>
             </div>
 
-            <div className="flex flex-col">
+            <div className={`flex flex-col  ${
+    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}>
               <div>
                 <p className="text-black text-3xl font-semibold">
                   COMPONENT SELECTION
@@ -6039,7 +6055,9 @@ const options = {
             </div>
           </>
         ) : (
-          <div className="w-full flex flex-col justify-center items-center gap-8">
+          <div className={`w-full flex flex-col justify-center items-center gap-8 ${
+    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}>
             <p className="text-red-500 text-2xl font-bold">
               NO SURGERY DATA AVAILABLE
             </p>

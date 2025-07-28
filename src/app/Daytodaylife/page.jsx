@@ -405,6 +405,10 @@ const page = ({ goToReport, gotoIJR }) => {
 
   const filteredPatients = patients
     .filter((patient) => {
+      if(patient.activation_status === 0){
+        return false;
+      }
+
       if (uhidToExclude.has(patient.uhid)) {
         return false;
       }

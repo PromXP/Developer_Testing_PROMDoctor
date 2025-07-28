@@ -1261,7 +1261,9 @@ const page = ({ goToReport }) => {
                       <Image
                         src={Flag}
                         alt="VIP"
-                        className="absolute top-0 left-0 w-5 h-5 cursor-pointer"
+                        className={`absolute top-0 left-0 w-5 h-5 cursor-pointer ${
+    patient.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}
                         onClick={() => toggleVip(patient.uhid)}
                       />
                     )}
@@ -1273,7 +1275,9 @@ const page = ({ goToReport }) => {
                           : width < 530
                           ? "w-full"
                           : "w-[50%]"
-                      }`}
+                      } ${
+    patient.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}
                     >
                       <div
                         className={`flex gap-4 py-0  items-center  ${
@@ -1389,7 +1393,9 @@ const page = ({ goToReport }) => {
                             ? "flex-col items-center"
                             : "flex-row"
                         } 
-                    ${width < 640 ? "w-full justify-end" : "w-[70%]"}`}
+                    ${width < 640 ? "w-full justify-end" : "w-[70%]"} ${
+    patient.activation_status === 0 ? "pointer-events-none opacity-50" : ""
+  }`}
                       >
                         <div
                           className={` text-sm font-medium text-[#475467] ${
