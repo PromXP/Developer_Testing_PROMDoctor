@@ -391,24 +391,28 @@ const page = ({ goToReport, gotoIJR }) => {
         }
 
         if (patfilter.toLowerCase() === "post operative") {
-          return record.patient_records.some((r) =>
-            r.rom?.some((romEntry) => {
-              if (!romEntry.rom_update_timestamp) return false;
+  return record.patient_records.some((r) =>
+    r.rom?.some((romEntry) => {
+      if (!romEntry.rom_update_timestamp) return false;
 
-              const romDate = new Date(romEntry.rom_update_timestamp);
-              const today = new Date();
-              const thirtyDaysAgo = new Date(today);
-              thirtyDaysAgo.setDate(today.getDate() - 30);
+      const romDate = new Date(romEntry.rom_update_timestamp);
+      const today = new Date();
+      const thirtyDaysAgo = new Date(today);
+      thirtyDaysAgo.setDate(today.getDate() - 30);
 
-              // Normalize to date only (remove time)
-              romDate.setHours(0, 0, 0, 0);
-              today.setHours(0, 0, 0, 0);
-              thirtyDaysAgo.setHours(0, 0, 0, 0);
+      // Remove time part from all dates
+      romDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+      thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-              return romDate >= thirtyDaysAgo && romDate === today;
-            })
-          );
-        }
+      return (
+        romDate >= thirtyDaysAgo &&
+        romDate <= today
+      );
+    })
+  );
+}
+
 
         return false;
       })
@@ -506,22 +510,32 @@ const page = ({ goToReport, gotoIJR }) => {
       if (selectedFilter === "post operative") {
         if (!period.includes("pre")) {
           if (subFilter === "all") {
-            // ✅ Only show post-operative patients with today's due questionnaire
-            return relevantQuestionnaires?.some((q) => {
-              const deadline = q.deadline?.split("T")[0];
-              return deadline === today;
-            });
+            return (
+              // ✅ If OPD date exists, match with today
+              (patient.opd_appointment_date &&
+                patient.opd_appointment_date.split("T")[0] === today) ||
+              // ✅ If no OPD date, fallback to questionnaire deadline
+              (!patient.opd_appointment_date &&
+                relevantQuestionnaires?.some((q) => {
+                  const deadline = q.deadline?.split("T")[0];
+                  return deadline === today;
+                }))
+            );
           }
 
           // ✅ Subfilter exists (e.g., week 1, month 3, etc.)
           return (
             period.includes(subFilter) &&
-            relevantQuestionnaires?.some((q) => {
-              const deadline = q.deadline?.split("T")[0];
-              return deadline === today;
-            })
+            ((patient.opd_appointment_date &&
+              patient.opd_appointment_date.split("T")[0] === today) ||
+              (!patient.opd_appointment_date &&
+                relevantQuestionnaires?.some((q) => {
+                  const deadline = q.deadline?.split("T")[0];
+                  return deadline === today;
+                })))
           );
         }
+
         return false;
       }
 
@@ -1005,6 +1019,9 @@ const page = ({ goToReport, gotoIJR }) => {
 
       const result = await response.json();
       console.log("Submission successful:", result);
+
+      // ✅ Clear the OPD appointment date
+      await postOPDAppointmentDate(uhid, "");
       //   window.location.reload();
       // Optionally, show success message here
     } catch (error) {
@@ -1012,8 +1029,53 @@ const page = ({ goToReport, gotoIJR }) => {
     } finally {
       setIsSubmitting(false); // 🔓 Unlock submission
     }
-    window.location.reload();
+   
     setopenpostop(false);
+  };
+
+  const postOPDAppointmentDate = async (uhid, newDate) => {
+  try {
+    const payload = {
+      opd_appointment_date: newDate, // either a date string or null
+    };
+
+    const response = await fetch(
+      `${API_URL}patients/${uhid}/opd-appointment`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail + "Failed to reset OPD appointment date.");
+    }
+
+    if (newDate === null) {
+      showWarning("OPD date cleared successfully!");
+    } else {
+      showWarning("OPD date updated successfully!");
+    }
+
+    window.location.reload();
+  } catch (error) {
+    showWarning(error.message);
+  }
+};
+
+
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
+
+    const showWarning = (message) => {
+    setAlertMessage(message);
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 4000);
   };
 
   const [profileImages, setProfileImages] = useState("");
@@ -1897,6 +1959,13 @@ const page = ({ goToReport, gotoIJR }) => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {showAlert && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
+            {alertMessage}
           </div>
         </div>
       )}
