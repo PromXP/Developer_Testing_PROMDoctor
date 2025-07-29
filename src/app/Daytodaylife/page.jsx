@@ -155,15 +155,19 @@ const page = ({ goToReport, gotoIJR }) => {
         console.log("Paitent list", data);
 
         // Count PRE OP patients for current selected leg
-        const preOp = data.filter(
-          (patient) =>
-            getPeriodFromSurgeryDate(
-              selectedLeg === "left"
-                ? patient?.post_surgery_details_left?.date_of_surgery
-                : patient?.post_surgery_details_right?.date_of_surgery,
-              patient
-            ).toLowerCase() === "pre op"
-        ).length;
+        const preOp = data.filter((patient) => {
+          if (patient.activation_status === 0) return false; // skip inactive patients
+
+          const surgeryDate =
+            selectedLeg === "left"
+              ? patient?.post_surgery_details_left?.date_of_surgery
+              : patient?.post_surgery_details_right?.date_of_surgery;
+
+          const period = getPeriodFromSurgeryDate(surgeryDate, patient);
+
+          return period.toLowerCase() === "pre op";
+        }).length;
+
         setPreOpCount(preOp);
 
         // Count POST OP stages
@@ -176,6 +180,7 @@ const page = ({ goToReport, gotoIJR }) => {
         };
 
         data.forEach((patient) => {
+          if (patient.activation_status === 0) return false; // skip inactive patients
           const status = getPeriodFromSurgeryDate(
             selectedLeg === "left"
               ? patient?.post_surgery_details_left?.date_of_surgery
@@ -391,28 +396,24 @@ const page = ({ goToReport, gotoIJR }) => {
         }
 
         if (patfilter.toLowerCase() === "post operative") {
-  return record.patient_records.some((r) =>
-    r.rom?.some((romEntry) => {
-      if (!romEntry.rom_update_timestamp) return false;
+          return record.patient_records.some((r) =>
+            r.rom?.some((romEntry) => {
+              if (!romEntry.rom_update_timestamp) return false;
 
-      const romDate = new Date(romEntry.rom_update_timestamp);
-      const today = new Date();
-      const thirtyDaysAgo = new Date(today);
-      thirtyDaysAgo.setDate(today.getDate() - 30);
+              const romDate = new Date(romEntry.rom_update_timestamp);
+              const today = new Date();
+              const thirtyDaysAgo = new Date(today);
+              thirtyDaysAgo.setDate(today.getDate() - 30);
 
-      // Remove time part from all dates
-      romDate.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
-      thirtyDaysAgo.setHours(0, 0, 0, 0);
+              // Remove time part from all dates
+              romDate.setHours(0, 0, 0, 0);
+              today.setHours(0, 0, 0, 0);
+              thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-      return (
-        romDate >= thirtyDaysAgo &&
-        romDate <= today
-      );
-    })
-  );
-}
-
+              return romDate >= thirtyDaysAgo && romDate <= today;
+            })
+          );
+        }
 
         return false;
       })
@@ -1029,50 +1030,49 @@ const page = ({ goToReport, gotoIJR }) => {
     } finally {
       setIsSubmitting(false); // 🔓 Unlock submission
     }
-   
+
     setopenpostop(false);
   };
 
   const postOPDAppointmentDate = async (uhid, newDate) => {
-  try {
-    const payload = {
-      opd_appointment_date: newDate, // either a date string or null
-    };
+    try {
+      const payload = {
+        opd_appointment_date: newDate, // either a date string or null
+      };
 
-    const response = await fetch(
-      `${API_URL}patients/${uhid}/opd-appointment`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      const response = await fetch(
+        `${API_URL}patients/${uhid}/opd-appointment`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail + "Failed to reset OPD appointment date.");
       }
-    );
 
-    const data = await response.json();
+      if (newDate === null) {
+        showWarning("OPD date cleared successfully!");
+      } else {
+        showWarning("OPD date updated successfully!");
+      }
 
-    if (!response.ok) {
-      throw new Error(data.detail + "Failed to reset OPD appointment date.");
+      window.location.reload();
+    } catch (error) {
+      showWarning(error.message);
     }
+  };
 
-    if (newDate === null) {
-      showWarning("OPD date cleared successfully!");
-    } else {
-      showWarning("OPD date updated successfully!");
-    }
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
-    window.location.reload();
-  } catch (error) {
-    showWarning(error.message);
-  }
-};
-
-
-    const [showAlert, setShowAlert] = useState(false);
-    const [alertMessage, setAlertMessage] = useState("");
-
-    const showWarning = (message) => {
+  const showWarning = (message) => {
     setAlertMessage(message);
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 4000);
