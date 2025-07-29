@@ -295,7 +295,7 @@ const page = () => {
             }`}
             onClick={() => {
               router.replace("/");
-              localStorage.removeItem("userData");
+              sessionStorage.removeItem("userData");
               sessionStorage.removeItem("selectedTab");
               sessionStorage.removeItem("patientUHID");
               sessionStorage.removeItem("patientPASSWORD");

@@ -83,11 +83,11 @@ const page = ({ goToReport, gotoIJR }) => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("userData");
+      const storedUser = sessionStorage.getItem("userData");
 
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
-        console.log("Retrieved user from localStorage:", parsedUser);
+        console.log("Retrieved user from sessionStorage:", parsedUser);
 
         if (parsedUser.password === "doctor@123") {
           setpassopen(true);
@@ -103,7 +103,7 @@ const page = ({ goToReport, gotoIJR }) => {
             });
 
             // Handle successful login response
-            localStorage.setItem(
+            sessionStorage.setItem(
               "userData",
               JSON.stringify({
                 identifier: parsedUser.identifier,
@@ -113,7 +113,7 @@ const page = ({ goToReport, gotoIJR }) => {
             );
 
             setUserData(response.data); // Store the full response data (e.g., tokens)
-            localStorage.setItem("uhid", response.data.user.uhid);
+            sessionStorage.setItem("uhid", response.data.user.uhid);
             console.log(
               "Successfully logged in with stored credentials",
               response.data.user.uhid
@@ -315,7 +315,7 @@ const page = ({ goToReport, gotoIJR }) => {
 
   const scoreoptions = ["OKS", "SF-12", "KOOS", "KSS", "FJS"];
 
-  // Load selected option from localStorage or default to "ALL"
+  // Load selected option from sessionStorage or default to "ALL"
   const [scorefilter, setscoreFitler] = useState("OKS");
 
   const [patfilter, setpatFilter] = useState("PRE OPERATIVE");

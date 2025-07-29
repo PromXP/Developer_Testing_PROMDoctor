@@ -64,7 +64,7 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const userData = localStorage.getItem("userData");
+    const userData = sessionStorage.getItem("userData");
     if (userData) {
       const { identifier, password, role } = JSON.parse(userData);
 
@@ -74,7 +74,7 @@ export default function Home() {
           router.replace("/Landing");
         })
         .catch(() => {
-          localStorage.removeItem("userData"); // Clear on failure
+          sessionStorage.removeItem("userData"); // Clear on failure
         });
     }
   }, []);
@@ -89,8 +89,8 @@ export default function Home() {
           role: "doctor",
         });
 
-        // Store only identifier, password, and role in localStorage
-        localStorage.setItem(
+        // Store only identifier, password, and role in sessionStorage
+        sessionStorage.setItem(
           "userData",
           JSON.stringify({
             identifier,

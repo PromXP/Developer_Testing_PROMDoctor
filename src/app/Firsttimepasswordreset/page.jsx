@@ -43,7 +43,7 @@ const page = ({ passopen, onClose }) => {
 
   const fetchData = async () => {
     if (typeof window !== "undefined") {
-      const user = JSON.parse(localStorage.getItem("userData"));
+      const user = JSON.parse(sessionStorage.getItem("userData"));
 
       // setuserUHID(user.user.uhid);
       console.log("UHID", userUHID);
@@ -56,7 +56,7 @@ const page = ({ passopen, onClose }) => {
         return showWarning("Passwords do not match");
 
       const payload = {
-        uhid: localStorage.getItem("uhid"),
+        uhid: sessionStorage.getItem("uhid"),
         new_password: userPassword,
       };
 
@@ -68,10 +68,10 @@ const page = ({ passopen, onClose }) => {
         setResponse(res.data);
         // Handle successful login response
 
-        localStorage.setItem(
+        sessionStorage.setItem(
           "userData",
           JSON.stringify({
-            identifier: localStorage.getItem("uhid"),
+            identifier: sessionStorage.getItem("uhid"),
             password: userPassword,
             role: "doctor",
           })

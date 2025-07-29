@@ -192,10 +192,10 @@ const page = ({ patient1, leftscoreGroups1, rightscoreGroups1, userData, gotoIJR
     if (typeof window !== "undefined") {
       const uid = sessionStorage.getItem("patientUHID");
       const pass = sessionStorage.getItem("patientPASSWORD");
-      console.log("user from localStorage1 :", uid + " " + pass);
+      console.log("user from sessionStorage :", uid + " " + pass);
 
       if (uid !== "undefined" && pass !== "undefined") {
-        console.log("user from localStorage 2:", uid + " " + pass);
+        console.log("user from sessionStorage 2:", uid + " " + pass);
 
         // Attempt to log in again using the stored credentials
         const loginWithStoredUser = async () => {
