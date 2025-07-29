@@ -158,10 +158,11 @@ const page = ({ goToReport, gotoIJR }) => {
         const preOp = data.filter(
           (patient) =>
             getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase() === "pre op"
+              selectedLeg === "left"
+                ? patient?.post_surgery_details_left?.date_of_surgery
+                : patient?.post_surgery_details_right?.date_of_surgery,
+              patient
+            ).toLowerCase() === "pre op"
         ).length;
         setPreOpCount(preOp);
 
@@ -176,10 +177,11 @@ const page = ({ goToReport, gotoIJR }) => {
 
         data.forEach((patient) => {
           const status = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toUpperCase();
+            selectedLeg === "left"
+              ? patient?.post_surgery_details_left?.date_of_surgery
+              : patient?.post_surgery_details_right?.date_of_surgery,
+            patient
+          ).toUpperCase();
           if (stageCounts.hasOwnProperty(status)) {
             stageCounts[status]++;
           }
@@ -389,11 +391,21 @@ const page = ({ goToReport, gotoIJR }) => {
         }
 
         if (patfilter.toLowerCase() === "post operative") {
-          // Exclude if any rom_update_timestamp matches today
           return record.patient_records.some((r) =>
             r.rom?.some((romEntry) => {
               if (!romEntry.rom_update_timestamp) return false;
-              return utcToISTDateOnly(romEntry.rom_update_timestamp) === today;
+
+              const romDate = new Date(romEntry.rom_update_timestamp);
+              const today = new Date();
+              const thirtyDaysAgo = new Date(today);
+              thirtyDaysAgo.setDate(today.getDate() - 30);
+
+              // Normalize to date only (remove time)
+              romDate.setHours(0, 0, 0, 0);
+              today.setHours(0, 0, 0, 0);
+              thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+              return romDate >= thirtyDaysAgo && romDate === today;
             })
           );
         }
@@ -405,18 +417,20 @@ const page = ({ goToReport, gotoIJR }) => {
 
   const filteredPatients = patients
     .filter((patient) => {
-      if(patient.activation_status === 0){
+      if (patient.activation_status === 0) {
         return false;
       }
 
       if (uhidToExclude.has(patient.uhid)) {
         return false;
       }
-      const status = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase() || "";
+      const status =
+        getPeriodFromSurgeryDate(
+          selectedLeg === "left"
+            ? patient?.post_surgery_details_left?.date_of_surgery
+            : patient?.post_surgery_details_right?.date_of_surgery,
+          patient
+        ).toLowerCase() || "";
       const selectedFilter = patfilter.toLowerCase();
       const subFilter = postopfilter.toLowerCase();
       const selectedLegSide = selectedLeg.toLowerCase(); // "left" or "right"
@@ -466,23 +480,26 @@ const page = ({ goToReport, gotoIJR }) => {
       }
 
       const period = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase();
+        selectedLeg === "left"
+          ? patient?.post_surgery_details_left?.date_of_surgery
+          : patient?.post_surgery_details_right?.date_of_surgery,
+        patient
+      ).toLowerCase();
 
       if (selectedFilter === "all patients") {
         return true;
       }
 
       if (selectedFilter === "pre operative") {
-        const surgeryDateLeft = patient?.post_surgery_details_left?.date_of_surgery;
-    const surgeryDateRight = patient?.post_surgery_details_right?.date_of_surgery;
-    const hasSurgeryToday =
-      (surgeryDateLeft && surgeryDateLeft.split("T")[0] === today) ||
-      (surgeryDateRight && surgeryDateRight.split("T")[0] === today);
+        const surgeryDateLeft =
+          patient?.post_surgery_details_left?.date_of_surgery;
+        const surgeryDateRight =
+          patient?.post_surgery_details_right?.date_of_surgery;
+        const hasSurgeryToday =
+          (surgeryDateLeft && surgeryDateLeft.split("T")[0] === today) ||
+          (surgeryDateRight && surgeryDateRight.split("T")[0] === today);
 
-    return period.includes("pre") && hasSurgeryToday;
+        return period.includes("pre") && hasSurgeryToday;
       }
 
       // Anything not "pre" is treated as post-operative
@@ -586,11 +603,13 @@ const page = ({ goToReport, gotoIJR }) => {
   const displayedPatients = [];
 
   patients.forEach((patient) => {
-    const status = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase() || "";
+    const status =
+      getPeriodFromSurgeryDate(
+        selectedLeg === "left"
+          ? patient?.post_surgery_details_left?.date_of_surgery
+          : patient?.post_surgery_details_right?.date_of_surgery,
+        patient
+      ).toLowerCase() || "";
     const selectedFilter = patprogressfilter.toLowerCase();
 
     const statusMatch =
@@ -737,10 +756,11 @@ const page = ({ goToReport, gotoIJR }) => {
       ? filteredPatients
       : filteredPatients.filter((patient) => {
           const currentPeriod = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              );
+            selectedLeg === "left"
+              ? patient?.post_surgery_details_left?.date_of_surgery
+              : patient?.post_surgery_details_right?.date_of_surgery,
+            patient
+          );
           const normalizedCurrentPeriod = normalizeString(currentPeriod);
           const normalizedSelectedFilter = normalizeString(selectedFilter);
           const normalizedSubFilter = postopfilter?.toLowerCase?.() || "ALL"; // normalize to "6W", "ALL", etc.
@@ -817,10 +837,11 @@ const page = ({ goToReport, gotoIJR }) => {
 
         if (isAllPatients) {
           const status = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase();
+            selectedLeg === "left"
+              ? patient?.post_surgery_details_left?.date_of_surgery
+              : patient?.post_surgery_details_right?.date_of_surgery,
+            patient
+          ).toLowerCase();
           if (status.includes("pre")) {
             bucketCounts[bucketLabel].pre++;
           } else {
@@ -828,10 +849,11 @@ const page = ({ goToReport, gotoIJR }) => {
           }
         } else {
           const status = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase();
+            selectedLeg === "left"
+              ? patient?.post_surgery_details_left?.date_of_surgery
+              : patient?.post_surgery_details_right?.date_of_surgery,
+            patient
+          ).toLowerCase();
           if (status.includes("pre")) {
             bucketCounts[bucketLabel].pre++;
           } else {
@@ -1041,21 +1063,23 @@ const page = ({ goToReport, gotoIJR }) => {
     fetchAllImages();
   }, []); // empty dependency: fetch once on mount
 
-  function getPeriodFromSurgeryDate(surgeryDateStr,patient) {
+  function getPeriodFromSurgeryDate(surgeryDateStr, patient) {
     if (!surgeryDateStr) return "Not Found";
 
-  const surgeryDate = new Date(surgeryDateStr);
+    const surgeryDate = new Date(surgeryDateStr);
 
-  // Check for invalid or default placeholder date
-  if (
-    isNaN(surgeryDate) ||
-    surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
-  ) {
-    return "Not Found";
-  }
+    // Check for invalid or default placeholder date
+    if (
+      isNaN(surgeryDate) ||
+      surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
+    ) {
+      return "Not Found";
+    }
 
     const today = new Date();
-    const diffInDays = Math.floor((today - surgeryDate) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor(
+      (today - surgeryDate) / (1000 * 60 * 60 * 24)
+    );
 
     console.log("Diff in days:", diffInDays, "Surgery Date:", surgeryDateStr);
 
@@ -1650,11 +1674,14 @@ const page = ({ goToReport, gotoIJR }) => {
                                 : "w-[35%] text-end"
                             }`}
                           >
-                             {getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              )}
+                            {getPeriodFromSurgeryDate(
+                              selectedLeg === "left"
+                                ? patient?.post_surgery_details_left
+                                    ?.date_of_surgery
+                                : patient?.post_surgery_details_right
+                                    ?.date_of_surgery,
+                              patient
+                            )}
                           </div>
                           <div
                             className={`flex flex-row justify-center items-center${
