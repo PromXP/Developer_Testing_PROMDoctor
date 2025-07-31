@@ -163,8 +163,16 @@ const page = ({ goToReport, goToIJRAdd }) => {
   const questionnaire_assigned_right =
     patient?.questionnaire_assigned_right || [];
   useEffect(() => {
-    setLeftCurrentStatus(getPeriodFromSurgeryDate(patient?.post_surgery_details_left?.date_of_surgery));
-    setRightCurrentStatus(getPeriodFromSurgeryDate(patient?.post_surgery_details_right?.date_of_surgery));
+    setLeftCurrentStatus(
+      getPeriodFromSurgeryDate(
+        patient?.post_surgery_details_left?.date_of_surgery
+      )
+    );
+    setRightCurrentStatus(
+      getPeriodFromSurgeryDate(
+        patient?.post_surgery_details_right?.date_of_surgery
+      )
+    );
   }, [questionnaire_assigned_left, questionnaire_assigned_right]);
 
   const getCurrentPeriod = (side) => {
@@ -382,7 +390,8 @@ const page = ({ goToReport, goToIJRAdd }) => {
   };
 
   const [isEditsecondassisstant, setisEditsecondassisstant] = useState(false);
-  const [secondassisstant, setsecondassisstant] = useState("DR. MILAN ADHIKARI");
+  const [secondassisstant, setsecondassisstant] =
+    useState("DR. MILAN ADHIKARI");
   const secondassisstantoptions = ["DR. VINOTH KUMAR", "DR. MILAN ADHIKARI"];
   const handlesecondassisstantchange = () => {
     if (!secondassisstant) {
@@ -456,39 +465,37 @@ const page = ({ goToReport, goToIJRAdd }) => {
     "FLEXION CONTRACTION",
     "RECURVATUM DEFORMITY",
   ];
-const handleSurgIndiCheckboxChange = (option) => {
-  const currentValues = surgindi ? surgindi.split(",") : [];
-  let updatedValues;
+  const handleSurgIndiCheckboxChange = (option) => {
+    const currentValues = surgindi ? surgindi.split(",") : [];
+    let updatedValues;
 
-  if (currentValues.includes(option)) {
-    // Remove unchecked option
-    updatedValues = currentValues.filter((item) => item !== option);
-  } else {
-    // Add checked option
-    updatedValues = [...currentValues, option];
-  }
+    if (currentValues.includes(option)) {
+      // Remove unchecked option
+      updatedValues = currentValues.filter((item) => item !== option);
+    } else {
+      // Add checked option
+      updatedValues = [...currentValues, option];
+    }
 
-  const updatedString = updatedValues.join(",");
-  setsurgindi(updatedString);
-};
-
-const handleSurgIndiSubmit = () => {
-  if (!surgindi) {
-    showWarning("Indication of Surgery Required");
-    return;
-  }
-
-  const payload = {
-    uhid: patient?.uhid,
-    updates: {
-      surgery_indication: surgindi,
-    },
+    const updatedString = updatedValues.join(",");
+    setsurgindi(updatedString);
   };
 
-  handleSendremainder(payload);
-};
+  const handleSurgIndiSubmit = () => {
+    if (!surgindi) {
+      showWarning("Indication of Surgery Required");
+      return;
+    }
 
+    const payload = {
+      uhid: patient?.uhid,
+      updates: {
+        surgery_indication: surgindi,
+      },
+    };
 
+    handleSendremainder(payload);
+  };
 
   const [isEdittechassit, setisEdittechassit] = useState(false);
   const [techassist, settechassist] = useState("");
@@ -1367,12 +1374,10 @@ const handleSurgIndiSubmit = () => {
   const [femurShape, setFemurShape] = useState("");
   const femursizeoptions = ["YES", "NO"];
 
-
   // INSERT THICKNESS
   const [isEditInsertThickness, setIsEditInsertThickness] = useState(false);
   const [originalInsertThickness, setOriginalInsertThickness] = useState("");
   const [insertthickness, setInsertthickness] = useState("");
-  
 
   // Femor Size
   const [isEditFemorSize, setIsEditFemorSize] = useState(false);
@@ -1415,10 +1420,11 @@ const handleSurgIndiSubmit = () => {
   const [originalInsertThicknesssize, setOriginalInsertThicknesssize] =
     useState("");
 
-  const insertthicknessoptions = ["WORN","UNWORN"];
-  
+  const insertthicknessoptions = ["WORN", "UNWORN"];
+
   const [insertThicknesssize, setInsertThicknesssize] = useState("");
-  const handleInsertThicknesssizeChange = (option) => setInsertThicknesssize(option);
+  const handleInsertThicknesssizeChange = (option) =>
+    setInsertThicknesssize(option);
 
   const handleInsertThicknesssizeSave = () => {
     if (!insertThicknesssize)
@@ -1439,41 +1445,48 @@ const handleSurgIndiSubmit = () => {
   const [patellaSize, setPatellaSize] = useState("");
 
   // States for edit toggles and values
-const [isEditPreResurfacing, setIsEditPreResurfacing] = useState(false);
-const [preResurfacingThickness, setPreResurfacingThickness] = useState(patientsurgery?.[0].bone_resection.preresurfacing || "");
+  const [isEditPreResurfacing, setIsEditPreResurfacing] = useState(false);
+  const [preResurfacingThickness, setPreResurfacingThickness] = useState(
+    patientsurgery?.[0].bone_resection.preresurfacing || ""
+  );
 
-const [isEditPostResurfacing, setIsEditPostResurfacing] = useState(false);
-const [postResurfacingThickness, setPostResurfacingThickness] = useState(patientsurgery?.[0].bone_resection.postresurfacing || "");
+  const [isEditPostResurfacing, setIsEditPostResurfacing] = useState(false);
+  const [postResurfacingThickness, setPostResurfacingThickness] = useState(
+    patientsurgery?.[0].bone_resection.postresurfacing || ""
+  );
 
-// Handlers
-const handlePreResurfacingChange = (e) => setPreResurfacingThickness(e.target.value);
-const handlePreResurfacingSave = () => {
-  // validation if needed
-  if (!preResurfacingThickness) return alert("Pre Resurfacing Thickness is required");
+  // Handlers
+  const handlePreResurfacingChange = (e) =>
+    setPreResurfacingThickness(e.target.value);
+  const handlePreResurfacingSave = () => {
+    // validation if needed
+    if (!preResurfacingThickness)
+      return alert("Pre Resurfacing Thickness is required");
 
-  // send update payload here
-  const payload = {
-    uhid: patient?.uhid,
-    updates: { "bone_resection.preresurfacing": preResurfacingThickness },
+    // send update payload here
+    const payload = {
+      uhid: patient?.uhid,
+      updates: { "bone_resection.preresurfacing": preResurfacingThickness },
+    };
+    handleSendremainder(payload);
+
+    setIsEditPreResurfacing(false);
   };
-  handleSendremainder(payload);
 
-  setIsEditPreResurfacing(false);
-};
+  const handlePostResurfacingChange = (e) =>
+    setPostResurfacingThickness(e.target.value);
+  const handlePostResurfacingSave = () => {
+    if (!postResurfacingThickness)
+      return alert("Post Resurfacing Thickness is required");
 
-const handlePostResurfacingChange = (e) => setPostResurfacingThickness(e.target.value);
-const handlePostResurfacingSave = () => {
-  if (!postResurfacingThickness) return alert("Post Resurfacing Thickness is required");
+    const payload = {
+      uhid: patient?.uhid,
+      updates: { "bone_resection.postresurfacing": postResurfacingThickness },
+    };
+    handleSendremainder(payload);
 
-  const payload = {
-    uhid: patient?.uhid,
-    updates: { "bone_resection.postresurfacing": postResurfacingThickness },
+    setIsEditPostResurfacing(false);
   };
-  handleSendremainder(payload);
-
-  setIsEditPostResurfacing(false);
-};
-
 
   const [editingIndex, setEditingIndex] = useState(null);
   const [editedThicknessTable, setEditedThicknessTable] = useState([]);
@@ -1538,44 +1551,60 @@ const handlePostResurfacingSave = () => {
   const colHeaders = ["FEMUR", "TIBIA", "INSERT", "PATELLA"];
   const rowHeaders = ["MANUFACTURER", "MODEL", "SIZE"];
 
-const options = {
-  FEMUR: {
-    "BIORAD MEDISYS": {
-      "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
+  const options = {
+    FEMUR: {
+      "BIORAD MEDISYS": {
+        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      },
+      MICROPORT: {
+        EVOLUATION: [
+          "1 mm",
+          "2 mm",
+          "3 mm",
+          "4 mm",
+          "5 mm",
+          "6 mm",
+          "7 mm",
+          "8 mm",
+        ],
+      },
     },
-    "MICROPORT": {
-      "EVOLUATION": ["1 mm", "2 mm", "3 mm", "4 mm", "5 mm", "6 mm", "7 mm", "8 mm"],
+    TIBIA: {
+      "BIORAD MEDISYS": {
+        "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
+      },
+      MICROPORT: {
+        EVOLUATION: [
+          "1 mm",
+          "2 mm",
+          "2+ mm",
+          "3 mm",
+          "4 mm",
+          "5 mm",
+          "6 mm",
+          "6+ mm",
+          "7 mm",
+          "8 mm",
+        ],
+      },
     },
-  },
-  TIBIA: {
-    "BIORAD MEDISYS": {
-      "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
+    INSERT: {
+      "BIORAD MEDISYS": {
+        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
+      },
+      MICROPORT: {
+        EVOLUATION: ["10 mm", "12 mm", "14 mm", "17 mm", "21 mm"],
+      },
     },
-    "MICROPORT": {
-      "EVOLUATION": [
-        "1 mm", "2 mm", "2+ mm", "3 mm", "4 mm",
-        "5 mm", "6 mm", "6+ mm", "7 mm", "8 mm",
-      ],
+    PATELLA: {
+      "BIORAD MEDISYS": {
+        "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
+      },
+      MICROPORT: {
+        EVOLUATION: ["26 mm", "29 mm", "32 mm", "35 mm", "38 mm", "41 mm"],
+      },
     },
-  },
-  INSERT: {
-    "BIORAD MEDISYS": {
-      "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
-    },
-    "MICROPORT": {
-      "EVOLUATION": ["10 mm", "12 mm", "14 mm", "17 mm", "21 mm"],
-    },
-  },
-  PATELLA: {
-    "BIORAD MEDISYS": {
-      "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
-    },
-    "MICROPORT": {
-      "EVOLUATION": ["26 mm", "29 mm", "32 mm", "35 mm", "38 mm", "41 mm"],
-    },
-  },
-};
-
+  };
 
   const [editedComponents, setEditedComponents] = useState({});
   const [editingCol, setEditingCol] = useState(null);
@@ -1703,21 +1732,23 @@ const options = {
     fetchPatientImage();
   }, [patient]); // empty dependency: fetch once on mount
 
-  function getPeriodFromSurgeryDate(surgeryDateStr,patient) {
+  function getPeriodFromSurgeryDate(surgeryDateStr, patient) {
     if (!surgeryDateStr) return "Not Found";
 
-  const surgeryDate = new Date(surgeryDateStr);
+    const surgeryDate = new Date(surgeryDateStr);
 
-  // Check for invalid or default placeholder date
-  if (
-    isNaN(surgeryDate) ||
-    surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
-  ) {
-    return "Not Found";
-  }
+    // Check for invalid or default placeholder date
+    if (
+      isNaN(surgeryDate) ||
+      surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
+    ) {
+      return "Not Found";
+    }
 
     const today = new Date();
-    const diffInDays = Math.floor((today - surgeryDate) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor(
+      (today - surgeryDate) / (1000 * 60 * 60 * 24)
+    );
 
     if (diffInDays < 0) {
       return "Pre Op";
@@ -1740,7 +1771,6 @@ const options = {
 
     return periods[0]?.label || "Unknown";
   }
-
 
   return (
     <>
@@ -1906,9 +1936,13 @@ const options = {
         </div>
         {patientsurgery?.[0] ? (
           <>
-            <div className={`flex flex-col ${
-    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}>
+            <div
+              className={`flex flex-col ${
+                patient?.activation_status === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
+            >
               <div>
                 <p className="text-black text-3xl font-semibold">
                   OPERATION DETAILS
@@ -2123,7 +2157,11 @@ const options = {
                                       className="border px-2 py-1 rounded w-full"
                                       value={entry.flexion}
                                       onChange={(e) =>
-                                        updateRomField(index, "flexion", e.target.value)
+                                        updateRomField(
+                                          index,
+                                          "flexion",
+                                          e.target.value
+                                        )
                                       }
                                     />
                                   </td>
@@ -2132,7 +2170,11 @@ const options = {
                                       className="border px-2 py-1 rounded w-full"
                                       value={entry.extension}
                                       onChange={(e) =>
-                                        updateRomField(index, "extension", e.target.value)
+                                        updateRomField(
+                                          index,
+                                          "extension",
+                                          e.target.value
+                                        )
                                       }
                                     />
                                   </td>
@@ -2156,7 +2198,9 @@ const options = {
                               ) : (
                                 <>
                                   <td className="px-4 py-2">{entry.flexion}</td>
-                                  <td className="px-4 py-2">{entry.extension}</td>
+                                  <td className="px-4 py-2">
+                                    {entry.extension}
+                                  </td>
                                   <td className="px-4 py-2">
                                     <button
                                       onClick={() => setEditingRomIndex(index)}
@@ -2171,16 +2215,19 @@ const options = {
                           ))}
                         </tbody>
                       </table>
-
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div className={`flex flex-col  ${
-    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}>
+            <div
+              className={`flex flex-col  ${
+                patient?.activation_status === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
+            >
               <div>
                 <p className="text-black text-3xl font-semibold">
                   SURGEON DETAILS
@@ -2415,9 +2462,13 @@ const options = {
               </table>
             </div>
 
-            <div className={`flex flex-col gap-8 pb-8  ${
-    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}>
+            <div
+              className={`flex flex-col gap-8 pb-8  ${
+                patient?.activation_status === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
+            >
               <div>
                 <p className="text-black text-3xl font-semibold">
                   MANAGE PROCEDURES
@@ -2478,9 +2529,13 @@ const options = {
               )}
             </div>
 
-            <div className={`flex flex-col  ${
-    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}>
+            <div
+              className={`flex flex-col  ${
+                patient?.activation_status === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
+            >
               <div>
                 <p className="text-black text-3xl font-semibold">
                   PROCEDURE DETAILS
@@ -2605,22 +2660,23 @@ const options = {
                       {isEditsurgindi ? (
                         <div className="flex flex-row gap-2 text-black text-lg font-medium">
                           <div className="flex flex-row text-black text-lg font-medium gap-8">
-                       {surgindioptions.map((option, index) => (
-                        <label
-                          key={index}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            value={option}
-                            checked={surgindi.includes(option)}
-                            onChange={() => handleSurgIndiCheckboxChange(option)}
-                            className="form-checkbox text-blue-600"
-                          />
-                          <span>{option}</span>
-                        </label>
-                      ))}
-
+                            {surgindioptions.map((option, index) => (
+                              <label
+                                key={index}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  value={option}
+                                  checked={surgindi.includes(option)}
+                                  onChange={() =>
+                                    handleSurgIndiCheckboxChange(option)
+                                  }
+                                  className="form-checkbox text-blue-600"
+                                />
+                                <span>{option}</span>
+                              </label>
+                            ))}
                           </div>
                           <div className="flex gap-1">
                             <button
@@ -2661,9 +2717,13 @@ const options = {
               </table>
             </div>
 
-            <div className={`flex flex-col  ${
-    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}>
+            <div
+              className={`flex flex-col  ${
+                patient?.activation_status === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
+            >
               <div>
                 <p className="text-black text-3xl font-semibold">
                   SURGICAL APPROACH
@@ -2798,9 +2858,13 @@ const options = {
               </table>
             </div>
 
-            <div className={`flex flex-col  ${
-    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}>
+            <div
+              className={`flex flex-col  ${
+                patient?.activation_status === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
+            >
               <div>
                 <p className="text-black text-3xl font-semibold">
                   INTRA OPERATIVE EVENTS
@@ -2869,7 +2933,7 @@ const options = {
                       )}
                     </td>
                   </tr>
-{/* 
+                  {/* 
                   <tr className="align-middle">
                     <td className="font-bold text-lg text-black w-1/3">
                       SUGERY NAME
@@ -3036,9 +3100,13 @@ const options = {
               </table>
             </div>
 
-            <div className={`flex flex-col gap-8  ${
-    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}>
+            <div
+              className={`flex flex-col gap-8  ${
+                patient?.activation_status === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
+            >
               <div>
                 <p className="text-black text-3xl font-semibold">
                   BONE RESECTION
@@ -3232,15 +3300,16 @@ const options = {
                                   className="border px-2 py-1 w-28 mr-1 rounded"
                                   value={distalmedialinithick}
                                   onChange={handleInitThickChange}
-                                  >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                >
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -3268,7 +3337,6 @@ const options = {
                                   patientsurgery?.[0].bone_resection
                                     .distal_medial.initial_thickness
                                 }{" "}
-                                
                               </p>
                               <button
                                 onClick={() => {
@@ -3351,7 +3419,7 @@ const options = {
                           )}
                         </td>
                         <td>
-                         {isEditRecutValue ? (
+                          {isEditRecutValue ? (
                             <div className="flex flex-row gap-2 text-black text-base font-medium">
                               <div className="flex flex-row items-center text-black text-base font-medium gap-2">
                                 <select
@@ -3390,7 +3458,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.distal_medial.recutvalue}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.recutvalue
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -3481,14 +3552,15 @@ const options = {
                                   value={distalmedialwashervalue}
                                   onChange={handleWasherValueChange}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -3512,7 +3584,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.distal_medial.washervalue}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.washervalue
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -3539,14 +3614,15 @@ const options = {
                                   value={distalmedialfinalthick}
                                   onChange={handleFinalThickChange}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -3570,7 +3646,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.distal_medial.final_thickness}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_medial.final_thickness
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -3683,14 +3762,15 @@ const options = {
                                   value={distalLateralInitThick}
                                   onChange={handleInputDistalLateralInitThick}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -3714,7 +3794,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.distal_lateral.initial_thickness}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.initial_thickness
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -3805,14 +3888,15 @@ const options = {
                                   value={distalLateralRecutValue}
                                   onChange={handleInputDistalLateralRecutValue}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -3836,7 +3920,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.distal_lateral.recutvalue}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.recutvalue
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -3927,14 +4014,15 @@ const options = {
                                   value={distalLateralWasherValue}
                                   onChange={handleInputDistalLateralWasherValue}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -3958,7 +4046,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.distal_lateral.washervalue}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.washervalue
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -3985,14 +4076,15 @@ const options = {
                                   value={distalLateralFinalThick}
                                   onChange={handleInputDistalLateralFinalThick}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -4016,7 +4108,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.distal_lateral.final_thickness}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .distal_lateral.final_thickness
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -4167,14 +4262,15 @@ const options = {
                                   value={postMedialInitThick}
                                   onChange={handlePostMedialInitThickChange}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -4198,7 +4294,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.posterial_medial.initial_thickness}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_medial.initial_thickness
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -4289,14 +4388,15 @@ const options = {
                                   value={postMedialRecutValue}
                                   onChange={handlePostMedialRecutValueChange}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -4320,7 +4420,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.posterial_medial.recutvalue}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_medial.recutvalue
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -4347,14 +4450,15 @@ const options = {
                                   value={postMedialFinalThick}
                                   onChange={handlePostMedialFinalThickChange}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -4378,7 +4482,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.posterial_medial.final_thickness}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_medial.final_thickness
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -4489,14 +4596,15 @@ const options = {
                                   value={postLateralInitThick}
                                   onChange={handlePostLateralInitThickChange}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -4520,7 +4628,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.posterial_lateral.initial_thickness}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_lateral.initial_thickness
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -4611,14 +4722,15 @@ const options = {
                                   value={postLateralRecutValue}
                                   onChange={handlePostLateralRecutValueChange}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -4642,7 +4754,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.posterial_lateral.recutvalue}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_lateral.recutvalue
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -4669,14 +4784,15 @@ const options = {
                                   value={postLateralFinalThick}
                                   onChange={handlePostLateralFinalThickChange}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -4700,7 +4816,10 @@ const options = {
                           ) : (
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
-                                {patientsurgery?.[0].bone_resection.posterial_lateral.final_thickness}
+                                {
+                                  patientsurgery?.[0].bone_resection
+                                    .posterial_lateral.final_thickness
+                                }
                               </p>
                               <button
                                 onClick={() => {
@@ -4845,14 +4964,15 @@ const options = {
                                       value={tibialLeftValue}
                                       onChange={handleTibialLeftValueChange}
                                     >
-                                      {Array.from({ length: 16 }, (_, i) => {
-                                        const label = `${i} mm`;
-                                        return (
-                                          <option key={i} value={label}>
-                                            {label}
-                                          </option>
-                                        );
-                                      })}
+                                      {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                     </select>
                                   </div>
                                   <div className="flex gap-1">
@@ -4880,7 +5000,6 @@ const options = {
                                       patientsurgery?.[0].bone_resection
                                         .tibial_resection_left.value
                                     }
-                                    
                                   </p>
                                   <button
                                     onClick={() => {
@@ -5000,14 +5119,15 @@ const options = {
                                       value={tibialRightValue}
                                       onChange={handleTibialRightValueChange}
                                     >
-                                      {Array.from({ length: 16 }, (_, i) => {
-                                        const label = `${i} mm`;
-                                        return (
-                                          <option key={i} value={label}>
-                                            {label}
-                                          </option>
-                                        );
-                                      })}
+                                      {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                     </select>
                                   </div>
                                   <div className="flex gap-1">
@@ -5035,7 +5155,6 @@ const options = {
                                       patientsurgery?.[0].bone_resection
                                         .tibial_resection_right.value
                                     }
-                                    
                                   </p>
                                   <button
                                     onClick={() => {
@@ -5237,7 +5356,6 @@ const options = {
                                   patientsurgery?.[0].bone_resection
                                     .tibialvvrecut.vvrecutvalue
                                 }
-                                
                               </p>
                               <button
                                 onClick={() => {
@@ -5329,14 +5447,15 @@ const options = {
                                   value={tibialSlopeRecutValue}
                                   onChange={handleTibialSlopeRecutValueChange}
                                 >
-                                  {Array.from({ length: 16 }, (_, i) => {
-                                    const label = `${i} mm`;
-                                    return (
-                                      <option key={i} value={label}>
-                                        {label}
-                                      </option>
-                                    );
-                                  })}
+                                  {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                                 </select>
                               </div>
                               <div className="flex gap-1">
@@ -5364,7 +5483,6 @@ const options = {
                                   patientsurgery?.[0].bone_resection
                                     .tibialsloperecut.sloperecutvalue
                                 }
-                                
                               </p>
                               <button
                                 onClick={() => {
@@ -5659,7 +5777,6 @@ const options = {
                         </div>
                       )}
                     </td>
-
                   </tr>
                   <tr>
                     <td colSpan="2" className="h-8"></td>
@@ -5677,14 +5794,15 @@ const options = {
                               value={tibialSize}
                               onChange={handleTibialSizeChange}
                             >
-                              {Array.from({ length: 16 }, (_, i) => {
-                                const label = `${i} mm`;
-                                return (
-                                  <option key={i} value={label}>
-                                    {label}
-                                  </option>
-                                );
-                              })}
+                              {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
                             </select>
                           </div>
                           <div className="flex gap-1">
@@ -5708,7 +5826,10 @@ const options = {
                       ) : (
                         <div className="flex flex-row gap-2">
                           <p className="text-black text-base font-medium">
-                            {patientsurgery?.[0].bone_resection.trachela_resection}
+                            {
+                              patientsurgery?.[0].bone_resection
+                                .trachela_resection
+                            }
                           </p>
                           <button
                             onClick={() => {
@@ -5743,7 +5864,9 @@ const options = {
                                   name="dynamicRadio10"
                                   value={option}
                                   checked={insertThicknesssize === option}
-                                  onChange={() => handleInsertThicknesssizeChange(option)}
+                                  onChange={() =>
+                                    handleInsertThicknesssizeChange(option)
+                                  }
                                   className="form-radio text-blue-600"
                                 />
                                 <span>{option}</span>
@@ -5771,10 +5894,7 @@ const options = {
                       ) : (
                         <div className="flex flex-row gap-2">
                           <p className="text-black text-xl font-medium">
-                            {
-                              patientsurgery?.[0].bone_resection
-                                .patella
-                            }
+                            {patientsurgery?.[0].bone_resection.patella}
                           </p>
                           <button
                             onClick={() => {
@@ -5787,119 +5907,144 @@ const options = {
                         </div>
                       )}
                     </td>
-
                   </tr>
                   <tr>
                     <td colSpan="2" className="h-8"></td>
                   </tr>
 
-                  {patientsurgery?.[0].bone_resection.pfj_resurfacing === "YES" && (
+                  {patientsurgery?.[0].bone_resection.pfj_resurfacing ===
+                    "YES" && (
                     <>
                       <tr className="align-middle">
-                        <td className="font-bold text-lg text-black w-1/3">PRE RESURFACING THICKNESS</td>
+                        <td className="font-bold text-lg text-black w-1/3">
+                          PRE RESURFACING THICKNESS
+                        </td>
                         <td className="font-medium text-lg text-black">
                           {isEditPreResurfacing ? (
-                        <div className="flex items-center gap-2">
-                          <select
-                            className="border px-2 py-1 rounded"
-                            value={preResurfacingThickness}
-                            onChange={handlePreResurfacingChange}
-                          >
-                            {Array.from({ length: 16 }, (_, i) => {
-                              const label = `${i} mm`;
-                              return (
-                                <option key={i} value={label}>
-                                  {label}
-                                </option>
-                              );
-                            })}
-                          </select>
-                          <button onClick={handlePreResurfacingSave} className="text-green-600">
-                            <ClipboardDocumentCheckIcon className="w-5 h-5 cursor-pointer" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setIsEditPreResurfacing(false);
-                              setPreResurfacingThickness(preresurfacingthickness || "");
-                            }}
-                            className="text-red-600"
-                          >
-                            <XMarkIcon className="w-5 h-5 cursor-pointer" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <span>{patientsurgery?.[0].bone_resection.preresurfacing || "-"}</span>
-                          <button
-                            onClick={() => setIsEditPreResurfacing(true)}
-                            className="text-gray-400 hover:text-gray-600"
-                          >
-                            <PencilIcon className="w-4 h-4 cursor-pointer" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
+                            <div className="flex items-center gap-2">
+                              <select
+                                className="border px-2 py-1 rounded"
+                                value={preResurfacingThickness}
+                                onChange={handlePreResurfacingChange}
+                              >
+                               {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                              </select>
+                              <button
+                                onClick={handlePreResurfacingSave}
+                                className="text-green-600"
+                              >
+                                <ClipboardDocumentCheckIcon className="w-5 h-5 cursor-pointer" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setIsEditPreResurfacing(false);
+                                  setPreResurfacingThickness(
+                                    preresurfacingthickness || ""
+                                  );
+                                }}
+                                className="text-red-600"
+                              >
+                                <XMarkIcon className="w-5 h-5 cursor-pointer" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span>
+                                {patientsurgery?.[0].bone_resection
+                                  .preresurfacing || "-"}
+                              </span>
+                              <button
+                                onClick={() => setIsEditPreResurfacing(true)}
+                                className="text-gray-400 hover:text-gray-600"
+                              >
+                                <PencilIcon className="w-4 h-4 cursor-pointer" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
 
-                  <tr>
-                    <td colSpan="2" className="h-8"></td>
-                  </tr>
+                      <tr>
+                        <td colSpan="2" className="h-8"></td>
+                      </tr>
 
-                  <tr className="align-middle">
-                    <td className="font-bold text-lg text-black w-1/3">POST RESURFACING THICKNESS</td>
-                    <td className="font-medium text-lg text-black">
-                      {isEditPostResurfacing ? (
-                        <div className="flex items-center gap-2">
-                          <select
-                            className="border px-2 py-1 rounded"
-                            value={postResurfacingThickness}
-                            onChange={handlePostResurfacingChange}
-                          >
-                            {Array.from({ length: 16 }, (_, i) => {
-                              const label = `${i} mm`;
-                              return (
-                                <option key={i} value={label}>
-                                  {label}
-                                </option>
-                              );
-                            })}
-                          </select>
-                          <button onClick={handlePostResurfacingSave} className="text-green-600">
-                            <ClipboardDocumentCheckIcon className="w-5 h-5 cursor-pointer" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setIsEditPostResurfacing(false);
-                              setPostResurfacingThickness(postresurfacingthickness || "");
-                            }}
-                            className="text-red-600"
-                          >
-                            <XMarkIcon className="w-5 h-5 cursor-pointer" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <span>{patientsurgery?.[0].bone_resection.postresurfacing || "-"}</span>
-                          <button
-                            onClick={() => setIsEditPostResurfacing(true)}
-                            className="text-gray-400 hover:text-gray-600"
-                          >
-                            <PencilIcon className="w-4 h-4 cursor-pointer" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                </>
-              )}
-                  
+                      <tr className="align-middle">
+                        <td className="font-bold text-lg text-black w-1/3">
+                          POST RESURFACING THICKNESS
+                        </td>
+                        <td className="font-medium text-lg text-black">
+                          {isEditPostResurfacing ? (
+                            <div className="flex items-center gap-2">
+                              <select
+                                className="border px-2 py-1 rounded"
+                                value={postResurfacingThickness}
+                                onChange={handlePostResurfacingChange}
+                              >
+                                {Array.from({ length: 32 }, (_, i) => {
+                          const value = (i * 0.5).toFixed(1);
+                          const label = `${value} mm`;
+                          return (
+                            <option key={value} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                              </select>
+                              <button
+                                onClick={handlePostResurfacingSave}
+                                className="text-green-600"
+                              >
+                                <ClipboardDocumentCheckIcon className="w-5 h-5 cursor-pointer" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setIsEditPostResurfacing(false);
+                                  setPostResurfacingThickness(
+                                    postresurfacingthickness || ""
+                                  );
+                                }}
+                                className="text-red-600"
+                              >
+                                <XMarkIcon className="w-5 h-5 cursor-pointer" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span>
+                                {patientsurgery?.[0].bone_resection
+                                  .postresurfacing || "-"}
+                              </span>
+                              <button
+                                onClick={() => setIsEditPostResurfacing(true)}
+                                className="text-gray-400 hover:text-gray-600"
+                              >
+                                <PencilIcon className="w-4 h-4 cursor-pointer" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>
 
-            <div className={`flex flex-col  ${
-    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}>
+            <div
+              className={`flex flex-col  ${
+                patient?.activation_status === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
+            >
               <div>
                 <p className="text-black text-3xl font-semibold">
                   COMPONENT SELECTION
@@ -6055,9 +6200,13 @@ const options = {
             </div>
           </>
         ) : (
-          <div className={`w-full flex flex-col justify-center items-center gap-8 ${
-    patient?.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}>
+          <div
+            className={`w-full flex flex-col justify-center items-center gap-8 ${
+              patient?.activation_status === 0
+                ? "pointer-events-none opacity-50"
+                : ""
+            }`}
+          >
             <p className="text-red-500 text-2xl font-bold">
               NO SURGERY DATA AVAILABLE
             </p>

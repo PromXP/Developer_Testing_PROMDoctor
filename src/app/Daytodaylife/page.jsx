@@ -421,119 +421,50 @@ const page = ({ goToReport, gotoIJR }) => {
   );
 
   const filteredPatients = patients
-    .filter((patient) => {
-      if (patient.activation_status === 0) {
-        return false;
-      }
+  .filter((patient) => {
+    if (patient.activation_status === 0) return false;
+    if (uhidToExclude.has(patient.uhid)) return false;
 
-      if (uhidToExclude.has(patient.uhid)) {
-        return false;
-      }
-      const status =
-        getPeriodFromSurgeryDate(
-          selectedLeg === "left"
-            ? patient?.post_surgery_details_left?.date_of_surgery
-            : patient?.post_surgery_details_right?.date_of_surgery,
-          patient
-        ).toLowerCase() || "";
-      const selectedFilter = patfilter.toLowerCase();
-      const subFilter = postopfilter.toLowerCase();
-      const selectedLegSide = selectedLeg.toLowerCase(); // "left" or "right"
+    const today = new Date().toISOString().split("T")[0];
+    const selectedFilter = patfilter.toLowerCase();
+    const subFilter = postopfilter.toLowerCase();
 
-      const hasLeft =
-        patient.questionnaire_assigned_left &&
-        patient.questionnaire_assigned_left.length > 0;
-      const hasRight =
-        patient.questionnaire_assigned_right &&
-        patient.questionnaire_assigned_right.length > 0;
+    const matchesAnyLeg = ["left", "right"].some((side) => {
+      const hasQuestionnaire =
+        patient[`questionnaire_assigned_${side}`]?.length > 0;
 
-      let matchByStatus = false;
+      const surgeryDate = patient[`post_surgery_details_${side}`]?.date_of_surgery;
+      const period = getPeriodFromSurgeryDate(surgeryDate, patient).toLowerCase();
 
-      const today = new Date().toISOString().split("T")[0];
+      // Skip if neither questionnaire nor surgery info
+      if (!hasQuestionnaire && !surgeryDate) return false;
 
-      const relevantQuestionnaires =
-        selectedLegSide === "left"
-          ? patient.questionnaire_assigned_left || []
-          : patient.questionnaire_assigned_right || [];
-
-      let matchByQuestionnaire = relevantQuestionnaires.length > 0;
-
-      // Always check questionnaire assigned
-      if (selectedLegSide === "left" && hasLeft) {
-        matchByQuestionnaire = true;
-      }
-      if (selectedLegSide === "right" && hasRight) {
-        matchByQuestionnaire = true;
-      }
-
-      // Always check current_status
-      if (status.includes("left") && selectedLegSide === "left") {
-        matchByStatus = true;
-      }
-      if (status.includes("right") && selectedLegSide === "right") {
-        matchByStatus = true;
-      }
-
-      // If neither match questionnaire nor status, don't show
-      if (!matchByQuestionnaire && !matchByStatus) {
-        return false;
-      }
-
-      // Now apply pre/post-op filter
-      if (selectedFilter === "all patients") {
-        return true;
-      }
-
-      const period = getPeriodFromSurgeryDate(
-        selectedLeg === "left"
-          ? patient?.post_surgery_details_left?.date_of_surgery
-          : patient?.post_surgery_details_right?.date_of_surgery,
-        patient
-      ).toLowerCase();
-
-      if (selectedFilter === "all patients") {
-        return true;
-      }
+      if (selectedFilter === "all patients") return true;
 
       if (selectedFilter === "pre operative") {
-        const surgeryDateLeft =
-          patient?.post_surgery_details_left?.date_of_surgery;
-        const surgeryDateRight =
-          patient?.post_surgery_details_right?.date_of_surgery;
-        const hasSurgeryToday =
-          (surgeryDateLeft && surgeryDateLeft.split("T")[0] === today) ||
-          (surgeryDateRight && surgeryDateRight.split("T")[0] === today);
-
+        const hasSurgeryToday = surgeryDate?.split("T")[0] === today;
         return period.includes("pre") && hasSurgeryToday;
       }
 
-      // Anything not "pre" is treated as post-operative
       if (selectedFilter === "post operative") {
+        const relevantQuestionnaires = patient[`questionnaire_assigned_${side}`] || [];
+
         if (!period.includes("pre")) {
           if (subFilter === "all") {
             return (
-              // ✅ If OPD date exists, match with today
-              (patient.opd_appointment_date &&
-                patient.opd_appointment_date.split("T")[0] === today) ||
-              // ✅ If no OPD date, fallback to questionnaire deadline
-              (!patient.opd_appointment_date &&
-                relevantQuestionnaires?.some((q) => {
-                  const deadline = q.deadline?.split("T")[0];
-                  return deadline === today;
-                }))
+              (patient.opd_appointment_date?.split("T")[0] === today) ||
+              relevantQuestionnaires.some(
+                (q) => q.deadline?.split("T")[0] === today
+              )
             );
           }
 
-          // ✅ Subfilter exists (e.g., week 1, month 3, etc.)
           return (
             period.includes(subFilter) &&
-            ((patient.opd_appointment_date &&
-              patient.opd_appointment_date.split("T")[0] === today) ||
-              (!patient.opd_appointment_date &&
-                relevantQuestionnaires?.some((q) => {
-                  const deadline = q.deadline?.split("T")[0];
-                  return deadline === today;
-                })))
+            ((patient.opd_appointment_date?.split("T")[0] === today) ||
+              relevantQuestionnaires.some(
+                (q) => q.deadline?.split("T")[0] === today
+              ))
           );
         }
 
@@ -541,7 +472,10 @@ const page = ({ goToReport, gotoIJR }) => {
       }
 
       return false;
-    })
+    });
+
+    return matchesAnyLeg;
+  })
     .filter((patient) => {
       if (!searchTerm.trim()) return true;
 
@@ -1736,6 +1670,15 @@ const page = ({ goToReport, gotoIJR }) => {
                                 : "w-[35%] text-end"
                             }`}
                           >
+                            {getPeriodFromSurgeryDate(
+                              selectedLeg === "left"
+                                ? patient?.post_surgery_details_left
+                                    ?.date_of_surgery
+                                : patient?.post_surgery_details_right
+                                    ?.date_of_surgery,
+                              patient
+                            )}
+
                             {getPeriodFromSurgeryDate(
                               selectedLeg === "left"
                                 ? patient?.post_surgery_details_left
