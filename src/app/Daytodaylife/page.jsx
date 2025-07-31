@@ -168,7 +168,7 @@ const page = ({ goToReport, gotoIJR }) => {
           return period.toLowerCase() === "pre op";
         }).length;
 
-        setPreOpCount(preOp);
+        // setPreOpCount(preOp);
 
         // Count POST OP stages
         const stageCounts = {
@@ -193,9 +193,9 @@ const page = ({ goToReport, gotoIJR }) => {
         });
 
         setPostOpStages(stageCounts);
-        setPostOpTotal(
-          Object.values(stageCounts).reduce((sum, val) => sum + val, 0)
-        );
+        // setPostOpTotal(
+        //   Object.values(stageCounts).reduce((sum, val) => sum + val, 0)
+        // );
 
         // === Separate Score Grouping Logic ===
 
@@ -421,61 +421,62 @@ const page = ({ goToReport, gotoIJR }) => {
   );
 
   const filteredPatients = patients
-  .filter((patient) => {
-    if (patient.activation_status === 0) return false;
-    if (uhidToExclude.has(patient.uhid)) return false;
+    .filter((patient) => {
+      if (patient.activation_status === 0) return false;
+      if (uhidToExclude.has(patient.uhid)) return false;
 
-    const today = new Date().toISOString().split("T")[0];
-    const selectedFilter = patfilter.toLowerCase();
-    const subFilter = postopfilter.toLowerCase();
+      const today = new Date().toISOString().split("T")[0];
+      const selectedFilter = patfilter.toLowerCase();
+      const subFilter = postopfilter.toLowerCase();
 
-    const matchesAnyLeg = ["left", "right"].some((side) => {
-      const hasQuestionnaire =
-        patient[`questionnaire_assigned_${side}`]?.length > 0;
+      const matchesAnyLeg = ["left", "right"].some((side) => {
+        const hasQuestionnaire =
+          patient[`questionnaire_assigned_${side}`]?.length > 0;
 
-      const surgeryDate = patient[`post_surgery_details_${side}`]?.date_of_surgery;
-      const period = getPeriodFromSurgeryDate(surgeryDate, patient).toLowerCase();
+        const surgeryDate =
+          patient[`post_surgery_details_${side}`]?.date_of_surgery;
+        const period = getPeriodFromSurgeryDate(
+          surgeryDate,
+          patient
+        ).toLowerCase();
 
-      // Skip if neither questionnaire nor surgery info
-      if (!hasQuestionnaire && !surgeryDate) return false;
+        // Skip if neither questionnaire nor surgery info
+        if (!hasQuestionnaire && !surgeryDate) return false;
 
-      if (selectedFilter === "all patients") return true;
+        if (period.includes("pre")) {
+          const hasSurgeryToday = surgeryDate?.split("T")[0] === today;
 
-      if (selectedFilter === "pre operative") {
-        const hasSurgeryToday = surgeryDate?.split("T")[0] === today;
-        return period.includes("pre") && hasSurgeryToday;
-      }
-
-      if (selectedFilter === "post operative") {
-        const relevantQuestionnaires = patient[`questionnaire_assigned_${side}`] || [];
-
-        if (!period.includes("pre")) {
-          if (subFilter === "all") {
-            return (
-              (patient.opd_appointment_date?.split("T")[0] === today) ||
-              relevantQuestionnaires.some(
-                (q) => q.deadline?.split("T")[0] === today
-              )
-            );
+          if (hasSurgeryToday) {
+           
+            return true;
           }
 
-          return (
-            period.includes(subFilter) &&
-            ((patient.opd_appointment_date?.split("T")[0] === today) ||
-              relevantQuestionnaires.some(
-                (q) => q.deadline?.split("T")[0] === today
-              ))
+          return false;
+        }
+
+        if (!period.includes("pre")) {
+          const relevantQuestionnaires =
+            patient[`questionnaire_assigned_${side}`] || [];
+
+          const hasOPDToday =
+            patient.opd_appointment_date?.split("T")[0] === today;
+          const hasQuestionnaireDueToday = relevantQuestionnaires.some(
+            (q) => q.deadline?.split("T")[0] === today
           );
+
+          if (hasOPDToday || hasQuestionnaireDueToday) {
+           
+            return true;
+          }
+
+          return false;
         }
 
         return false;
-      }
+      });
 
-      return false;
-    });
-
-    return matchesAnyLeg;
-  })
+      return matchesAnyLeg;
+    })
     .filter((patient) => {
       if (!searchTerm.trim()) return true;
 
@@ -492,6 +493,55 @@ const page = ({ goToReport, gotoIJR }) => {
         patient.uhid?.toLowerCase().includes(term)
       );
     });
+
+
+
+useEffect(() => {
+  let preopcnt = 0;
+  let postopcnt = 0;
+
+  const today = new Date().toISOString().split("T")[0];
+
+  patients.forEach((patient) => {
+    if (patient.activation_status === 0) return;
+    if (uhidToExclude.has(patient.uhid)) return;
+
+    let isCounted = false;
+
+    ["left", "right"].some((side) => {
+      const surgeryDate = patient[`post_surgery_details_${side}`]?.date_of_surgery;
+      const questionnaires = patient[`questionnaire_assigned_${side}`] || [];
+
+      const period = getPeriodFromSurgeryDate(surgeryDate, patient).toLowerCase();
+
+      if (period.includes("pre")) {
+        const isToday = surgeryDate?.split("T")[0] === today;
+        if (isToday) {
+          preopcnt += 1;
+          isCounted = true;
+          return true; // ✅ stop checking other leg
+        }
+      } else {
+        const hasOPDToday = patient.opd_appointment_date?.split("T")[0] === today;
+        const hasDueQuestionnaire = questionnaires.some(
+          (q) => q.deadline?.split("T")[0] === today
+        );
+        if (hasOPDToday || hasDueQuestionnaire) {
+          postopcnt += 1;
+          isCounted = true;
+          return true; // ✅ stop checking other leg
+        }
+      }
+
+      return false; // continue to next side if not matched
+    });
+  });
+
+  setPreOpCount(preopcnt);
+  setPostOpTotal(postopcnt);
+}, [patients, uhidToExclude]);
+
+
 
   const [patprogressfilter, setpatprogressFilter] = useState("ALL");
 
@@ -1349,7 +1399,7 @@ const page = ({ goToReport, gotoIJR }) => {
               </div> */}
             </div>
 
-            <div
+            {/* <div
               className={`gap-1  cursor-pointer flex flex-col ${
                 width < 650 && width >= 530
                   ? "items-start"
@@ -1444,7 +1494,7 @@ const page = ({ goToReport, gotoIJR }) => {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
 
           <div className="w-full flex justify-center items-center mt-4">
@@ -1670,23 +1720,37 @@ const page = ({ goToReport, gotoIJR }) => {
                                 : "w-[35%] text-end"
                             }`}
                           >
-                            {getPeriodFromSurgeryDate(
-                              selectedLeg === "left"
-                                ? patient?.post_surgery_details_left
-                                    ?.date_of_surgery
-                                : patient?.post_surgery_details_right
-                                    ?.date_of_surgery,
-                              patient
-                            )}
-
-                            {getPeriodFromSurgeryDate(
-                              selectedLeg === "left"
-                                ? patient?.post_surgery_details_left
-                                    ?.date_of_surgery
-                                : patient?.post_surgery_details_right
-                                    ?.date_of_surgery,
-                              patient
-                            )}
+                            <>
+                              {getPeriodFromSurgeryDate(
+                                patient?.post_surgery_details_left
+                                  ?.date_of_surgery,
+                                patient
+                              ) !== "Not Found" && (
+                                <>
+                                  Left:{" "}
+                                  {getPeriodFromSurgeryDate(
+                                    patient?.post_surgery_details_left
+                                      ?.date_of_surgery,
+                                    patient
+                                  )}{" "}
+                                  
+                                </>
+                              )}{" "}
+                              {getPeriodFromSurgeryDate(
+                                patient?.post_surgery_details_right
+                                  ?.date_of_surgery,
+                                patient
+                              ) !== "Not Found" && (
+                                <>
+                                  Right:{" "}
+                                  {getPeriodFromSurgeryDate(
+                                    patient?.post_surgery_details_right
+                                      ?.date_of_surgery,
+                                    patient
+                                  )}
+                                </>
+                              )}
+                            </>
                           </div>
                           <div
                             className={`flex flex-row justify-center items-center${
