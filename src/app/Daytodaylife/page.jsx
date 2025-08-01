@@ -1365,7 +1365,7 @@ useEffect(() => {
           >
             <div className="flex flex-col justify-between">
               <p className="text-black text-2xl font-poppins font-semibold">
-                Day Today Life
+                Daily Activity
               </p>
 
               {/* <div className="flex items-center justify-between w-full">
