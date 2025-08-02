@@ -380,42 +380,61 @@ const page = ({ goToReport, gotoIJR }) => {
   };
 
   const today = utcToISTDateOnly(new Date().toISOString());
+  const patientMap = new Map(patients.map((p) => [p.uhid, p]));
 
   // Step 1: Create a Set of UHIDs to exclude
   const uhidToExclude = new Set(
     surgerypat
       .filter((record) => {
+        const patient = patientMap.get(record.uhid); // Get corresponding patient
+        if (!patient) return false; // Safety check
+
         if (!record.patient_records || record.patient_records.length === 0)
           return false;
 
-        if (patfilter.toLowerCase() === "pre operative") {
-          // Exclude if any posting_timestamp matches today
-          return record.patient_records.some(
-            (r) => utcToISTDateOnly(r.posting_timestamp) === today
-          );
-        }
+        const matchesAnyLeg = ["left", "right"].some((side) => {
+          const hasQuestionnaire =
+            patient[`questionnaire_assigned_${side}`]?.length > 0;
 
-        if (patfilter.toLowerCase() === "post operative") {
-          return record.patient_records.some((r) =>
-            r.rom?.some((romEntry) => {
-              if (!romEntry.rom_update_timestamp) return false;
+          const surgeryDate =
+            patient[`post_surgery_details_${side}`]?.date_of_surgery;
+          const period = getPeriodFromSurgeryDate(
+            surgeryDate,
+            patient
+          ).toLowerCase();
 
-              const romDate = new Date(romEntry.rom_update_timestamp);
-              const today = new Date();
-              const thirtyDaysAgo = new Date(today);
-              thirtyDaysAgo.setDate(today.getDate() - 30);
+          // Skip if neither questionnaire nor surgery info
+          if (!hasQuestionnaire && !surgeryDate) return false;
 
-              // Remove time part from all dates
-              romDate.setHours(0, 0, 0, 0);
-              today.setHours(0, 0, 0, 0);
-              thirtyDaysAgo.setHours(0, 0, 0, 0);
+          if (period.includes("pre")) {
+            // Exclude if any posting_timestamp matches today
+            return record.patient_records.some(
+              (r) => utcToISTDateOnly(r.posting_timestamp) === today
+            );
+          }
 
-              return romDate >= thirtyDaysAgo && romDate <= today;
-            })
-          );
-        }
+          if (!period.includes("pre")) {
+            return record.patient_records.some((r) =>
+              r.rom?.some((romEntry) => {
+                if (!romEntry.rom_update_timestamp) return false;
 
-        return false;
+                const romDate = new Date(romEntry.rom_update_timestamp);
+                const today = new Date();
+                const thirtyDaysAgo = new Date(today);
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+
+                // Remove time part from all dates
+                romDate.setHours(0, 0, 0, 0);
+                today.setHours(0, 0, 0, 0);
+                thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+                return romDate >= thirtyDaysAgo && romDate <= today;
+              })
+            );
+          }
+        });
+
+        return matchesAnyLeg;
       })
       .map((record) => record.uhid)
   );
@@ -447,7 +466,6 @@ const page = ({ goToReport, gotoIJR }) => {
           const hasSurgeryToday = surgeryDate?.split("T")[0] === today;
 
           if (hasSurgeryToday) {
-           
             return true;
           }
 
@@ -465,7 +483,6 @@ const page = ({ goToReport, gotoIJR }) => {
           );
 
           if (hasOPDToday || hasQuestionnaireDueToday) {
-           
             return true;
           }
 
@@ -494,54 +511,55 @@ const page = ({ goToReport, gotoIJR }) => {
       );
     });
 
+  useEffect(() => {
+    let preopcnt = 0;
+    let postopcnt = 0;
 
+    const today = new Date().toISOString().split("T")[0];
 
-useEffect(() => {
-  let preopcnt = 0;
-  let postopcnt = 0;
+    patients.forEach((patient) => {
+      if (patient.activation_status === 0) return;
+      if (uhidToExclude.has(patient.uhid)) return;
 
-  const today = new Date().toISOString().split("T")[0];
+      let isCounted = false;
 
-  patients.forEach((patient) => {
-    if (patient.activation_status === 0) return;
-    if (uhidToExclude.has(patient.uhid)) return;
+      ["left", "right"].some((side) => {
+        const surgeryDate =
+          patient[`post_surgery_details_${side}`]?.date_of_surgery;
+        const questionnaires = patient[`questionnaire_assigned_${side}`] || [];
 
-    let isCounted = false;
+        const period = getPeriodFromSurgeryDate(
+          surgeryDate,
+          patient
+        ).toLowerCase();
 
-    ["left", "right"].some((side) => {
-      const surgeryDate = patient[`post_surgery_details_${side}`]?.date_of_surgery;
-      const questionnaires = patient[`questionnaire_assigned_${side}`] || [];
-
-      const period = getPeriodFromSurgeryDate(surgeryDate, patient).toLowerCase();
-
-      if (period.includes("pre")) {
-        const isToday = surgeryDate?.split("T")[0] === today;
-        if (isToday) {
-          preopcnt += 1;
-          isCounted = true;
-          return true; // ✅ stop checking other leg
+        if (period.includes("pre")) {
+          const isToday = surgeryDate?.split("T")[0] === today;
+          if (isToday) {
+            preopcnt += 1;
+            isCounted = true;
+            return true; // ✅ stop checking other leg
+          }
+        } else {
+          const hasOPDToday =
+            patient.opd_appointment_date?.split("T")[0] === today;
+          const hasDueQuestionnaire = questionnaires.some(
+            (q) => q.deadline?.split("T")[0] === today
+          );
+          if (hasOPDToday || hasDueQuestionnaire) {
+            postopcnt += 1;
+            isCounted = true;
+            return true; // ✅ stop checking other leg
+          }
         }
-      } else {
-        const hasOPDToday = patient.opd_appointment_date?.split("T")[0] === today;
-        const hasDueQuestionnaire = questionnaires.some(
-          (q) => q.deadline?.split("T")[0] === today
-        );
-        if (hasOPDToday || hasDueQuestionnaire) {
-          postopcnt += 1;
-          isCounted = true;
-          return true; // ✅ stop checking other leg
-        }
-      }
 
-      return false; // continue to next side if not matched
+        return false; // continue to next side if not matched
+      });
     });
-  });
 
-  setPreOpCount(preopcnt);
-  setPostOpTotal(postopcnt);
-}, [patients, uhidToExclude]);
-
-
+    setPreOpCount(preopcnt);
+    setPostOpTotal(postopcnt);
+  }, [patients, uhidToExclude]);
 
   const [patprogressfilter, setpatprogressFilter] = useState("ALL");
 
@@ -1733,7 +1751,6 @@ useEffect(() => {
                                       ?.date_of_surgery,
                                     patient
                                   )}{" "}
-                                  
                                 </>
                               )}{" "}
                               {getPeriodFromSurgeryDate(
