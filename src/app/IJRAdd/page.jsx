@@ -607,72 +607,121 @@ const page = ({ closeijr }) => {
   const handlePostresurfacingThicknessChange = (e) =>
     setpostresurfacingthickness(e.target.value);
 
-  const optionsData = {
-    FEMUR: {
-      MANUFACTURER: ["BIORAD MEDISYS", "MICROPORT"],
-      MODEL: {
-        "BIORAD MEDISYS": ["EXCEL MPK"],
-        MICROPORT: ["EVOLUATION"],
-      },
-      SIZE: {
-        "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
-        EVOLUATION: [
-          "1 mm",
-          "2 mm",
-          "3 mm",
-          "4 mm",
-          "5 mm",
-          "6 mm",
-          "7 mm",
-          "8 mm",
-        ],
-      },
+const optionsData = {
+  FEMUR: {
+    MANUFACTURER: ["BIORAD MEDISYS", "MICROPORT", "Johnson & Johnson MedTech"],
+    MODEL: {
+      "BIORAD MEDISYS": ["EXCEL MPK"],
+      MICROPORT: ["EVOLUATION"],
+      "Johnson & Johnson MedTech": [
+        "Attune CR Femur Right",
+        "Attune CR Femur Left",
+        "Attune PS Femur Right",
+        "Attune PS Femur Left",
+        "PFC Sigma Right",
+        "PFC Sigma Left",
+      ],
     },
-    TIBIA: {
-      MANUFACTURER: ["BIORAD MEDISYS", "MICROPORT"],
-      MODEL: {
-        "BIORAD MEDISYS": ["EXCEL MPK"],
-        MICROPORT: ["EVOLUATION"],
-      },
-      SIZE: {
-        "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
-        EVOLUATION: [
-          "1 mm",
-          "2 mm",
-          "2+ mm",
-          "3 mm",
-          "4 mm",
-          "5 mm",
-          "6 mm",
-          "6+ mm",
-          "7 mm",
-          "8 mm",
-        ],
-      },
+    SIZE: {
+      "EXCEL MPK": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      EVOLUATION: ["1 mm", "2 mm", "3 mm", "4 mm", "5 mm", "6 mm", "7 mm", "8 mm"],
+      "Attune CR Femur Right": ["1", "2", "3", "4", "5", "6", "7", "8", "3N", "4N", "5N", "6N"],
+      "Attune CR Femur Left": ["1", "2", "3", "4", "5", "6", "7", "8", "3N", "4N", "5N", "6N"],
+      "Attune PS Femur Right": ["1", "2", "3", "4", "5", "6", "7", "8", "3N", "4N", "5N", "6N"],
+      "Attune PS Femur Left": ["1", "2", "3", "4", "5", "6", "7", "8", "3N", "4N", "5N", "6N"],
+      "PFC Sigma Right": ["1.5", "2", "2.5", "3", "4", "5"],
+      "PFC Sigma Left": ["1.5", "2", "2.5", "3", "4", "5"],
     },
-    INSERT: {
-      MANUFACTURER: ["BIORAD MEDISYS", "MICROPORT"],
-      MODEL: {
-        "BIORAD MEDISYS": ["EXCEL MPK"],
-        MICROPORT: ["EVOLUATION"],
-      },
-      SIZE: {
-        "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
-        EVOLUATION: ["10 mm", "12 mm", "14 mm", "17 mm", "21 mm"],
-      },
+  },
+  TIBIA: {
+    MANUFACTURER: ["BIORAD MEDISYS", "MICROPORT", "Johnson & Johnson MedTech"],
+    MODEL: {
+      "BIORAD MEDISYS": ["EXCEL MPK"],
+      MICROPORT: ["EVOLUATION"],
+      "Johnson & Johnson MedTech": [
+        "Attune Splus Tibia",
+        "PFC Modular Titanium",
+      ],
     },
-    PATELLA: {
-      MANUFACTURER: ["BIORAD MEDISYS", "MICROPORT"],
-      MODEL: {
-        "BIORAD MEDISYS": ["EXCEL MPK"],
-        MICROPORT: ["EVOLUATION"],
-      },
-      SIZE: {
-        "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
-        EVOLUATION: ["26 mm", "29 mm", "32 mm", "35 mm", "38 mm", "41 mm"],
-      },
+    SIZE: {
+      "EXCEL MPK": ["1", "2", "3", "4", "5", "6"],
+      EVOLUATION: ["1 mm", "2 mm", "2+ mm", "3 mm", "4 mm", "5 mm", "6 mm", "6+ mm", "7 mm", "8 mm"],
+      "Attune Splus Tibia": ["1", "2", "3", "4", "5", "6", "7", "8"],
+      "PFC Modular Titanium": ["1.5", "2", "2.5", "3", "4", "5"],
     },
-  };
+  },
+  INSERT: {
+    MANUFACTURER: ["BIORAD MEDISYS", "MICROPORT", "Johnson & Johnson MedTech"],
+    MODEL: {
+      "BIORAD MEDISYS": ["EXCEL MPK"],
+      MICROPORT: ["EVOLUATION"],
+      "Johnson & Johnson MedTech": [
+        "Attune CR Insert",
+        "Attune PS Insert",
+        "PFC Sigma Posterior Stabilised Insert",
+        "PFC Sigma Cruciate Retaining Insert",
+      ],
+    },
+    SIZE: {
+      "EXCEL MPK": ["7 mm", "8 mm", "9 mm", "11 mm", "13 mm"],
+      EVOLUATION: ["10 mm", "12 mm", "14 mm", "17 mm", "21 mm"],
+      "Attune CR Insert": [
+        "1*5", "1*6", "1*7", "1*8", "1*10", "1*12", "1*14",
+        "2*5", "2*6", "2*7", "2*8", "2*10", "2*12", "2*14",
+        "3*5", "3*6", "3*7", "3*8", "3*10", "3*12", "3*14",
+        "4*5", "4*6", "4*7", "4*8", "4*10", "4*12", "4*14",
+        "5*5", "5*6", "5*7", "5*8", "5*10", "5*12", "5*14",
+        "6*5", "6*6", "6*7", "6*8", "6*10", "6*12", "6*14",
+        "7*5", "7*6", "7*7", "7*8", "7*10", "7*12", "7*14",
+        "8*5", "8*6", "8*7", "8*8", "8*10", "8*12", "8*14",
+      ],
+      "Attune PS Insert": [
+        "1*5", "1*6", "1*7", "1*8", "1*10", "1*12", "1*14",
+        "2*5", "2*6", "2*7", "2*8", "2*10", "2*12", "2*14",
+        "3*5", "3*6", "3*7", "3*8", "3*10", "3*12", "3*14",
+        "4*5", "4*6", "4*7", "4*8", "4*10", "4*12", "4*14",
+        "5*5", "5*6", "5*7", "5*8", "5*10", "5*12", "5*14",
+        "6*5", "6*6", "6*7", "6*8", "6*10", "6*12", "6*14",
+        "7*5", "7*6", "7*7", "7*8", "7*10", "7*12", "7*14",
+        "8*5", "8*6", "8*7", "8*8", "8*10", "8*12", "8*14",
+      ],
+      "PFC Sigma Posterior Stabilised Insert": [
+        "1.5*8", "1.5*10", "1.5*12.5", "1.5*15", "1.5*17.5",
+        "2*8", "2*10", "2*12.5", "2*15", "2*17.5",
+        "2.5*8", "2.5*10", "2.5*12.5", "2.5*15", "2.5*17.5",
+        "3*8", "3*10", "3*12.5", "3*15", "3*17.5",
+        "4*8", "4*10", "4*12.5", "4*15", "4*17.5",
+        "5*8", "5*10", "5*12.5", "5*15", "5*17.5",
+      ],
+      "PFC Sigma Cruciate Retaining Insert": [
+        "1.5*8", "1.5*10", "1.5*12.5", "1.5*15", "1.5*17.5",
+        "2*8", "2*10", "2*12.5", "2*15", "2*17.5",
+        "2.5*8", "2.5*10", "2.5*12.5", "2.5*15", "2.5*17.5",
+        "3*8", "3*10", "3*12.5", "3*15", "3*17.5",
+        "4*8", "4*10", "4*12.5", "4*15", "4*17.5",
+        "5*8", "5*10", "5*12.5", "5*15", "5*17.5",
+      ],
+    },
+  },
+  PATELLA: {
+    MANUFACTURER: ["BIORAD MEDISYS", "MICROPORT", "Johnson & Johnson MedTech"],
+    MODEL: {
+      "BIORAD MEDISYS": ["EXCEL MPK"],
+      MICROPORT: ["EVOLUATION"],
+      "Johnson & Johnson MedTech": [
+        "Attune Medialised Dome Patella",
+        "PFC Patella",
+      ],
+    },
+    SIZE: {
+      "EXCEL MPK": ["26 mm", "28 mm", "32 mm", "36 mm"],
+      EVOLUATION: ["26 mm", "29 mm", "32 mm", "35 mm", "38 mm", "41 mm"],
+      "Attune Medialised Dome Patella": ["29", "32", "35", "38", "41"],
+      "PFC Patella": ["29", "32", "35", "38", "41"],
+    },
+  },
+};
+
 
   const [selectedValues, setSelectedValues] = useState(
     colHeaders.reduce((acc, col) => {

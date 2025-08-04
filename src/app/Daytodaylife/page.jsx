@@ -1558,7 +1558,7 @@ const page = ({ goToReport, gotoIJR }) => {
 
           <div
             ref={containerRef}
-            className={`overflow-y-scroll flex-grow pr-2 mt-3 ${
+            className={` flex-grow pr-2 mt-3 ${
               width < 650 && width >= 450
                 ? patfilter.toLowerCase() === "post operative"
                   ? "h-[75%]"
