@@ -1447,12 +1447,12 @@ const page = ({ goToReport, goToIJRAdd }) => {
   // States for edit toggles and values
   const [isEditPreResurfacing, setIsEditPreResurfacing] = useState(false);
   const [preResurfacingThickness, setPreResurfacingThickness] = useState(
-    patientsurgery?.[0].bone_resection.preresurfacing || ""
+    patientsurgery?.[0]?.bone_resection?.preresurfacing || ""
   );
 
   const [isEditPostResurfacing, setIsEditPostResurfacing] = useState(false);
   const [postResurfacingThickness, setPostResurfacingThickness] = useState(
-    patientsurgery?.[0].bone_resection.postresurfacing || ""
+    patientsurgery?.[0]?.bone_resection?.postresurfacing || ""
   );
 
   // Handlers
@@ -3197,7 +3197,7 @@ const options = {
                       ) : (
                         <div className="flex flex-row gap-2">
                           <p className="text-black text-xl font-semibold">
-                            {patientsurgery?.[0].bone_resection.acl}
+                            {patientsurgery?.[0].bone_resection?.acl}
                           </p>
                           <button
                             onClick={() => {
@@ -3305,8 +3305,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-semibold">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_medial.wear
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_medial?.wear
                                 }
                               </p>
                               <button
@@ -3369,8 +3369,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_medial.initial_thickness
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_medial?.initial_thickness
                                 }{" "}
                               </p>
                               <button
@@ -3438,8 +3438,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_medial.recut
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_medial?.recut
                                 }
                               </p>
                               <button
@@ -3495,7 +3495,7 @@ const options = {
                               <p className="text-black text-base font-medium">
                                 {
                                   patientsurgery?.[0].bone_resection
-                                    .distal_medial.recutvalue
+                                    ?.distal_medial?.recutvalue
                                 }
                               </p>
                               <button
@@ -3563,8 +3563,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_medial.washer
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_medial?.washer
                                 }
                               </p>
                               <button
@@ -3620,8 +3620,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_medial.washervalue
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_medial?.washervalue
                                 }
                               </p>
                               <button
@@ -3682,8 +3682,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_medial.final_thickness
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_medial?.final_thickness
                                 }
                               </p>
                               <button
@@ -3766,8 +3766,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-semibold">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.wear
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_lateral?.wear
                                 }
                               </p>
                               <button
@@ -3830,8 +3830,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.initial_thickness
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_lateral?.initial_thickness
                                 }
                               </p>
                               <button
@@ -3899,8 +3899,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.recut
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_lateral?.recut
                                 }
                               </p>
                               <button
@@ -3956,8 +3956,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.recutvalue
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_lateral?.recutvalue
                                 }
                               </p>
                               <button
@@ -4025,8 +4025,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.washer
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_lateral?.washer
                                 }
                               </p>
                               <button
@@ -4082,8 +4082,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.washervalue
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_lateral?.washervalue
                                 }
                               </p>
                               <button
@@ -4144,8 +4144,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .distal_lateral.final_thickness
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.distal_lateral?.final_thickness
                                 }
                               </p>
                               <button
@@ -4266,8 +4266,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-semibold">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_medial.wear
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_medial?.wear
                                 }
                               </p>
                               <button
@@ -4330,8 +4330,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_medial.initial_thickness
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_medial?.initial_thickness
                                 }
                               </p>
                               <button
@@ -4399,8 +4399,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_medial.recut
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_medial?.recut
                                 }
                               </p>
                               <button
@@ -4456,8 +4456,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_medial.recutvalue
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_medial?.recutvalue
                                 }
                               </p>
                               <button
@@ -4518,8 +4518,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_medial.final_thickness
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_medial?.final_thickness
                                 }
                               </p>
                               <button
@@ -4600,8 +4600,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-semibold">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_lateral.wear
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_lateral?.wear
                                 }
                               </p>
                               <button
@@ -4664,8 +4664,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_lateral.initial_thickness
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_lateral?.initial_thickness
                                 }
                               </p>
                               <button
@@ -4733,8 +4733,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_lateral.recut
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_lateral?.recut
                                 }
                               </p>
                               <button
@@ -4790,8 +4790,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_lateral.recutvalue
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_lateral?.recutvalue
                                 }
                               </p>
                               <button
@@ -4852,8 +4852,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .posterial_lateral.final_thickness
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.posterial_lateral?.final_thickness
                                 }
                               </p>
                               <button
@@ -4957,8 +4957,8 @@ const options = {
                                 <div className="flex flex-row gap-2">
                                   <p className="text-black text-base font-semibold">
                                     {
-                                      patientsurgery?.[0].bone_resection
-                                        .tibial_resection_left.wear
+                                      patientsurgery?.[0]?.bone_resection
+                                        ?.tibial_resection_left?.wear
                                     }
                                   </p>
                                   <button
@@ -5032,8 +5032,8 @@ const options = {
                                 <div className="flex flex-row gap-2">
                                   <p className="text-black text-base font-medium">
                                     {
-                                      patientsurgery?.[0].bone_resection
-                                        .tibial_resection_left.value
+                                      patientsurgery?.[0]?.bone_resection
+                                        ?.tibial_resection_left?.value
                                     }
                                   </p>
                                   <button
@@ -5112,8 +5112,8 @@ const options = {
                                 <div className="flex flex-row gap-2">
                                   <p className="text-black text-base font-semibold">
                                     {
-                                      patientsurgery?.[0].bone_resection
-                                        .tibial_resection_right.wear
+                                      patientsurgery?.[0]?.bone_resection
+                                        ?.tibial_resection_right?.wear
                                     }
                                   </p>
                                   <button
@@ -5187,8 +5187,8 @@ const options = {
                                 <div className="flex flex-row gap-2">
                                   <p className="text-black text-base font-medium">
                                     {
-                                      patientsurgery?.[0].bone_resection
-                                        .tibial_resection_right.value
+                                      patientsurgery?.[0]?.bone_resection
+                                        ?.tibial_resection_right?.value
                                     }
                                   </p>
                                   <button
@@ -5257,7 +5257,7 @@ const options = {
                             ) : (
                               <div className="flex flex-row gap-2">
                                 <p className="text-black text-base font-semibold">
-                                  {patientsurgery?.[0].bone_resection.pcl}
+                                  {patientsurgery?.[0]?.bone_resection?.pcl}
                                 </p>
                                 <button
                                   onClick={() => {
@@ -5332,8 +5332,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-semibold">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .tibialvvrecut.vvrecut
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.tibialvvrecut?.vvrecut
                                 }
                               </p>
                               <button
@@ -5388,8 +5388,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .tibialvvrecut.vvrecutvalue
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.tibialvvrecut?.vvrecutvalue
                                 }
                               </p>
                               <button
@@ -5458,8 +5458,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-semibold">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .tibialsloperecut.sloperecut
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.tibialsloperecut?.sloperecut
                                 }
                               </p>
                               <button
@@ -5515,8 +5515,8 @@ const options = {
                             <div className="flex flex-row gap-2">
                               <p className="text-black text-base font-medium">
                                 {
-                                  patientsurgery?.[0].bone_resection
-                                    .tibialsloperecut.sloperecutvalue
+                                  patientsurgery?.[0]?.bone_resection
+                                    ?.tibialsloperecut?.sloperecutvalue
                                 }
                               </p>
                               <button
@@ -5593,7 +5593,7 @@ const options = {
                     ) : (
                       <div className="flex flex-row gap-2">
                         <p className="text-black text-base font-medium">
-                          {patientsurgery?.[0].bone_resection.final_check}
+                          {patientsurgery?.[0]?.bone_resection?.final_check}
                         </p>
                         <button
                           onClick={() => {
@@ -5799,7 +5799,7 @@ const options = {
                       ) : (
                         <div className="flex flex-row gap-2">
                           <p className="text-black text-base font-medium">
-                            {patientsurgery?.[0].bone_resection.pfj_resurfacing}
+                            {patientsurgery?.[0]?.bone_resection?.pfj_resurfacing}
                           </p>
                           <button
                             onClick={() => {
@@ -5862,8 +5862,8 @@ const options = {
                         <div className="flex flex-row gap-2">
                           <p className="text-black text-base font-medium">
                             {
-                              patientsurgery?.[0].bone_resection
-                                .trachela_resection
+                              patientsurgery?.[0]?.bone_resection
+                                ?.trachela_resection
                             }
                           </p>
                           <button
@@ -5929,7 +5929,7 @@ const options = {
                       ) : (
                         <div className="flex flex-row gap-2">
                           <p className="text-black text-xl font-medium">
-                            {patientsurgery?.[0].bone_resection.patella}
+                            {patientsurgery?.[0]?.bone_resection?.patella}
                           </p>
                           <button
                             onClick={() => {
@@ -5947,7 +5947,7 @@ const options = {
                     <td colSpan="2" className="h-8"></td>
                   </tr>
 
-                  {patientsurgery?.[0].bone_resection.pfj_resurfacing ===
+                  {patientsurgery?.[0]?.bone_resection?.pfj_resurfacing ===
                     "YES" && (
                     <>
                       <tr className="align-middle">
@@ -5982,7 +5982,7 @@ const options = {
                                 onClick={() => {
                                   setIsEditPreResurfacing(false);
                                   setPreResurfacingThickness(
-                                    preresurfacingthickness || ""
+                                    preResurfacingThickness || ""
                                   );
                                 }}
                                 className="text-red-600"
@@ -5993,8 +5993,8 @@ const options = {
                           ) : (
                             <div className="flex items-center gap-2">
                               <span>
-                                {patientsurgery?.[0].bone_resection
-                                  .preresurfacing || "-"}
+                                {patientsurgery?.[0]?.bone_resection
+                                  ?.preresurfacing || "-"}
                               </span>
                               <button
                                 onClick={() => setIsEditPreResurfacing(true)}
@@ -6043,7 +6043,7 @@ const options = {
                                 onClick={() => {
                                   setIsEditPostResurfacing(false);
                                   setPostResurfacingThickness(
-                                    postresurfacingthickness || ""
+                                    postResurfacingThickness || ""
                                   );
                                 }}
                                 className="text-red-600"
@@ -6054,8 +6054,8 @@ const options = {
                           ) : (
                             <div className="flex items-center gap-2">
                               <span>
-                                {patientsurgery?.[0].bone_resection
-                                  .postresurfacing || "-"}
+                                {patientsurgery?.[0]?.bone_resection
+                                  ?.postresurfacing || "-"}
                               </span>
                               <button
                                 onClick={() => setIsEditPostResurfacing(true)}
