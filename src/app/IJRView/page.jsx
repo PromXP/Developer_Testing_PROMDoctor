@@ -5962,7 +5962,7 @@ const options = {
                                 value={preResurfacingThickness}
                                 onChange={handlePreResurfacingChange}
                               >
-                               {Array.from({ length: 32 }, (_, i) => {
+                               {Array.from({ length: 61 }, (_, i) => {
                           const value = (i * 0.5).toFixed(1);
                           const label = `${value} mm`;
                           return (
@@ -6023,7 +6023,7 @@ const options = {
                                 value={postResurfacingThickness}
                                 onChange={handlePostResurfacingChange}
                               >
-                                {Array.from({ length: 32 }, (_, i) => {
+                                {Array.from({ length: 61 }, (_, i) => {
                           const value = (i * 0.5).toFixed(1);
                           const label = `${value} mm`;
                           return (
