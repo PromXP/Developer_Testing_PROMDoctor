@@ -23,13 +23,28 @@ import Malepat from "@/app/assets/man.png";
 import Femalepat from "@/app/assets/woman.png";
 import Maledoc from "@/app/assets/maledoc.png";
 import Femaledoc from "@/app/assets/femaledoc.png";
+import Closeicon from "@/app/assets/closeicon.png";
 
-import { UserIcon } from "@heroicons/react/24/outline";
+
+import Manavatar from "@/app/assets/man.png";
+import Womanavatar from "@/app/assets/woman.png";
+
 import {
   ChevronRightIcon,
-  ChevronLeftIcon,
   ArrowUpRightIcon,
+  MagnifyingGlassIcon,
+  CalendarIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  PencilIcon,
+  CheckCircleIcon,
+  PencilSquareIcon,
+  ChevronLeftIcon,
+  ClipboardDocumentCheckIcon,
+  XMarkIcon,
+  UserIcon,
 } from "@heroicons/react/16/solid";
+
 import Patientimg from "@/app/assets/patimg.png";
 import Ascending from "@/app/assets/ascending.png";
 import Descending from "@/app/assets/descending.png";
@@ -155,11 +170,12 @@ const page = ({ goToReport }) => {
         // Count PRE OP patients for current selected leg
         const preOp = data.filter(
           (patient) =>
-           getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase() === "pre op"
+            getPeriodFromSurgeryDate(
+              selectedLeg === "left"
+                ? patient?.post_surgery_details_left?.date_of_surgery
+                : patient?.post_surgery_details_right?.date_of_surgery,
+              patient
+            ).toLowerCase() === "pre op"
         ).length;
         setPreOpCount(preOp);
 
@@ -346,11 +362,13 @@ const page = ({ goToReport }) => {
 
   const filteredPatients = patients
     .filter((patient) => {
-      const status = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase() || "";
+      const status =
+        getPeriodFromSurgeryDate(
+          selectedLeg === "left"
+            ? patient?.post_surgery_details_left?.date_of_surgery
+            : patient?.post_surgery_details_right?.date_of_surgery,
+          patient
+        ).toLowerCase() || "";
       const selectedFilter = patfilter.toLowerCase();
       const subFilter = postopfilter.toLowerCase();
       const selectedLegSide = selectedLeg.toLowerCase(); // "left" or "right"
@@ -392,10 +410,11 @@ const page = ({ goToReport }) => {
       }
 
       const period = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase();
+        selectedLeg === "left"
+          ? patient?.post_surgery_details_left?.date_of_surgery
+          : patient?.post_surgery_details_right?.date_of_surgery,
+        patient
+      ).toLowerCase();
 
       if (selectedFilter === "all patients") {
         return true;
@@ -491,11 +510,13 @@ const page = ({ goToReport }) => {
   const displayedPatients = [];
 
   patients.forEach((patient) => {
-    const status = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase() || "";
+    const status =
+      getPeriodFromSurgeryDate(
+        selectedLeg === "left"
+          ? patient?.post_surgery_details_left?.date_of_surgery
+          : patient?.post_surgery_details_right?.date_of_surgery,
+        patient
+      ).toLowerCase() || "";
     const selectedFilter = patprogressfilter.toLowerCase();
 
     const statusMatch =
@@ -642,10 +663,11 @@ const page = ({ goToReport }) => {
       ? filteredPatients
       : filteredPatients.filter((patient) => {
           const currentPeriod = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              );
+            selectedLeg === "left"
+              ? patient?.post_surgery_details_left?.date_of_surgery
+              : patient?.post_surgery_details_right?.date_of_surgery,
+            patient
+          );
           const normalizedCurrentPeriod = normalizeString(currentPeriod);
           const normalizedSelectedFilter = normalizeString(selectedFilter);
           const normalizedSubFilter = postopfilter?.toLowerCase?.() || "ALL"; // normalize to "6W", "ALL", etc.
@@ -722,10 +744,11 @@ const page = ({ goToReport }) => {
 
         if (isAllPatients) {
           const status = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase();
+            selectedLeg === "left"
+              ? patient?.post_surgery_details_left?.date_of_surgery
+              : patient?.post_surgery_details_right?.date_of_surgery,
+            patient
+          ).toLowerCase();
           if (status.includes("pre")) {
             bucketCounts[bucketLabel].pre++;
           } else {
@@ -733,10 +756,11 @@ const page = ({ goToReport }) => {
           }
         } else {
           const status = getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              ).toLowerCase();
+            selectedLeg === "left"
+              ? patient?.post_surgery_details_left?.date_of_surgery
+              : patient?.post_surgery_details_right?.date_of_surgery,
+            patient
+          ).toLowerCase();
           if (status.includes("pre")) {
             bucketCounts[bucketLabel].pre++;
           } else {
@@ -886,23 +910,25 @@ const page = ({ goToReport }) => {
     fetchAllImages();
   }, []); // empty dependency: fetch once on mount
 
-  function getPeriodFromSurgeryDate(surgeryDateStr,patient) {
+  function getPeriodFromSurgeryDate(surgeryDateStr, patient) {
     if (!surgeryDateStr) return "Not Found";
 
-  const surgeryDate = new Date(surgeryDateStr);
+    const surgeryDate = new Date(surgeryDateStr);
 
-  // Check for invalid or default placeholder date
-  if (
-    isNaN(surgeryDate) ||
-    surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
-  ) {
-    return "Not Found";
-  }
+    // Check for invalid or default placeholder date
+    if (
+      isNaN(surgeryDate) ||
+      surgeryDate.getFullYear() === 1 // Covers "0001-01-01T00:00:00.000+00:00"
+    ) {
+      return "Not Found";
+    }
 
     const today = new Date();
-    const diffInDays = Math.floor((today - surgeryDate) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor(
+      (today - surgeryDate) / (1000 * 60 * 60 * 24)
+    );
 
-    if (diffInDays <=0) {
+    if (diffInDays <= 0) {
       return "Pre Op";
     }
 
@@ -924,9 +950,520 @@ const page = ({ goToReport }) => {
     return periods[0]?.label || "Unknown";
   }
 
+  const [showprofile, setshowprofile] = useState(false);
+  const [profpat, setprofpat] = useState([]);
+  const [showdoc, setshowdoc] = useState(false);
+  const [profdoc, setprofdoc] = useState([]);
+  const [message, setMessage] = useState("");
+
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [emailValue, setEmailValue] = useState(profpat.email || "");
+  const [tempEmail, setTempEmail] = useState(emailValue); // used for cancel action
+
+  const [isEditingMobile, setIsEditingMobile] = useState(false);
+  const [mobileValue, setMobileValue] = useState(profpat.phone_number || "");
+  const [tempMobile, setTempMobile] = useState(mobileValue);
+
+  const [isEditingAltMobile, setIsEditingAltMobile] = useState(false);
+  const [altMobileValue, setAltMobileValue] = useState(
+    profpat.alternatenumber || ""
+  );
+  const [tempAltMobile, setTempAltMobile] = useState(altMobileValue);
+
+  const handleEditClick = () => {
+    setTempEmail(emailValue); // preserve original
+    setIsEditingEmail(true);
+  };
+
+  const handleSaveClick = async () => {
+    if (!tempEmail) {
+      showWarning("Enter Mail ID");
+      return;
+    }
+    setEmailValue(tempEmail);
+    setIsEditingEmail(false);
+    const payload = {
+      uhid: profpat.uhid,
+      email: tempEmail,
+    };
+    // TODO: Call API to save emailValue if needed
+
+    try {
+      const response = await fetch(API_URL + "update-patient-field", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("Submission successful:", payload);
+      if (!response.ok) {
+        throw new Error("Failed to send data.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      showWarning("Update Successfull");
+      // Optionally, show success message here
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      showWarning("Update failed");
+      showWarning("Update Successfull");
+    }
+  };
+
+  const handleCancelClick = () => {
+    setIsEditingEmail(false);
+  };
+
+  const handleEditMobile = () => {
+    setTempMobile(mobileValue);
+    setIsEditingMobile(true);
+  };
+
+  const handleSaveMobile = async () => {
+    if (!tempMobile) {
+      showWarning("Enter Mobile Number");
+      return;
+    }
+
+    setMobileValue(tempMobile);
+    setIsEditingMobile(false);
+    // TODO: Call API to persist mobileValue
+    const payload = {
+      uhid: profpat.uhid,
+      phone_number: tempMobile,
+    };
+    try {
+      const response = await fetch(API_URL + "update-patient-field", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("Submission successful:", payload);
+      if (!response.ok) {
+        throw new Error("Failed to send data.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      showWarning("Update Successfull");
+      // Optionally, show success message here
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      showWarning("Update failed");
+      showWarning("Update Successfull");
+    }
+  };
+
+  const handleCancelMobile = () => {
+    setIsEditingMobile(false);
+  };
+
+  const handleEditAltMobile = () => {
+    setTempAltMobile(altMobileValue);
+    setIsEditingAltMobile(true);
+  };
+
+  const handleSaveAltMobile = async () => {
+    if (!tempAltMobile) {
+      showWarning("Enter Alternate Mobile Number");
+      return;
+    }
+    setAltMobileValue(tempAltMobile);
+    setIsEditingAltMobile(false);
+    // TODO: API call to save altMobileValue
+    const payload = {
+      uhid: profpat.uhid,
+      alternatenumber: tempAltMobile,
+    };
+    // console.log("Alternate mobile number",payload);
+    // return;
+    try {
+      const response = await fetch(API_URL + "update-patient-field", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("Submission successful:", payload);
+      if (!response.ok) {
+        throw new Error("Failed to send data.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      showWarning("Update Successfull");
+      // Optionally, show success message here
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      showWarning("Update Failed");
+      showWarning("Update failed");
+    }
+  };
+
+  const handleCancelAltMobile = () => {
+    setIsEditingAltMobile(false);
+  };
+
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [addressValue, setAddressValue] = useState(profpat.address || "");
+  const [tempAddress, setTempAddress] = useState(addressValue);
+
+  const handleEditAddress = () => {
+    setTempAddress(addressValue);
+    setIsEditingAddress(true);
+  };
+
+  const handleCancelAddress = () => {
+    setTempAddress(addressValue);
+    setIsEditingAddress(false);
+  };
+
+  const handleSaveAddress = async () => {
+    if (!tempAddress) {
+      showWarning("Enter Address");
+      return;
+    }
+    setAddressValue(tempAddress);
+    setIsEditingAddress(false);
+
+    // Optional: API call
+    const payload = {
+      uhid: profpat.uhid,
+      address: tempAddress,
+    };
+    console.log("Saving address", payload);
+
+    try {
+      const response = await fetch(API_URL + "update-patient-field", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("Submission successful:", payload);
+      if (!response.ok) {
+        throw new Error("Failed to send data.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      showWarning("Update Successfull");
+      // Optionally, show success message here
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      showWarning("Update failed");
+      showWarning("Update Successfull");
+    }
+
+    // await fetch or axios call to update if needed
+  };
+
+  const [isEditingPassport, setIsEditingPassport] = useState(false);
+  const [passportvalue, setpassportvalue] = useState(
+    profpat?.idproof?.PASSPORT || ""
+  );
+  const [temppassport, setTemppassport] = useState(passportvalue); // used for cancel action
+
+  const [isEditingPan, setIsEditingPan] = useState(false);
+  const [panvalue, setpanvalue] = useState(profpat?.idproof?.PAN || "");
+  const [temppan, setTemppan] = useState(panvalue); // used for cancel action
+
+  const [isEditingAadhaar, setIsEditingAadhaar] = useState(false);
+  const [aadhaarvalue, setaadhaarvalue] = useState(
+    profpat?.idproof?.AADHAAR || ""
+  );
+  const [tempaadhaar, setTempaadhaar] = useState(aadhaarvalue); // used for cancel action
+
+  const [isEditingABHA, setIsEditingABHA] = useState(false);
+  const [abhavalue, setabhavalue] = useState(profpat?.idproof?.ABHA || "");
+  const [tempabha, setTempabha] = useState(abhavalue); // used for cancel action
+
+  const [profileImage, setProfileImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+  const [previewUrl, setPreviewUrl] = useState(null);
+
+  const handleEditPassport = () => {
+    setTemppassport(passportvalue);
+    setIsEditingPassport(true);
+  };
+
+  const handleCancelPassport = () => {
+    setTemppassport(passportvalue);
+    setIsEditingPassport(false);
+  };
+
+  const handleSavePassport = async () => {
+    if (!temppassport) {
+      showWarning("Enter PASSPORT Number");
+      return;
+    }
+    setpassportvalue(temppassport);
+    setIsEditingPassport(false);
+
+    // Optional: API call
+    const payload = {
+      uhid: profpat.uhid,
+      "idproof.PASSPORT": temppassport,
+    };
+    console.log("Saving address", payload);
+
+    try {
+      const response = await fetch(API_URL + "update-patient-field", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("Submission successful:", payload);
+      if (!response.ok) {
+        throw new Error("Failed to send data.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      showWarning("Update Successfull");
+      // Optionally, show success message here
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      showWarning("Update failed");
+      showWarning("Update Successfull");
+    }
+
+    // await fetch or axios call to update if needed
+  };
+
+  const handleEditPan = () => {
+    setTemppan(panvalue);
+    setIsEditingPan(true);
+  };
+
+  const handleCancelPan = () => {
+    setTemppan(panvalue);
+    setIsEditingPan(false);
+  };
+
+  const handleSavePan = async () => {
+    if (!temppan) {
+      showWarning("Enter PAN Number");
+      return;
+    }
+    setpanvalue(temppan);
+    setIsEditingPan(false);
+
+    // Optional: API call
+    const payload = {
+      uhid: profpat.uhid,
+      "idproof.PAN": temppan,
+    };
+    console.log("Saving address", payload);
+
+    try {
+      const response = await fetch(API_URL + "update-patient-field", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("Submission successful:", payload);
+      if (!response.ok) {
+        throw new Error("Failed to send data.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      showWarning("Update Successfull");
+      // Optionally, show success message here
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      showWarning("Update failed");
+      showWarning("Update Successfull");
+    }
+
+    // await fetch or axios call to update if needed
+  };
+
+  const handleEditAadhaar = () => {
+    setTempaadhaar(aadhaarvalue);
+    setIsEditingAadhaar(true);
+  };
+
+  const handleCancelAadhaar = () => {
+    setTempaadhaar(aadhaarvalue);
+    setIsEditingAadhaar(false);
+  };
+
+  const handleSaveAadhaar = async () => {
+    if (!tempaadhaar) {
+      showWarning("Enter AADHAAR Number");
+      return;
+    }
+    setaadhaarvalue(tempaadhaar);
+    setIsEditingAadhaar(false);
+
+    // Optional: API call
+    const payload = {
+      uhid: profpat.uhid,
+      "idproof.AADHAAR": tempaadhaar,
+    };
+    console.log("Saving address", payload);
+
+    try {
+      const response = await fetch(API_URL + "update-patient-field", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("Submission successful:", payload);
+      if (!response.ok) {
+        throw new Error("Failed to send data.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      showWarning("Update Successfull");
+      // Optionally, show success message here
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      showWarning("Update failed");
+      showWarning("Update Successfull");
+    }
+
+    // await fetch or axios call to update if needed
+  };
+
+  const handleEditABHA = () => {
+    setTempabha(abhavalue);
+    setIsEditingABHA(true);
+  };
+
+  const handleCancelABHA = () => {
+    setTempabha(abhavalue);
+    setIsEditingABHA(false);
+  };
+
+  const handleSaveABHA = async () => {
+    if (!tempabha) {
+      showWarning("Enter ABHA Number");
+      return;
+    }
+    setabhavalue(tempabha);
+    setIsEditingABHA(false);
+
+    // Optional: API call
+    const payload = {
+      uhid: profpat.uhid,
+      "idproof.ABHA": tempabha,
+    };
+    console.log("Saving address", payload);
+
+    try {
+      const response = await fetch(API_URL + "update-patient-field", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("Submission successful:", payload);
+      if (!response.ok) {
+        throw new Error("Failed to send data.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      showWarning("Update Successfull");
+      // Optionally, show success message here
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      showWarning("Update failed");
+      showWarning("Update Successfull");
+    }
+
+    // await fetch or axios call to update if needed
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && e.target.files) {
+      setProfileImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      setSuccess("");
+      setError("");
+      setimgupload(true);
+    }
+  };
+
+  const isBlobUrl = previewUrl && previewUrl.startsWith("blob:");
+
+  const [showimgupload, setimgupload] = useState(false);
+
+  const fileInputRef = useRef(null); // To programmatically trigger the file input
+
+  const resetImage = () => {
+    setProfileImage(null);
+    setPreviewUrl(null);
+    setSuccess("");
+    setError("");
+
+    // Optionally clear the file input value
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
+    setimgupload(false);
+  };
+
+  const handleUpload = async ({ uhid1, type1 }) => {
+    if (!profileImage) {
+      setError("Please select or capture an image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("uhid", uhid1);
+    formData.append("usertype", type1); // <-- Make sure userType is defined
+    formData.append("profile_image", profileImage);
+
+    try {
+      const res = await axios.post(
+        `${API_URL}upload-profile-photo`,
+        formData
+        // ❌ DO NOT SET HEADERS — Axios will handle Content-Type with boundaries
+      );
+
+      console.log("Profile upload success:", res.data);
+      setSuccess("Image uploaded successfully.");
+      showWarning("Image Upload Successfull");
+      setError("");
+      setimgupload(false);
+    } catch (err) {
+      console.error("Profile upload failed:", err);
+      setError("Upload failed.");
+      showWarning("Image Upload failed");
+      setSuccess("");
+      setimgupload(true);
+    }
+  };
+
+  const formatMaskedID = (id) => {
+    if (!id || id.length <= 4) return id;
+    const maskedLength = id.length - 4;
+    return "*".repeat(maskedLength) + id.slice(-4);
+  };
+
   return (
     <>
-    
       <div className="flex flex-col lg:flex-row w-[95%] mx-auto mt-4 items-center gap-4 justify-between">
         {/* Greeting Section */}
         <div className="flex flex-col lg:flex-row md:items-center md:justify-between gap-4 w-full">
@@ -1262,8 +1799,10 @@ const page = ({ goToReport }) => {
                         src={Flag}
                         alt="VIP"
                         className={`absolute top-0 left-0 w-5 h-5 cursor-pointer ${
-    patient.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}
+                          patient.activation_status === 0
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }`}
                         onClick={() => toggleVip(patient.uhid)}
                       />
                     )}
@@ -1276,8 +1815,10 @@ const page = ({ goToReport }) => {
                           ? "w-full"
                           : "w-[50%]"
                       } ${
-    patient.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}
+                        patient.activation_status === 0
+                          ? "pointer-events-none opacity-50"
+                          : ""
+                      }`}
                     >
                       <div
                         className={`flex gap-4 py-0  items-center  ${
@@ -1318,6 +1859,8 @@ const page = ({ goToReport }) => {
                           onClick={() => {
                             if (patient.vip !== 1) {
                               handleProfileInteraction(patient.uhid);
+                              setshowprofile(true);
+                              setprofpat(patient);
                             }
                           }}
                         />
@@ -1394,8 +1937,10 @@ const page = ({ goToReport }) => {
                             : "flex-row"
                         } 
                     ${width < 640 ? "w-full justify-end" : "w-[70%]"} ${
-    patient.activation_status === 0 ? "pointer-events-none opacity-50" : ""
-  }`}
+                          patient.activation_status === 0
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }`}
                       >
                         <div
                           className={` text-sm font-medium text-[#475467] ${
@@ -1407,10 +1952,13 @@ const page = ({ goToReport }) => {
                           }`}
                         >
                           {getPeriodFromSurgeryDate(
-                                selectedLeg === "left"
-                                  ? patient?.post_surgery_details_left?.date_of_surgery
-                                  : patient?.post_surgery_details_right?.date_of_surgery, patient
-                              )}
+                            selectedLeg === "left"
+                              ? patient?.post_surgery_details_left
+                                  ?.date_of_surgery
+                              : patient?.post_surgery_details_right
+                                  ?.date_of_surgery,
+                            patient
+                          )}
                         </div>
                         <div
                           className={`text-base font-medium text-black ${
@@ -1671,6 +2219,700 @@ const page = ({ goToReport }) => {
           </div>
         </div>
       </div>
+
+      {showprofile && (
+        <div
+          className="fixed inset-0 z-40 "
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.7)", // white with 50% opacity
+          }}
+        >
+          <div
+            className={`
+                        min-h-screen w-5/6 flex flex-col items-center justify-center mx-auto
+                        ${width < 950 ? "p-4 gap-4 " : "p-8 "}
+                      `}
+          >
+            <div
+              className={`w-full bg-white rounded-2xl py-8 px-20  overflow-y-auto overflow-x-hidden max-h-[90vh] ${
+                width < 1095 ? "flex flex-col gap-4" : ""
+              }`}
+            >
+              <div
+                className={`w-full bg-white  ${
+                  width < 760 ? "h-fit" : "h-[90%]"
+                } `}
+              >
+                <div
+                  className={`w-full h-full rounded-lg flex flex-col gap-8 ${
+                    width < 760 ? "py-0" : "py-4"
+                  }`}
+                >
+                  <div className={`relative w-full`}>
+                    <div className="absolute top-0 right-0">
+                      <Image
+                        className={`cursor-pointer ${
+                          width < 530 ? "w-4 h-4" : "w-4 h-4"
+                        }`}
+                        src={Closeicon}
+                        alt="close"
+                        onClick={() => {
+                          setMessage("");
+                          setshowprofile(false);
+                          window.location.reload();
+                        }}
+                      />
+                    </div>
+                    <div
+                      className={`w-full flex gap-4 flex-col ${
+                        width < 530
+                          ? "justify-center items-center"
+                          : "justify-start items-start "
+                      }`}
+                    >
+                      <p className="font-bold text-2xl text-black">
+                        PATIENT PROFILE
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="w-full h-full flex flex-col gap-6">
+                    <div className="w-full h-full flex flex-col gap-8">
+                      <div
+                        className={`w-full flex  gap-4 ${
+                          width < 700 ? "flex-col" : "flex-row"
+                        }`}
+                      >
+                        <div
+                          className={`flex flex-col justify-start items-center gap-2 ${
+                            width < 700 ? "w-full" : "w-1/2"
+                          }`}
+                        >
+                          <div
+                            className="w-[256px] h-[256px] cursor-pointer"
+                            onClick={() => fileInputRef.current.click()}
+                            style={{ position: "relative" }}
+                          >
+                            {isBlobUrl ? (
+                              // Plain <img> for blob URLs
+                              <img
+                                src={previewUrl}
+                                alt="Preview"
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "fill",
+                                  borderRadius: 8,
+                                }}
+                                className="border"
+                              />
+                            ) : (
+                              // Next.js Image for static or remote URLs
+                              <Image
+                                src={
+                                  profileImages1[profpat.uhid] ||
+                                  (profpat.gender === "male"
+                                    ? Manavatar
+                                    : Womanavatar)
+                                }
+                                alt="Upload or Capture"
+                                layout="fill"
+                                objectFit="cover"
+                                className="rounded border w-full h-full"
+                              />
+                            )}
+
+                            <input
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              style={{ display: "none" }}
+                              ref={fileInputRef}
+                              onChange={handleImageChange}
+                            />
+                          </div>
+                          <div>
+                            {showimgupload && (
+                              <div className="w-full flex flex-row justify-center items-center gap-8">
+                                <div className="w-1/2 flex flex-row justify-start items-center">
+                                  <p
+                                    className="font-semibold italic text-[#475467] text-lg cursor-pointer"
+                                    onClick={resetImage}
+                                  >
+                                    RESET
+                                  </p>
+                                </div>
+                                <div className="w-1/2 flex flex-row justify-end items-center">
+                                  <p
+                                    className=" rounded-full px-3 py-[1px] cursor-pointer text-center text-white text-lg font-semibold border-[#005585] border-2"
+                                    style={{
+                                      backgroundColor: "rgba(0, 85, 133, 0.9)",
+                                    }}
+                                    onClick={() => {
+                                      handleUpload({
+                                        uhid1: profpat.uhid,
+                                        type1: "patient",
+                                      });
+                                    }}
+                                  >
+                                    UPLOAD
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div
+                          className={`flex flex-col justify-between items-start gap-2 ${
+                            width < 700 ? "w-full" : "w-1/2"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-4 w-full">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              FIRST NAME
+                            </p>
+                            <p className="text-black text-lg font-medium w-1/2">
+                              {profpat.first_name}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-row gap-4 w-full">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              LAST NAME
+                            </p>
+                            <p className="text-black text-lg font-medium w-1/2">
+                              {profpat.last_name}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-row gap-4 w-full">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              DATE OF BIRTH
+                            </p>
+                            <p className="text-black text-lg font-medium w-1/2">
+                              {profpat.dob}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-row gap-4 w-full">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              GENDER
+                            </p>
+                            <p className="text-black text-lg font-medium w-1/2">
+                              {profpat.gender}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-row gap-4 w-full items-center">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              ADDRESS
+                            </p>
+
+                            {isEditingAddress ? (
+                              <div className="flex w-1/2 gap-2 items-center">
+                                <input
+                                  className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                                  value={tempAddress}
+                                  onChange={(e) =>
+                                    setTempAddress(e.target.value)
+                                  }
+                                />
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={handleSaveAddress}
+                                    className="text-green-600 text-xs cursor-pointer"
+                                  >
+                                    <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                  </button>
+                                  <button
+                                    onClick={handleCancelAddress}
+                                    className="text-red-600 text-xs cursor-pointer"
+                                  >
+                                    <XMarkIcon className="w-5 h-5" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex w-1/2 justify-between items-center">
+                                <p className="text-black text-lg font-medium">
+                                  {profpat.address ||
+                                    addressValue ||
+                                    "Not found"}
+                                </p>
+                                <button
+                                  onClick={handleEditAddress}
+                                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                >
+                                  <PencilIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        className={`w-full flex  gap-4 ${
+                          width < 700 ? "flex-col" : "flex-row"
+                        }`}
+                      >
+                        <div
+                          className={`flex flex-col justify-center items-center gap-2 ${
+                            width < 700 ? "w-full" : "w-1/2"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-4 w-full items-center">
+                            <p className="text-black text-lg font-bold w-1/4">
+                              MOBILE
+                            </p>
+
+                            {isEditingMobile ? (
+                              <div className="flex w-3/4 gap-2 items-center">
+                                <input
+                                  className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                                  value={tempMobile}
+                                  onChange={(e) =>
+                                    setTempMobile(e.target.value)
+                                  }
+                                />
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={handleSaveMobile}
+                                    className="text-green-600 text-xs cursor-pointer"
+                                  >
+                                    <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                  </button>
+                                  <button
+                                    onClick={handleCancelMobile}
+                                    className="text-red-600 text-xs cursor-pointer"
+                                  >
+                                    <XMarkIcon className="w-5 h-5" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex w-1/2 justify-between items-center">
+                                <p className="text-black text-lg font-medium">
+                                  {profpat.phone_number ||
+                                    mobileValue ||
+                                    "Not found"}
+                                </p>
+                                <button
+                                  onClick={handleEditMobile}
+                                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                >
+                                  <PencilIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div
+                          className={`flex flex-col justify-center items-center gap-2 ${
+                            width < 700 ? "w-full" : "w-1/2"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-4 w-full items-center">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              ALTERNATE MOBILE
+                            </p>
+
+                            {isEditingAltMobile ? (
+                              <div className="flex w-1/2 gap-2 items-center">
+                                <input
+                                  className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                                  value={tempAltMobile}
+                                  onChange={(e) =>
+                                    setTempAltMobile(e.target.value)
+                                  }
+                                />
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={handleSaveAltMobile}
+                                    className="text-green-600 text-xs cursor-pointer"
+                                  >
+                                    <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                  </button>
+                                  <button
+                                    onClick={handleCancelAltMobile}
+                                    className="text-red-600 text-xs cursor-pointer"
+                                  >
+                                    <XMarkIcon className="w-5 h-5" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex w-1/2 justify-between items-center">
+                                <p className="text-black text-lg font-medium">
+                                  {profpat.alternatenumber ||
+                                    altMobileValue ||
+                                    "Not found"}
+                                </p>
+                                <button
+                                  onClick={handleEditAltMobile}
+                                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                >
+                                  <PencilIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        className={`w-full flex  gap-4 ${
+                          width < 700 ? "flex-col" : "flex-row"
+                        }`}
+                      >
+                        <div
+                          className={`flex flex-col justify-start items-center gap-2 ${
+                            width < 700 ? "w-full" : "w-1/2"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-4 w-full items-center">
+                            <p className="text-black text-lg font-bold w-1/4">
+                              EMAIL
+                            </p>
+
+                            {isEditingEmail ? (
+                              <div className="flex w-3/4 gap-2 items-center">
+                                <input
+                                  className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                                  value={tempEmail}
+                                  onChange={(e) => setTempEmail(e.target.value)}
+                                />
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={handleSaveClick}
+                                    className="text-green-600 text-xs cursor-pointer"
+                                  >
+                                    <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                  </button>
+                                  <button
+                                    onClick={handleCancelClick}
+                                    className="text-red-600 text-xs cursor-pointer"
+                                  >
+                                    <XMarkIcon className="w-5 h-5" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex w-1/2 justify-between items-center">
+                                <p className="text-black text-lg font-medium break-words w-full">
+                                  {profpat.email || emailValue || "Not found"}
+                                </p>
+                                <button
+                                  onClick={handleEditClick}
+                                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                >
+                                  <PencilIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div
+                          className={`flex flex-row justify-start items-center gap-4 ${
+                            width < 700 ? "w-full" : "w-1/2"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-4 w-full">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              UHID
+                            </p>
+                            <p className="text-black text-lg font-semibol w-1/2">
+                              {profpat.uhid || "Not found"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="w-full flex flex-col gap-4">
+                        <p className="text-black text-lg font-bold">
+                          ID PROOFS:
+                        </p>
+                        <div
+                          className={`w-full flex  gap-4 ${
+                            width < 700 ? "flex-col" : "flex-row"
+                          }`}
+                        >
+                          <div
+                            className={`flex flex-col justify-start items-center gap-2 ${
+                              width < 700 ? "w-full" : "w-1/2"
+                            }`}
+                          >
+                            <div className="flex flex-row gap-4 w-full items-center">
+                              <p className="text-black text-lg font-bold w-1/4">
+                                PASSPORT
+                              </p>
+
+                              {isEditingPassport ? (
+                                <div className="flex w-3/4 gap-2 items-center">
+                                  <input
+                                    className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                                    value={temppassport}
+                                    onChange={(e) =>
+                                      setTemppassport(e.target.value)
+                                    }
+                                  />
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={handleSavePassport}
+                                      className="text-green-600 text-xs cursor-pointer"
+                                    >
+                                      <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={handleCancelPassport}
+                                      className="text-red-600 text-xs cursor-pointer"
+                                    >
+                                      <XMarkIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex w-1/2 justify-between items-center">
+                                  <p className="text-black text-lg font-medium break-words w-full">
+                                    {formatMaskedID(
+                                      profpat?.idproof?.PASSPORT
+                                    ) ||
+                                      passportvalue ||
+                                      "Not found"}
+                                  </p>
+                                  <button
+                                    onClick={handleEditPassport}
+                                    className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                  >
+                                    <PencilIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div
+                            className={`flex flex-row justify-start items-center gap-4 ${
+                              width < 700 ? "w-full" : "w-1/2"
+                            }`}
+                          >
+                            <div className="flex flex-row gap-4 w-full">
+                              <p className="text-black text-lg font-bold w-1/2">
+                                PAN
+                              </p>
+                              {isEditingPan ? (
+                                <div className="flex w-3/4 gap-2 items-center">
+                                  <input
+                                    className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                                    value={temppan}
+                                    onChange={(e) => setTemppan(e.target.value)}
+                                  />
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={handleSavePan}
+                                      className="text-green-600 text-xs cursor-pointer"
+                                    >
+                                      <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={handleCancelPan}
+                                      className="text-red-600 text-xs cursor-pointer"
+                                    >
+                                      <XMarkIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex w-1/2 justify-between items-center">
+                                  <p className="text-black text-lg font-medium break-words w-full">
+                                    {formatMaskedID(profpat?.idproof?.PAN) ||
+                                      panvalue ||
+                                      "Not found"}
+                                  </p>
+                                  <button
+                                    onClick={handleEditPan}
+                                    className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                  >
+                                    <PencilIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          className={`w-full flex  gap-4 ${
+                            width < 700 ? "flex-col" : "flex-row"
+                          }`}
+                        >
+                          <div
+                            className={`flex flex-col justify-start items-center gap-2 ${
+                              width < 700 ? "w-full" : "w-1/2"
+                            }`}
+                          >
+                            <div className="flex flex-row gap-4 w-full items-center">
+                              <p className="text-black text-lg font-bold w-1/4">
+                                AADHAAR
+                              </p>
+                              {isEditingAadhaar ? (
+                                <div className="flex w-3/4 gap-2 items-center">
+                                  <input
+                                    className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                                    value={tempaadhaar}
+                                    onChange={(e) =>
+                                      setTempaadhaar(e.target.value)
+                                    }
+                                  />
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={handleSaveAadhaar}
+                                      className="text-green-600 text-xs cursor-pointer"
+                                    >
+                                      <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={handleCancelAadhaar}
+                                      className="text-red-600 text-xs cursor-pointer"
+                                    >
+                                      <XMarkIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex w-1/2 justify-between items-center">
+                                  <p className="text-black text-lg font-medium break-words w-full">
+                                    {formatMaskedID(
+                                      profpat?.idproof?.AADHAAR
+                                    ) ||
+                                      abhavalue ||
+                                      "Not found"}
+                                  </p>
+                                  <button
+                                    onClick={handleEditAadhaar}
+                                    className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                  >
+                                    <PencilIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div
+                            className={`flex flex-row justify-start items-center gap-4 ${
+                              width < 700 ? "w-full" : "w-1/2"
+                            }`}
+                          >
+                            <div className="flex flex-row gap-4 w-full">
+                              <p className="text-black text-lg font-bold w-1/2">
+                                ABHA
+                              </p>
+                              {isEditingABHA ? (
+                                <div className="flex w-3/4 gap-2 items-center">
+                                  <input
+                                    className="border flex-1 bg-gray-100 text-black p-1 rounded-md text-sm"
+                                    value={tempabha}
+                                    onChange={(e) =>
+                                      setTempabha(e.target.value)
+                                    }
+                                  />
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={handleSaveABHA}
+                                      className="text-green-600 text-xs cursor-pointer"
+                                    >
+                                      <ClipboardDocumentCheckIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={handleCancelABHA}
+                                      className="text-red-600 text-xs cursor-pointer"
+                                    >
+                                      <XMarkIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex w-1/2 justify-between items-center">
+                                  <p className="text-black text-lg font-medium break-words w-full">
+                                    {formatMaskedID(profpat?.idproof?.ABHA) ||
+                                      abhavalue ||
+                                      "Not found"}
+                                  </p>
+                                  <button
+                                    onClick={handleEditABHA}
+                                    className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                  >
+                                    <PencilIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        className={`w-full flex  gap-4 ${
+                          width < 700 ? "flex-col" : "flex-row"
+                        }`}
+                      >
+                        <div
+                          className={`flex flex-col justify-start items-center gap-2 ${
+                            width < 700 ? "w-full" : "w-2/5"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-4 w-full">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              HEIGHT
+                            </p>
+                            <p className="text-black text-lg font-semibol w-1/2">
+                              {profpat.height || "Not found"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div
+                          className={` flex flex-col justify-start items-center gap-2 ${
+                            width < 700 ? "w-full" : "w-2/5"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-4 w-full">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              WEIGHT
+                            </p>
+                            <p className="text-black text-lg font-semibol w-1/2">
+                              {profpat.weight || "Not found"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div
+                          className={`flex flex-col justify-start items-center gap-2 ${
+                            width < 700 ? "w-full" : "w-1/5"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-4 w-full">
+                            <p className="text-black text-lg font-bold w-1/2">
+                              BMI
+                            </p>
+                            <p className="text-black text-lg font-semibol w-1/2">
+                              {profpat.bmi || "Not found"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Firstimepassreset
         passopen={passopen}
